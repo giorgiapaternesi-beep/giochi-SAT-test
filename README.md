@@ -98,7 +98,7 @@ eliminare quando nessun QR o link li usa più.
   | Puzzle della Terra | 12 pezzi | 20 pezzi | 30 pezzi |
   | SAT-Doku | 4×4, suggerimenti | 5×5, suggerimenti | 5×5, senza suggerimenti |
   | Parole in orbita | 4×4, 120 s | 4×4, 90 s | 5×5, 120 s |
-  | Prato stellato | campo 8×8, 10 detriti | 12×9, 18 detriti | 16×10, 30 detriti |
+  | Prato stellato | campo 8×8, 10 satelliti | 12×9, 18 satelliti | 16×10, 30 satelliti |
 
 - **Retro delle carte del Memory** (`memory.retro`): oggi è un segnaposto,
   `assets/memory/retro.svg`. Per cambiarlo basta sostituire il file (stesso
@@ -119,21 +119,28 @@ eliminare quando nessun QR o link li usa più.
 
 ## Prato stellato
 
-Il gioco dei detriti spaziali: *non tutto quello che luccica è una stella*.
-Si scoprono le caselle del cielo; i numeri dicono quanti detriti ci sono
-nelle 8 caselle intorno; i detriti si segnalano con il mirino. La prima
-casella scoperta è sempre sicura. Si gioca anche da telefono: si tocca per
-scoprire, si tiene premuto (o si usa il pulsante *Segnala*) per segnalare;
-sul telefono in verticale il campo si gira per avere caselle più grandi.
+*Non tutto quello che luccica è una stella*: tra le stelle si nascondono dei
+satelliti. Si scoprono le caselle del cielo; i numeri dicono quanti satelliti
+ci sono nelle 8 caselle intorno; dove si pensa che ci sia un satellite si mette
+una stella. La prima casella scoperta è sempre sicura. Quando si trovano tutti,
+le stelle volano via e al loro posto compaiono i satelliti.
+
+- **Telefono**: si tocca per scoprire, si tiene premuto (o si usa il pulsante
+  *Segnala*) per mettere una stella; in verticale il campo si gira per avere
+  caselle più grandi. **PC**: clic destro per la stella, frecce e tasto F.
+- **Aiuto**: se dai numeri si può capire una casella sicura, il gioco la
+  indica (e invita a guardare i numeri intorno); se invece si potrebbe solo
+  tirare a indovinare, scopre lui una casella sicura. Gli aiuti usati sono
+  scritti nel risultato.
 
 È diviso in tre file, ognuno con un solo compito:
 
-- `campo.js`: le regole, senza nessun legame con la pagina (si possono
-  provare da sole);
+- `campo.js`: le regole e l'aiuto, senza nessun legame con la pagina (si
+  possono provare da sole);
 - `gioco.js`: disegno del campo, tocchi, clic, tastiera, tempo, esito;
 - `stile.css`: l'aspetto.
 
-La difficoltà cambia la grandezza del campo e il numero di detriti
+La difficoltà cambia la grandezza del campo e il numero di satelliti
 (`livelli` → `"prato-stellato"` in `config.js`).
 
 ## Domande del Quizzone

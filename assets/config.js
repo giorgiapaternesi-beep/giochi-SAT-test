@@ -86,10 +86,10 @@ window.GIOCHISAT_CONFIG = Object.freeze({
       media:     { griglia: "base",     secondi: 90,  descrizione: "Griglia 4×4, 90 secondi" },
       difficile: { griglia: "advanced", secondi: 120, descrizione: "Griglia 5×5, 120 secondi" }
     },
-    "prato-stellato": {               // campo colonne × righe e detriti nascosti (sul telefono in verticale il campo si gira)
-      facile:    { colonne: 8,  righe: 8,  detriti: 10, descrizione: "Campo 8×8, 10 detriti" },
-      media:     { colonne: 12, righe: 9,  detriti: 18, descrizione: "Campo 12×9, 18 detriti" },
-      difficile: { colonne: 16, righe: 10, detriti: 30, descrizione: "Campo 16×10, 30 detriti" }
+    "prato-stellato": {               // campo colonne × righe e satelliti nascosti (sul telefono in verticale il campo si gira)
+      facile:    { colonne: 8,  righe: 8,  satelliti: 10, descrizione: "Campo 8×8, 10 satelliti" },
+      media:     { colonne: 12, righe: 9,  satelliti: 18, descrizione: "Campo 12×9, 18 satelliti" },
+      difficile: { colonne: 16, righe: 10, satelliti: 30, descrizione: "Campo 16×10, 30 satelliti" }
     }
   },
   difficoltaPredefinita: "media",

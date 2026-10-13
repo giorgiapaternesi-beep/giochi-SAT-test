@@ -10,12 +10,12 @@
 <script src="../assets/game-stats.js" defer></script>
 <link rel="stylesheet" href="stile.css">
 <!--
-  Prato stellato: nel cielo si nascondono detriti spaziali che luccicano
-  come stelle. File del gioco:
+  Prato stellato: tra le stelle si nascondono dei satelliti, che luccicano
+  ma non sono stelle. File del gioco:
     campo.js   regole (nessun legame con la pagina)
     gioco.js   disegno del campo, tocchi, clic, tastiera, tempo ed esito
     stile.css  aspetto del gioco
-  Dimensioni del campo e numero di detriti per ogni difficoltà:
+  Dimensioni del campo e numero di satelliti per ogni difficoltà:
   assets/config.js → livelli → "prato-stellato".
 -->
 </head>
@@ -30,15 +30,18 @@
 <main class="ps">
   <section class="ps-scheda" aria-label="Campo di gioco">
     <div class="ps-stato">
-      <span class="ps-dato" title="Detriti ancora da segnalare">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ps-icona-detrito"/></svg><b id="rimasti">0</b><span class="gs-sr"> detriti da segnalare</span>
+      <span class="ps-dato" title="Satelliti ancora da trovare">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ps-icona-satellite"/></svg><b id="rimasti">0</b><span class="gs-sr"> satelliti da trovare</span>
       </span>
       <span class="ps-dato" title="Tempo">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/></svg><b id="tempo">00:00</b>
       </span>
       <span class="ps-spazio"></span>
-      <button class="ps-pulsante" id="modo" type="button" aria-pressed="false" title="Quando è attivo, toccare una casella la segnala come detrito">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ps-icona-mirino"/></svg><span>Segnala</span>
+      <button class="ps-pulsante ps-pulsante-stella" id="modo" type="button" aria-pressed="false" title="Quando è attivo, toccare una casella ci mette una stella">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ps-icona-stella"/></svg><span>Segnala</span>
+      </button>
+      <button class="ps-pulsante" id="aiuto" type="button" title="Chiedi aiuto: una casella sicura">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.8"/><path d="M12 17h.01"/></svg><span class="ps-solo-grande">Aiuto</span>
       </button>
       <button class="ps-pulsante" id="nuova" type="button" data-gs-esercitazione title="Nuova partita">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg><span class="ps-solo-grande">Nuova</span>
@@ -50,36 +53,38 @@
       <figcaption class="ps-didascalia">Non tutto quello che luccica è una stella</figcaption>
     </figure>
 
-    <p class="ps-aiuto">Tocca una casella per scoprirla: il numero dice quanti detriti ci sono nelle caselle intorno.
-      Per segnalare un detrito tieni premuto, usa il clic destro o il pulsante <b>Segnala</b>.</p>
+    <p class="ps-aiuto">Tra le stelle si nascondono dei satelliti. Tocca una casella per scoprirla: il numero dice quanti
+      satelliti ci sono nelle caselle intorno. Dove pensi che ci sia un satellite metti una stella: tieni premuto,
+      usa il clic destro o il pulsante <b>Segnala</b>. Se non sai più dove andare, chiedi <b>Aiuto</b>.</p>
   </section>
 
   <section class="ps-scheda ps-esito" id="esito" aria-live="polite" hidden>
     <h2 id="esito-titolo"></h2>
     <p id="esito-testo"></p>
-    <p class="ps-curiosita"><b>Lo sapevi?</b> Intorno alla Terra girano milioni di pezzi di vecchi satelliti e razzi.
-      I più grandi riflettono la luce del Sole e, poco dopo il tramonto, sembrano stelline che si muovono.
-      Le agenzie spaziali li seguono per proteggere i satelliti che usiamo ogni giorno.</p>
+    <p class="ps-curiosita"><b>Lo sapevi?</b> Dopo il tramonto puoi vedere dei puntini luminosi che attraversano il cielo
+      in pochi minuti, senza lampeggiare: sono satelliti. Lassù sono ancora illuminati dal Sole, anche se per noi è già
+      buio. Molti osservano la Terra e ci aiutano a proteggere l'ambiente.</p>
     <button class="gs-btn" id="ancora" type="button" data-gs-esercitazione>Nuova partita</button>
   </section>
 </main>
+<p class="ps-avviso" id="avviso" role="status" hidden></p>
 
 <!-- icone usate dal gioco (richiamate con <use>) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="ps-icona-detrito" viewBox="0 0 24 24">
-    <!-- pezzo di pannello solare spezzato, con un luccichio -->
-    <g transform="rotate(-20 12 12)">
-      <rect x="3" y="8" width="12" height="8" rx="1" fill="#5CC8FF"/>
-      <path d="M7 8v8M11 8v8M3 12h12" stroke="#1D2462" stroke-width="1.2"/>
-      <path d="M15 9l3-1 1.5 3-2 1 1.8 3.2L15 16z" fill="#D9DCF2"/>
+  <symbol id="ps-icona-satellite" viewBox="0 0 24 24">
+    <g transform="rotate(-30 12 12)">
+      <rect x="1" y="8.5" width="7.5" height="7" rx=".8" fill="#5CC8FF"/>
+      <rect x="15.5" y="8.5" width="7.5" height="7" rx=".8" fill="#5CC8FF"/>
+      <path d="M4.75 8.5v7M19.25 8.5v7" stroke="#1D2462" stroke-width="1.1"/>
+      <path d="M8.5 12h7" stroke="#D9DCF2" stroke-width="1.4"/>
+      <rect x="9" y="7.8" width="6" height="8.4" rx="1.3" fill="#FFC93C"/>
+      <path d="M12 7.8V5.2" stroke="#D9DCF2" stroke-width="1.3" stroke-linecap="round"/>
+      <circle cx="12" cy="4.6" r="1.3" fill="#D9DCF2"/>
     </g>
-    <path d="M19 1.8l.9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9z" fill="#FFF6D8"/>
   </symbol>
-  <symbol id="ps-icona-mirino" viewBox="0 0 24 24">
-    <g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-      <circle cx="12" cy="12" r="6.5"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/>
-    </g>
-    <circle cx="12" cy="12" r="1.8" fill="currentColor"/>
+  <symbol id="ps-icona-stella" viewBox="0 0 24 24">
+    <path d="M12 2.8l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.6l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"
+          fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
   </symbol>
 </svg>
 

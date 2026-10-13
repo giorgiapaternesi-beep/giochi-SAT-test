@@ -1,49 +1,55 @@
 /* =====================================================================
    Prato stellato – interfaccia
-   Disegna il campo e gestisce tocchi, clic, tastiera, tempo ed esito.
-   Le regole sono in campo.js; dimensioni del campo e detriti per ogni
-   difficoltà in assets/config.js (livelli → "prato-stellato").
+   Disegna il campo e gestisce tocchi, clic, tastiera, aiuto, tempo ed
+   esito. Le regole sono in campo.js; dimensioni del campo e satelliti per
+   ogni difficoltà in assets/config.js (livelli → "prato-stellato").
 
    Comandi
      tocco / clic / Invio      scopre la casella (su un numero: scopre le
-                               vicine se i suoi detriti sono già segnalati)
-     pressione lunga / clic destro / tasto F   segnala un detrito
-     pulsante "Segnala"        il tocco segnala invece di scoprire
+                               vicine se i suoi satelliti hanno già la stella)
+     pressione lunga / clic destro / tasto F   mette o toglie una stella
+     pulsante "Segnala"        il tocco mette stelle invece di scoprire
+     pulsante "Aiuto"          indica una casella sicura
      frecce                    si muove tra le caselle
    ===================================================================== */
 (function () {
   "use strict";
 
   const ID = "prato-stellato";
-  const { Campo, COPERTA, SCOPERTA, SEGNATA } = window.PratoStellato;
-  const LIVELLO = GiochiSAT.difficolta.parametri(ID) || { colonne: 12, righe: 9, detriti: 18 };
+  const { Campo, SCOPERTA, SEGNATA } = window.PratoStellato;
+  const LIVELLO = GiochiSAT.difficolta.parametri(ID) || { colonne: 12, righe: 9, satelliti: 18 };
 
-  const PRESSIONE_LUNGA = 400;          // millisecondi per segnalare tenendo premuto
+  const PRESSIONE_LUNGA = 400;          // millisecondi per mettere una stella tenendo premuto
   const CELLA_MIN = 30, CELLA_MAX = 44; // lato delle caselle in pixel (sotto i 30 il dito non ci sta)
   const LUCCICHIO = 0.12;               // quota di caselle coperte che brillano (solo decorazione)
+  const ONDA = 70, ONDA_MAX = 1400;     // vittoria: ritardo dell'animazione per casella di distanza (ms)
 
-  const ICONA = (id) => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ps-icona-${id}"/></svg>`;
+  const ICONA = (id, classe = "") => `<svg class="${classe}" viewBox="0 0 24 24" aria-hidden="true"><use href="#ps-icona-${id}"/></svg>`;
   const $ = (id) => document.getElementById(id);
   const campoEl = $("campo");
 
   let campo = null;                     // partita in corso (campo.js)
   let celle = [];                       // pulsanti delle caselle
   let attiva = 0;                       // casella raggiungibile con il tasto Tab
+  let ultima = 0;                       // ultima casella toccata (da lì parte l'onda finale)
   let modoSegna = false;
+  let aiuti = 0;
   let inizio = 0, orologio = null;
 
   /* ---------- Partita ---------------------------------------------- */
   function nuovaPartita() {
     fermaTempo();
     inizio = 0;
+    aiuti = 0;
     // sul telefono in verticale il campo si gira, così le caselle restano grandi
     const verticale = innerHeight > innerWidth;
     const [colonne, righe] = verticale && LIVELLO.colonne > LIVELLO.righe
       ? [LIVELLO.righe, LIVELLO.colonne] : [LIVELLO.colonne, LIVELLO.righe];
-    campo = new Campo(colonne, righe, LIVELLO.detriti);
+    campo = new Campo(colonne, righe, LIVELLO.satelliti);
     costruisci();
     $("tempo").textContent = formatta(0);
     $("esito").hidden = true;
+    $("aiuto").disabled = false;
     campoEl.classList.remove("ps-finito");
     aggiornaContatore();
     dimensiona();
@@ -68,6 +74,7 @@
     });
     campoEl.replaceChildren(frammento);
     attiva = 0;
+    ultima = 0;
     celle.forEach((_, i) => disegna(i));
   }
 
@@ -75,26 +82,27 @@
   function disegna(i) {
     const c = campo.celle[i], el = celle[i];
     const perso = campo.esito === "perso";
-    const mostraDetrito = c.detrito && (c.stato === SCOPERTA || (perso && c.stato !== SEGNATA));
-    const sbagliata = perso && c.stato === SEGNATA && !c.detrito;
-    el.classList.toggle("ps-scoperta", c.stato === SCOPERTA || mostraDetrito);
+    const mostraSatellite = c.satellite && (c.stato === SCOPERTA || (perso && c.stato !== SEGNATA));
+    const sbagliata = perso && c.stato === SEGNATA && !c.satellite;
+    el.classList.toggle("ps-scoperta", c.stato === SCOPERTA || mostraSatellite);
     el.classList.toggle("ps-segnata", c.stato === SEGNATA);
     el.classList.toggle("ps-colpita", i === campo.colpita);
     el.classList.toggle("ps-sbagliata", sbagliata);
-    el.dataset.n = c.stato === SCOPERTA && !c.detrito && c.vicini ? c.vicini : "";
+    el.dataset.n = c.stato === SCOPERTA && !c.satellite && c.vicini ? c.vicini : "";
 
     let descrizione;
-    if (mostraDetrito) { el.innerHTML = ICONA("detrito"); descrizione = "detrito spaziale"; }
-    else if (c.stato === SEGNATA) { el.innerHTML = ICONA("mirino"); descrizione = sbagliata ? "segnalata, ma non era un detrito" : "segnalata come detrito"; }
+    if (mostraSatellite) { el.innerHTML = ICONA("satellite"); descrizione = "satellite"; }
+    else if (c.stato === SEGNATA) { el.innerHTML = ICONA("stella"); descrizione = sbagliata ? "stella, ma non c'era un satellite" : "stella"; }
     else if (c.stato === SCOPERTA) {
       el.textContent = c.vicini || "";
-      descrizione = c.vicini ? `${c.vicini} ${c.vicini === 1 ? "detrito" : "detriti"} intorno` : "vuota";
+      descrizione = c.vicini ? `${c.vicini} ${c.vicini === 1 ? "satellite" : "satelliti"} intorno` : "vuota";
     } else { el.textContent = ""; descrizione = "coperta"; }
     el.setAttribute("aria-label", `Riga ${campo.riga(i) + 1}, colonna ${campo.colonna(i) + 1}: ${descrizione}`);
   }
 
   /* ---------- Azioni ------------------------------------------------ */
   function azione(i) {
+    ultima = i;
     const c = campo.celle[i];
     if (c.stato === SCOPERTA) applica(campo.accorda(i));
     else if (modoSegna) segna(i);
@@ -102,6 +110,7 @@
   }
 
   function segna(i) {
+    ultima = i;
     if (applica(campo.segna(i)).length && navigator.vibrate) navigator.vibrate(25);
   }
 
@@ -116,6 +125,46 @@
   }
 
   function aggiornaContatore() { $("rimasti").textContent = campo.rimasti; }
+
+  /* ---------- Aiuto -------------------------------------------------
+     Se dai numeri si può capire una casella sicura, la indica (senza
+     scoprirla); se si potrebbe solo tirare a indovinare, la scopre.   */
+  function chiediAiuto() {
+    if (campo.finito) return;
+    if (!campo.piazzati) { avvisa("Tocca una casella qualsiasi: la prima è sempre sicura."); return; }
+    const consiglio = campo.suggerisci();
+    if (!consiglio) return;
+    aiuti++;
+    const i = consiglio.i;
+    evidenzia(i);
+    if (consiglio.certa) {
+      avvisa("Questa casella è sicura: guarda i numeri qui intorno per capire perché.");
+      return;
+    }
+    if (campo.celle[i].stato === SEGNATA) applica(campo.segna(i));   // c'era una stella al posto sbagliato
+    ultima = i;
+    avvisa("Qui si poteva solo tirare a indovinare: ti scopro io una casella sicura.");
+    applica(campo.scopri(i));
+  }
+
+  function evidenzia(i) {
+    const el = celle[i];
+    el.classList.remove("ps-suggerita");
+    void el.offsetWidth;                                         // fa ripartire l'animazione
+    el.classList.add("ps-suggerita");
+    el.scrollIntoView({ block: "nearest", inline: "nearest" });
+    sposta(i, false);
+    setTimeout(() => el.classList.remove("ps-suggerita"), 2600);
+  }
+
+  let timerAvviso = null;
+  function avvisa(testo) {
+    const el = $("avviso");
+    el.textContent = testo;
+    el.hidden = false;
+    clearTimeout(timerAvviso);
+    timerAvviso = setTimeout(() => { el.hidden = true; }, 3600);
+  }
 
   /* ---------- Tempo ------------------------------------------------- */
   function formatta(ms) {
@@ -138,19 +187,45 @@
     const ms = fermaTempo();
     const vinto = campo.esito === "vinto";
     $("tempo").textContent = formatta(ms);
+    $("aiuto").disabled = true;
     campoEl.classList.add("ps-finito");
-    if (!vinto) campo.celle.forEach((c, i) => { if (c.detrito || c.stato === SEGNATA) disegna(i); });   // mostra dove erano
 
+    let durata = 0;
+    if (vinto) durata = svelaSatelliti();
+    else campo.celle.forEach((c, i) => { if (c.satellite || c.stato === SEGNATA) disegna(i); });   // mostra dove erano
+
+    const conAiuti = aiuti ? ` con ${aiuti} ${aiuti === 1 ? "aiuto" : "aiuti"}` : "";
     $("esito").className = "ps-scheda ps-esito " + (vinto ? "ps-vinto" : "ps-perso");
-    $("esito-titolo").textContent = vinto ? "Cielo mappato!" : "Ops! Era un detrito spaziale";
+    $("esito-titolo").textContent = vinto ? "Cielo mappato!" : "Ops! Era un satellite";
     $("esito-testo").textContent = vinto
-      ? `Hai trovato tutti i ${campo.detriti} detriti in ${formatta(ms)}.`
+      ? `Hai trovato tutti i ${campo.satelliti} satelliti in ${formatta(ms)}${conAiuti}.`
       : "Quella luce non era una stella. Riprova: la prima casella che scopri è sempre sicura.";
-    $("esito").hidden = false;
-    $("esito").scrollIntoView({ behavior: GiochiSAT.movimentoRidotto ? "auto" : "smooth", block: "nearest" });
 
+    // l'esito compare dopo l'animazione, così si vedono i satelliti spuntare
+    setTimeout(() => {
+      $("esito").hidden = false;
+      $("esito").scrollIntoView({ behavior: GiochiSAT.movimentoRidotto ? "auto" : "smooth", block: "nearest" });
+    }, durata);
     // nella sfida: vinto → prossimo gioco; perso → Riprova o Salta (dopo aver visto il campo)
-    GiochiSAT.fineGioco(ID, vinto ? { punti: ms } : { completato: false, ritardo: 900 });
+    GiochiSAT.fineGioco(ID, vinto ? { punti: ms, ritardo: durata + 400 } : { completato: false, ritardo: 900 });
+  }
+
+  /* Vittoria: le stelle volano via e al loro posto compaiono i satelliti,
+     a onda a partire dall'ultima casella toccata. Restituisce la durata (ms). */
+  function svelaSatelliti() {
+    let massimo = 0;
+    campo.celle.forEach((c, i) => {
+      if (!c.satellite) return;
+      const distanza = Math.hypot(campo.riga(i) - campo.riga(ultima), campo.colonna(i) - campo.colonna(ultima));
+      const ritardo = GiochiSAT.movimentoRidotto ? 0 : Math.min(ONDA_MAX, Math.round(distanza * ONDA));
+      massimo = Math.max(massimo, ritardo);
+      const el = celle[i];
+      el.style.setProperty("--onda", ritardo + "ms");
+      el.innerHTML = ICONA("stella", "ps-se-ne-va") + ICONA("satellite", "ps-arriva");
+      el.classList.add("ps-svelata");
+      el.setAttribute("aria-label", `Riga ${campo.riga(i) + 1}, colonna ${campo.colonna(i) + 1}: satellite trovato`);
+    });
+    return GiochiSAT.movimentoRidotto ? 0 : massimo + 900;
   }
 
   /* ---------- Dimensione delle caselle ------------------------------
@@ -188,7 +263,7 @@
     ultimoPuntatore = e.pointerType;
     ignoraClic = false;
     const i = cellaDa(e);
-    if (i < 0 || e.pointerType === "mouse") return;            // col mouse si segnala con il tasto destro
+    if (i < 0 || e.pointerType === "mouse") return;            // col mouse le stelle si mettono con il tasto destro
     pressione = {
       x: e.clientX, y: e.clientY,
       timer: setTimeout(() => { pressione = null; ignoraClic = true; segna(i); }, PRESSIONE_LUNGA)
@@ -243,6 +318,7 @@
     $("modo").setAttribute("aria-pressed", String(modoSegna));
     campoEl.classList.toggle("ps-modo-segna", modoSegna);
   });
+  $("aiuto").addEventListener("click", chiediAiuto);
   $("nuova").addEventListener("click", nuovaPartita);
   $("ancora").addEventListener("click", () => { nuovaPartita(); window.scrollTo({ top: 0 }); });
   addEventListener("resize", dimensiona);
