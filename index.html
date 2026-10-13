@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Giochi SAT – ARPA Lazio</title>
+  <meta name="description" content="Giochi per scoprire come i satelliti osservano la Terra e l'ambiente. ARPA Lazio, Servizio Attività Produttive e Controlli.">
+  <meta name="theme-color" content="#090B2A">
+  <link rel="icon" href="assets/logo-arpa-lazio.jpg">
+  <link rel="preload" href="assets/fonts/poppins-bold.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="assets/css/giochisat.css">
+  <script src="assets/config.js"></script>
+  <script src="assets/js/giochisat.js"></script>
+  <style>
+    body.gs{display:flex;flex-direction:column;overflow-x:hidden}
+    .h-ente{display:flex;align-items:center;gap:12px;width:min(100%,680px);margin:0 auto;padding:max(16px,env(safe-area-inset-top)) var(--gs-margine) 0}
+    .h-ente img{width:52px;height:52px;object-fit:contain;border-radius:12px;background:#fff;padding:3px}
+    .h-ente span{flex:1;padding:10px 16px;border-radius:14px;background:var(--gs-vetro);border:1px solid var(--gs-bordo);font-weight:600;font-size:15px}
+    .h-ente .gs-nome{flex:none}
+
+    .h-main{position:relative;z-index:2;width:min(100%,680px);margin:0 auto;padding:22px var(--gs-margine) 8px;display:grid;gap:18px}
+    .h-intro{text-align:center;padding:22px 24px}
+    .h-intro h1{margin:0;font-size:clamp(30px,6vw,44px);letter-spacing:-.01em}
+    .h-intro h1 span{color:var(--gs-giallo)}
+    .h-intro p{margin:8px auto 0;max-width:36ch;font-size:17px;color:var(--gs-testo-2)}
+
+    /* voci cliccabili, con la stellina che indica dove toccare */
+    .h-voce{position:relative;display:block;margin-left:34px;text-decoration:none;color:var(--gs-testo)!important}
+    .h-voce h2{color:var(--gs-testo)}
+    .h-voce .gs-scheda{text-align:center;transition:transform .12s,border-color .12s}
+    .h-voce h2{margin:0;font-size:22px}
+    .h-voce p{margin:6px 0 0;color:var(--gs-testo-2)}
+    a.h-voce:hover .gs-scheda{transform:translateY(-2px);border-color:var(--gs-giallo)}
+    a.h-voce:focus-visible{outline:none}
+    a.h-voce:focus-visible .gs-scheda{outline:3px solid var(--gs-giallo);outline-offset:3px}
+    .h-stellina{position:absolute;left:-36px;top:50%;width:28px;height:28px;margin-top:-14px;color:#FFF6D8;
+      animation:h-brilla 2.8s ease-in-out infinite}
+    .h-stellina svg{display:block;width:100%;height:100%;overflow:visible}
+    @keyframes h-brilla{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.84)}}
+    .h-esercitati{margin-left:34px;text-align:center}
+    .h-scelte{display:grid;grid-template-columns:1fr 1fr;gap:14px 44px;margin-left:34px}
+    .h-scelta{position:relative;display:flex;align-items:center;justify-content:center;min-height:58px;padding:10px 16px;border-radius:18px;
+      background:var(--gs-vetro);border:1px solid var(--gs-bordo);color:var(--gs-testo);text-decoration:none;font:700 18px var(--gs-titoli-font);
+      box-shadow:var(--gs-ombra);transition:transform .12s,border-color .12s}
+    .h-scelta:hover{transform:translateY(-2px);border-color:var(--gs-giallo)}
+    .h-scelta .h-stellina{left:-34px;width:24px;height:24px;margin-top:-12px;animation-delay:-1.1s}
+    .h-scelta + .h-scelta .h-stellina{animation-delay:-2s}
+    .h-voce:nth-of-type(2) .h-stellina{animation-delay:-.6s}
+
+    .h-in-corso{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:14px 18px;border-radius:18px;
+      background:rgb(255 201 60 / .14);border:1px solid rgb(255 201 60 / .45)}
+    .h-in-corso p{margin:0;flex:1;min-width:200px}
+    .h-in-corso .gs-btn{min-height:44px;padding:8px 18px;font-size:15px}
+
+    /* la Terra in basso, sempre visibile dietro ai contenuti */
+    .h-main{padding-bottom:clamp(150px,26vh,300px)}
+    .h-terra{--d:max(165vw,1000px);position:fixed;left:0;right:0;bottom:0;height:clamp(210px,34vh,380px);z-index:0;overflow-x:clip;overflow-y:visible;pointer-events:none}
+    .h-alone{position:absolute;left:50%;top:6%;width:calc(var(--d) * 1.22);aspect-ratio:1;translate:-50% 0;border-radius:50%;
+      background:radial-gradient(closest-side,rgb(92 160 255 / .20) 93%,rgb(92 160 255 / .05) 98%,transparent 100%)}
+    .h-orbita{position:absolute;left:50%;top:calc(32% - 64px);width:calc(var(--d) + 128px);aspect-ratio:1;translate:-50% 0;border-radius:50%;
+      border:2px dashed rgb(255 255 255 / .22);animation:h-orbita 75s linear infinite;will-change:transform}
+    .h-sat{position:absolute;left:50%;top:50%;width:76px;height:52px;margin:-26px 0 0 -38px;transform:rotate(var(--a)) translateY(calc(var(--d) / -2 - 64px))}
+    @keyframes h-orbita{from{transform:rotate(-14deg)}to{transform:rotate(346deg)}}
+    .h-pianeta{position:absolute;left:50%;top:32%;width:var(--d);aspect-ratio:1;translate:-50% 0;border-radius:50%;overflow:hidden;
+      background:#2F7BEA;box-shadow:0 0 0 10px rgb(120 190 255 / .16),0 0 70px 24px rgb(92 160 255 / .22)}
+    .h-mappa{position:absolute;top:0;left:0;height:clamp(260px,42vh,470px);display:flex;animation:h-gira 300s linear infinite;will-change:transform}
+    .h-mappa img{height:100%;width:auto;flex:none;display:block}
+    @keyframes h-gira{to{transform:translateX(-50%)}}
+    .h-ombra{position:absolute;inset:0;border-radius:50%;
+      background:radial-gradient(circle at 40% 6%,rgb(255 255 255 / .2),transparent 20%),
+                 radial-gradient(circle at 50% 50%,transparent 64%,rgb(10 10 50 / .3) 72%)}
+    .h-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+    @media (min-width:900px){
+      .h-main{padding-top:30px}
+    }
+    @media (max-width:420px){
+      .h-voce,.h-esercitati,.h-scelte{margin-left:28px}
+      .h-scelte{gap:12px 36px}
+      .h-scelta{font-size:16px}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .h-stellina,.h-mappa,.h-orbita{animation:none}
+    }
+  </style>
+</head>
+<body class="gs gs-pagina-home">
+
+  <header class="h-ente">
+    <img src="assets/logo-arpa-lazio.jpg" alt="ARPA Lazio">
+    <span>Servizio Attività Produttive e Controlli</span>
+  </header>
+
+  <main class="h-main">
+    <section class="gs-scheda h-intro">
+      <h1>Giochi <span>SAT</span></h1>
+      <p>Scegli un gioco e scopri come i satelliti aiutano a osservare la Terra e l'ambiente.</p>
+    </section>
+
+    <div class="h-in-corso gs-nascosto" id="in-corso" role="status">
+      <p id="in-corso-testo">Hai una sfida in corso.</p>
+      <button type="button" class="gs-btn" id="riprendi">Riprendi</button>
+      <button type="button" class="gs-btn gs-secondario" id="abbandona">Abbandona</button>
+    </div>
+
+    <a class="h-voce" href="sfida/">
+      <span class="h-stellina" aria-hidden="true"><svg viewBox="-12 -12 24 24"><circle r="10" fill="currentColor" opacity=".18"/><path d="M0-12C.9-3.4 3.4-.9 12 0 3.4.9.9 3.4 0 12-.9 3.4-3.4.9-12 0-3.4-.9-.9-3.4 0-12Z" fill="currentColor"/></svg></span>
+      <div class="gs-scheda">
+        <h2>Modalità sfida</h2>
+        <p id="testo-sfida">Scegli la difficoltà e affronta una serie di giochi estratti a caso. Se li finisci in tempo, ottieni una ricompensa.</p>
+      </div>
+    </a>
+
+    <section class="gs-scheda h-esercitati h-voce" aria-labelledby="titolo-esercitati">
+      <h2 id="titolo-esercitati">Esercitati</h2>
+      <p>Allenati nei singoli giochi che trovi in modalità sfida o prova gli esclusivi giochi multiplayer.</p>
+    </section>
+
+    <nav class="h-scelte" aria-label="Esercitazione">
+      <a class="h-scelta" href="esercitazione/singleplayer/">
+        <span class="h-stellina" aria-hidden="true"><svg viewBox="-12 -12 24 24"><circle r="10" fill="currentColor" opacity=".18"/><path d="M0-12C.9-3.4 3.4-.9 12 0 3.4.9.9 3.4 0 12-.9 3.4-3.4.9-12 0-3.4-.9-.9-3.4 0-12Z" fill="currentColor"/></svg></span>
+        Singleplayer
+      </a>
+      <a class="h-scelta" href="esercitazione/multiplayer/">
+        <span class="h-stellina" aria-hidden="true"><svg viewBox="-12 -12 24 24"><circle r="10" fill="currentColor" opacity=".18"/><path d="M0-12C.9-3.4 3.4-.9 12 0 3.4.9.9 3.4 0 12-.9 3.4-3.4.9-12 0-3.4-.9-.9-3.4 0-12Z" fill="currentColor"/></svg></span>
+        Multiplayer
+      </a>
+    </nav>
+  </main>
+
+  <!-- La Terra: mappa che scorre lentamente dentro un cerchio.
+       Per usare un video al suo posto vedi "terraVideo" in assets/config.js -->
+  <div class="h-terra" aria-hidden="true">
+    <div class="h-alone"></div>
+    <div class="h-orbita">
+      <svg class="h-sat" style="--a:0deg" viewBox="-38 -26 76 52">
+        <rect x="-36" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/><rect x="13" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/>
+        <path d="M-28-7v14M-21-7v14M21-7v14M28-7v14" stroke="#3448C8" stroke-width="1.6"/>
+        <rect x="-13" y="-1.4" width="26" height="2.8" fill="#C9CFF5"/>
+        <rect x="-10" y="-12" width="20" height="24" rx="4" fill="#FFB238"/>
+        <rect x="0" y="-12" width="10" height="24" fill="#000" opacity=".15"/>
+        <circle cy="16" r="4.5" fill="#E9ECFF"/>
+      </svg>
+      <svg class="h-sat" style="--a:120deg" viewBox="-38 -26 76 52">
+        <rect x="-36" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/><rect x="13" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/>
+        <path d="M-28-7v14M-21-7v14M21-7v14M28-7v14" stroke="#3448C8" stroke-width="1.6"/>
+        <rect x="-13" y="-1.4" width="26" height="2.8" fill="#C9CFF5"/>
+        <rect x="-10" y="-12" width="20" height="24" rx="4" fill="#2ED3A0"/>
+        <rect x="0" y="-12" width="10" height="24" fill="#000" opacity=".15"/>
+        <circle cy="16" r="4.5" fill="#E9ECFF"/>
+      </svg>
+      <svg class="h-sat" style="--a:240deg" viewBox="-38 -26 76 52">
+        <rect x="-36" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/><rect x="13" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/>
+        <path d="M-28-7v14M-21-7v14M21-7v14M28-7v14" stroke="#3448C8" stroke-width="1.6"/>
+        <rect x="-13" y="-1.4" width="26" height="2.8" fill="#C9CFF5"/>
+        <rect x="-10" y="-12" width="20" height="24" rx="4" fill="#FF5C8A"/>
+        <rect x="0" y="-12" width="10" height="24" fill="#000" opacity=".15"/>
+        <circle cy="16" r="4.5" fill="#E9ECFF"/>
+      </svg>
+    </div>
+    <div class="h-pianeta" id="pianeta">
+      <div class="h-mappa"><img src="assets/terra/mappa.svg" alt=""><img src="assets/terra/mappa.svg" alt=""></div>
+      <div class="h-ombra"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var C = window.GIOCHISAT_CONFIG || {}, G = window.GiochiSAT;
+
+      /* testo della sfida con il numero di giochi da config.js */
+      var d = C.sfida && C.sfida.difficolta, n = d ? Math.max.apply(null, Object.keys(d).map(function (k) { return d[k].giochi; })) : 0;
+      if (n) document.getElementById("testo-sfida").textContent =
+        "Scegli la difficoltà e gioca a " + n + " giochi estratti a caso. Se li finisci in tempo, ottieni una ricompensa.";
+
+      /* sfida lasciata a metà */
+      var s = G.sfida.stato();
+      if (s && s.stato === "in_corso") {
+        document.getElementById("in-corso").classList.remove("gs-nascosto");
+        document.getElementById("in-corso-testo").textContent =
+          "Hai una sfida in corso: gioco " + (s.indice + 1) + " di " + s.giochi.length + ", tempo rimasto " + G.mmss(s.scadenza - Date.now()) + ".";
+        document.getElementById("riprendi").addEventListener("click", G.sfida.riprendi);
+        document.getElementById("abbandona").addEventListener("click", G.sfida.abbandona);
+      }
+
+      /* video della Terra, se configurato */
+      if (C.terraVideo) {
+        var v = document.createElement("video");
+        v.className = "h-video"; v.src = C.terraVideo; v.muted = true; v.loop = true; v.playsInline = true;
+        v.setAttribute("muted", ""); v.setAttribute("playsinline", ""); v.setAttribute("aria-hidden", "true");
+        if (!G.movimentoRidotto) v.autoplay = true;
+        v.addEventListener("canplay", function () { document.querySelector(".h-mappa").remove(); }, { once: true });
+        document.getElementById("pianeta").prepend(v);
+      }
+
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+GiochiSAT - caricamento corretto su GitHub
+
+Questo pacchetto contiene il portale completo aggiornato.
+
+IMPORTANTE
+Dopo avere estratto lo ZIP, aprire la cartella estratta e caricare su GitHub
+TUTTI GLI ELEMENTI CHE SI TROVANO AL SUO INTERNO.
+
+Il file index.html e le cartelle memory, sat-doku, parole-in-orbita, quizzone
+ecc. devono comparire direttamente nella pagina principale (root) del
+repository ARPALazioSAT/giochiSAT.
+
+Non caricare la cartella contenitore come unica sottocartella: in quel caso
+l'indirizzo https://arpalaziosat.github.io/giochiSAT/ non utilizzerebbe il
+nuovo index.html del portale.
+
+Controlli dopo il caricamento
+
+1. Aprire https://arpalaziosat.github.io/giochiSAT/
+   Deve apparire la home con gli otto giochi.
+2. Aprire il Gioco 7 - SAT-Doku.
+   Deve essere possibile scegliere:
+   - Livello base: griglia 4x4, 4 satelliti;
+   - Livello avanzato: griglia 5x5, 5 satelliti.
+3. Aprire il Gioco 8 - Parole in orbita.
+   Deve essere possibile scegliere il livello Base 4x4 o Avanzato 5x5.
+   Il gioco deve riconoscere anche parole italiane comuni non ambientali;
+   quelle ambientali sono indicate con una foglia.
+4. Se compare ancora la versione precedente, aggiornare la pagina con Ctrl+F5
+   oppure attendere alcuni minuti il completamento di GitHub Pages.
+
+Prova della sfida a due
+
+Prima del caricamento eseguire una sola volta in Supabase SQL Editor il file
+supabase_sfida_sensore.sql. Poi aprire "Monitora con il sensore giusto" su due
+browser o dispositivi: il primo crea una sfida aperta e il secondo può
+accettarla dalla pagina iniziale oppure continuare da solo.

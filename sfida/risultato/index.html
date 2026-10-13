@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Risultato – Giochi SAT</title>
+  <meta name="description" content="Risultato della sfida">
+  <meta name="theme-color" content="#090B2A">
+  <link rel="icon" href="../../assets/logo-arpa-lazio.jpg">
+  <link rel="stylesheet" href="../../assets/css/giochisat.css">
+  <script src="../../assets/config.js"></script>
+  <script src="../../assets/js/giochisat.js"></script>
+  <style>
+.intro{margin:4px 0 18px}.intro h2{margin:0 0 6px;font-size:clamp(24px,4vw,30px)}.intro p{margin:0;color:var(--gs-testo-2)}
+.piede{margin-top:22px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+
+.esito{text-align:center;margin-bottom:16px}.esito h2{margin:0 0 6px;font-size:clamp(26px,5vw,34px)}.esito p{margin:0;color:var(--gs-testo-2)}
+.numeri{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 0}
+.numeri div{background:var(--gs-superficie-2);border-radius:16px;padding:10px}
+.numeri dt{font-size:13px;color:var(--gs-testo-2)}.numeri dd{margin:2px 0 0;font:700 20px var(--gs-titoli-font)}
+.tappa{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:12px 16px;border-radius:18px;background:var(--gs-vetro);border:1px solid var(--gs-bordo)}
+.tappa .n{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--gs-superficie-2);font-weight:700}
+.tappa .stato{font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--gs-superficie-2)}
+.tappa.completato .stato{background:var(--gs-verde);color:var(--gs-scuro)}
+.tappa.saltato .stato{background:var(--gs-rosa);color:var(--gs-scuro)}
+@media (max-width:480px){.numeri{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="gs" style="--gs-colore:#FFC93C">
+<header class="gs-barra">
+  <a class="gs-home" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></a>
+  <div class="gs-titolo"><i aria-hidden="true"></i><h1>Risultato</h1></div>
+  <button class="gs-nome" type="button" aria-label="Cambia soprannome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Soprannome</span></button>
+  <img class="gs-logo" src="../../assets/logo-arpa-lazio.jpg" alt="ARPA Lazio">
+</header>
+<main class="gs-pagina">
+
+  <section class="gs-scheda esito" id="esito">
+    <h2 id="titolo">Nessuna sfida da mostrare</h2>
+    <p id="sottotitolo">Quando completi una sfida, qui trovi com'è andata.</p>
+    <dl class="numeri gs-nascosto" id="numeri">
+      <div><dt>Giochi completati</dt><dd id="n-completati">–</dd></div>
+      <div><dt>Tempo impiegato</dt><dd id="n-tempo">–</dd></div>
+      <div><dt>Difficoltà</dt><dd id="n-difficolta">–</dd></div>
+    </dl>
+  </section>
+  <ol class="gs-elenco tappe" id="tappe"></ol>
+  <div class="piede">
+    <a class="gs-btn gs-nascosto" id="ricompensa" href="../ricompensa/">Ritira la ricompensa</a>
+    <a class="gs-btn gs-secondario" href="../">Nuova sfida</a>
+  </div>
+</main>
+<script>
+
+(function () {
+  var G = GiochiSAT, s = G.sfida.stato();
+  if (!s) return;
+  if (s.stato === "in_corso") { location.replace("../"); return; }
+  var titoli = { vinta: "Sfida completata!", finita: "Sfida finita", scaduta: "Tempo scaduto", abbandonata: "Sfida abbandonata" };
+  var testi = {
+    vinta: "Bravissimo" + (s.nome ? ", " + s.nome : "") + "! Hai completato tutti i giochi in tempo.",
+    finita: "Hai finito i giochi, ma ne hai saltato qualcuno: per la ricompensa vanno completati tutti.",
+    scaduta: "Il tempo è finito prima dell'ultimo gioco. Riprova, puoi farcela!",
+    abbandonata: "Hai lasciato la sfida a metà. Quando vuoi, puoi ricominciare."
+  };
+  document.getElementById("titolo").textContent = titoli[s.stato] || "Sfida";
+  document.getElementById("sottotitolo").textContent = testi[s.stato] || "";
+  var fatti = s.risultati.filter(function (r) { return r.esito === "completato"; }).length;
+  document.getElementById("numeri").classList.remove("gs-nascosto");
+  document.getElementById("n-completati").textContent = fatti + " su " + s.giochi.length;
+  document.getElementById("n-tempo").textContent = G.mmss((s.fine || Date.now()) - s.inizio);
+  document.getElementById("n-difficolta").textContent = (G.sfida.regole()[s.difficolta] || {}).nome || s.difficolta;
+  var etichette = { completato: "Completato", saltato: "Saltato" };
+  document.getElementById("tappe").innerHTML = s.giochi.map(function (id, i) {
+    var r = s.risultati[i], g = G.gioco(id) || { nome: id }, esito = r ? r.esito : "mancante";
+    return '<li class="tappa ' + esito + '"><span class="n">' + (i + 1) + '</span><span>' + G.testo(g.nome) +
+      '</span><span class="stato">' + (etichette[esito] || "Non giocato") + "</span></li>";
+  }).join("");
+  if (s.stato === "vinta") document.getElementById("ricompensa").classList.remove("gs-nascosto");
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+<script src="../assets/config.js"></script>
+<link rel="stylesheet" href="../assets/css/giochisat.css">
+<script src="../assets/js/giochisat.js"></script>
+
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Parole in orbita - Giochi SAT</title>
+  <style>
+    :root{--blu:#2f6bff;--blu-scuro:#b1d2f1;--cielo:#1f426b;--testo:#e8e5f5;--muted:#bab5d9;--verde:#16834f;--giallo:#facc15;--rosso:#c62828;--bordo:#3d648f}
+    *{box-sizing:border-box}html,body{margin:0;padding:0}body{font-family:var(--gs-testo-font);color:var(--testo);min-height:100vh;-webkit-font-smoothing:antialiased}button{font:inherit}
+    .wrap{max-width:680px;margin:0 auto;padding:15px 12px 42px}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.identity{display:flex;align-items:center;gap:11px}.logo{width:50px;height:50px;flex:0 0 auto}.top h1{margin:0;color:var(--blu-scuro);font-size:clamp(25px,6.7vw,37px);line-height:1}.top p{margin:4px 0 0;color:var(--muted);font-weight:700;font-size:13px}.home{color:var(--blu-scuro);background:#1c204f;border:2px solid var(--bordo);border-radius:12px;padding:9px 11px;text-decoration:none;font-size:13px;font-weight:800;white-space:nowrap}
+    .card{background:#1c204f;border:2px solid var(--bordo);border-radius:22px;padding:17px;box-shadow:0 14px 34px rgba(38,78,120,0.12)}.hud{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-bottom:12px}.metric{color:var(--muted);font-size:13px;font-weight:800}.metric b{display:block;color:var(--blu-scuro);font-size:22px}.metric.right{text-align:right}.level{background:#1c3660;border-radius:999px;padding:7px 11px;color:var(--blu-scuro);font-size:12px;font-weight:800;text-align:center}
+    .word{height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;border:2px solid var(--bordo);border-radius:13px;background:#1d2254;color:var(--blu-scuro);font-size:23px;font-weight:900;letter-spacing:.09em;text-transform:uppercase}.word.placeholder{color:#bab5d9;font-size:14px;letter-spacing:0}
+    .boardWrap{position:relative;width:min(100%,540px);aspect-ratio:1;margin:auto;touch-action:none}.board{position:absolute;inset:0;display:grid;gap:7px;touch-action:none;user-select:none;-webkit-user-select:none}.cell{position:relative;z-index:2;border:0;border-radius:14px;color:#b3cdef;background:linear-gradient(145deg,#1c204f,#1c3a62);box-shadow:0 4px 0 #3d648f,0 7px 14px rgba(44,80,120,0.12);font-size:clamp(24px,10vw,43px);font-weight:900;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent}.cell.selected{color:#ffffff;background:linear-gradient(145deg,#4881ff,#2459d8);box-shadow:0 3px 0 #153d9c;transform:translateY(1px)}.cell:focus-visible{outline:4px solid var(--giallo);outline-offset:1px}.lines{position:absolute;inset:0;z-index:1;pointer-events:none}.lines polyline{fill:none;stroke:#f59e0b;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
+    .feedback{min-height:25px;margin:11px 0 4px;text-align:center;font-weight:800;color:var(--rosso)}.feedback.ok{color:var(--verde)}.hint{text-align:center;margin:0 0 12px;color:var(--muted);font-size:13px;font-weight:700}.foundBox{border-top:1px solid var(--bordo);padding-top:12px}.foundTitle{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;font-weight:800;margin-bottom:8px}.found{display:flex;gap:6px;flex-wrap:wrap;max-height:96px;overflow:auto}.chip{background:#1d3863;color:#b1d2f1;border-radius:999px;padding:6px 9px;font-size:12px;font-weight:800}.chip.env{background:#2a5b3e;color:#b0f2d3}.empty{color:#bab5d9;font-size:13px}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.btn{border:0;border-radius:13px;padding:12px 10px;font-weight:800;cursor:pointer}.primary{background:var(--blu);color:#ffffff;box-shadow:0 4px 0 #1f4fd6}.secondary{background:#1c204f;color:var(--blu-scuro);border:2px solid var(--bordo)}.btn:active{transform:translateY(2px)}
+    .overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:16px;background:rgba(17,46,82,0.65)}.overlay.hidden{display:none}.panel{width:min(94vw,500px);background:#1c204f;border-radius:24px;padding:25px;box-shadow:0 25px 70px rgba(0,0,0,0.3);text-align:center}.panel h2{margin:0 0 8px;color:var(--blu-scuro);font-size:28px}.panel>p{color:var(--muted);line-height:1.45;margin:0 0 18px}.levels{display:grid;grid-template-columns:1fr 1fr;gap:11px}.levelBtn{border:2px solid var(--bordo);border-radius:17px;background:#1d2254;padding:17px 10px;color:var(--blu-scuro);cursor:pointer}.levelBtn strong{display:block;font-size:19px;margin-bottom:5px}.levelBtn span{font-size:13px;color:var(--muted);font-weight:700}.levelBtn:hover,.levelBtn:focus-visible{border-color:var(--blu);outline:none}.resultList{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left;margin:15px 0}.resultList h3{font-size:14px;color:var(--blu-scuro);margin:0 0 7px}.scroll{max-height:150px;overflow:auto;background:#1e2357;border-radius:12px;padding:9px;font-size:12px;line-height:1.6}.resultBtns{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    @media(max-width:430px){.wrap{padding:10px 8px 28px}.logo{width:43px;height:43px}.top p{font-size:11px}.home{padding:8px}.card{padding:10px;border-radius:18px}.board{gap:5px}.cell{border-radius:11px}.hud{margin-bottom:8px}.metric b{font-size:19px}.word{height:39px;margin-bottom:8px}.levels,.resultBtns{grid-template-columns:1fr}.panel{padding:21px 17px}.resultList{gap:8px}.scroll{max-height:125px}}
+    @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  </style>
+  <script src="../assets/game-stats.js" defer></script>
+  <script src="../assets/parole-italiane-giochisat.js"></script>
+</head>
+<body class="gs" data-gioco="parole-in-orbita" style="--gs-colore:#C77DFF">
+<header class="gs-barra">
+  <a class="gs-home" href="../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></a>
+  <div class="gs-titolo"><i aria-hidden="true"></i><h1>Parole in orbita</h1></div>
+  <button class="gs-nome" type="button" aria-label="Cambia soprannome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Soprannome</span></button>
+  <img class="gs-logo" src="../assets/logo-arpa-lazio.jpg" alt="ARPA Lazio">
+</header>
+
+  <main class="wrap">
+    <section class="card">
+      <div class="hud"><div class="metric">Punti<b id="score">0</b></div><div class="level" id="levelLabel">Livello base</div><div class="metric right">Tempo<b id="time">01:30</b></div></div>
+      <div class="word placeholder" id="current">Trascina sulle lettere</div>
+      <div class="boardWrap"><div class="board" id="board" role="grid" aria-label="Griglia di lettere"></div><svg class="lines" id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline id="line" points=""/></svg></div>
+      <p class="feedback" id="feedback" aria-live="polite"></p><p class="hint">Trascina il dito, anche in diagonale. Ogni casella si usa una sola volta.</p>
+      <div class="foundBox"><div class="foundTitle"><span>Parole trovate</span><span id="foundCount">0</span></div><div class="found" id="found"><span class="empty">Nessuna parola trovata</span></div></div>
+      <div class="actions"><button class="btn secondary" id="rules">Istruzioni</button><button class="btn primary" id="change">Cambia livello</button></div>
+    </section>
+  </main>
+
+  <div class="overlay" id="chooser"><div class="panel"><h2>Scegli il livello</h2><p>Trova più parole italiane possibili collegando le lettere vicine.</p><div class="levels"><button class="levelBtn" data-mode="base"><strong>Livello base</strong><span>Griglia 4×4 · 90 secondi</span></button><button class="levelBtn" data-mode="advanced"><strong>Livello avanzato</strong><span>Griglia 5×5 · 120 secondi</span></button></div></div></div>
+  <div class="overlay hidden" id="rulesPanel"><div class="panel"><h2>Come si gioca</h2><p>Trascina il dito sulle lettere adiacenti, anche in diagonale, per formare parole italiane di almeno tre lettere. Nella stessa parola non puoi passare due volte sulla medesima casella. Le parole più lunghe valgono più punti; quelle ambientali sono contrassegnate con una foglia.</p><button class="btn primary" id="closeRules">Ho capito</button></div></div>
+  <div class="overlay hidden" id="result"><div class="panel"><h2>Tempo scaduto!</h2><p id="resultText"></p><div class="resultList"><div><h3>Parole trovate</h3><div class="scroll" id="resultFound"></div></div><div><h3>Parole ambientali suggerite</h3><div class="scroll" id="resultMissed"></div></div></div><div class="resultBtns"><button class="btn primary" id="again">Gioca ancora</button><button class="btn secondary" id="resultChange">Cambia livello</button></div></div></div>
+
+  <script>
+  (()=>{
+    "use strict";
+    const ENV_WORDS=`SATELLITE ORBITA SENSORE RADAR LASER OTTICO BANDA SPETTRO PIXEL SCENA IMMAGINE SEGNALE RADIANZA RIFLETTANZA RISOLUZIONE CALIBRAZIONE PASSAGGIO TELEMETRIA ANTENNA PIANETA SPAZIO POSIZIONE VOLO MISSIONE SENTINEL COPERNICUS LANDSAT MODIS METEOSAT PRISMA SAR ESA ASI NASA COSTELLAZIONE MOSAICO MAPPA CARTA RASTER VETTORE GEODATO GIS ALGORITMO MODELLO INDICE ARCHIVIO OPENDATA CLASSIFICAZIONE SEGMENTAZIONE GEOREFERENZA COORDINATA LATITUDINE LONGITUDINE QUOTA SCALA TERRA SUOLO BOSCO FORESTA PRATO COLTURA CAMPO CITTA COSTA SPIAGGIA ISOLA VALLE MONTE HABITAT PAESAGGIO TERRITORIO VEGETAZIONE URBANO AGRICOLO ACQUA FIUME LAGO MARE FALDA SORGENTE TORRENTE FOCE ESTUARIO LAGUNA INVASO DIGA BACINO PORTATA PIOGGIA TORBIDITA CLOROFILLA BALNEAZIONE SCARICO REFLUO ARIA ATMOSFERA SMOG OZONO POLVERE AEROSOL EMISSIONE CAMINO TRAFFICO VENTO BREZZA NUBE METEO INQUINANTE DISPERSIONE CENTRALINA PREVISIONE QUALITA DEPOSIZIONE CLIMA CALORE GELO NEVE SICCITA ALLUVIONE INCENDIO FRANA EROSIONE RISCHIO PERICOLO EMERGENZA TEMPESTA GRANDINE ONDATA SECCO MITIGAZIONE ADATTAMENTO RESILIENZA VULCANO RIFIUTO DISCARICA RICICLO IMPIANTO INDUSTRIA BONIFICA AMIANTO FANGO PERCOLATO COMPOST RUMORE ODORE PRESSIONE IMPATTO CONTROLLO ISPEZIONE PRELIEVO CAMPIONE CONTAMINANTE DEPURATORE RADIAZIONE RADIOATTIVITA ONDA FREQUENZA DECIBEL SUONO LUCE ENERGIA MAGNETICO ELETTRICO RAGGIO MICROONDA TERMICO MISURATORE NATURA SPECIE FAUNA FLORA ALBERO ECOSISTEMA BIODIVERSITA SALUTE TUTELA PREVENZIONE PROTEZIONE SOSTENIBILE AMBIENTE CONSERVAZIONE BIOLOGICO ECOLOGIA RISORSA EQUILIBRIO VERDE VITA ARPA LAZIO MONITORAGGIO ANALISI MISURA DATO RETE STAZIONE LABORATORIO TECNICO RICERCA RAPPORTO INDICATORE CAMPAGNA VERIFICA PARERE NORMA CARTOGRAFIA SORVEGLIANZA`.split(" ");
+    const GRIDS={base:[
+      ["AREO","ESIN","TRAS","ULOC"],["OSEC","ETAM","RRPT","FOAP"],["LCTT","OAIO","RSRM","UETA"],["ORAT","ISEU","AOTV","LNEM"],
+      ["ONEL","IGAR","GSEP","ORSA"],["ORAR","ISER","ATOC","CLFC"],["PEAC","CRSU","IOTO","FALV"],["ENAS","OREL","ISOF","ZATC"]
+    ],advanced:[
+      ["TPRRC","CAEOE","PMSTF","RIISA","VEONE"],["NTEAS","EULRC","RATOR","ROSTE","PIEPM"],["ONIOT","CMPAN","IARES","LSRTO","FOMEA"],["MPRTA","IEOAT","VSIDC","ISNOI","ATECN"],
+      ["EPSID","RSIOP","OANMI","ETEAE","RTRVC"],["ETOPI","ANIMS","EGASE","TROCA","ICFLO"],["OLACA","EDOTI","MGNRT","AIAEP","NLCSO"],["ATERR","RSATE","PLDNR","OAIAO","TSZIP"]
+    ]};
+    const environmentalSet=new Set(ENV_WORDS),wordSet=new Set([...(window.GIOCHISAT_ITALIAN_WORDS||[]),...ENV_WORDS]),$=id=>document.getElementById(id),board=$("board"),current=$("current"),feedback=$("feedback");
+    let mode="base",grid=[],n=4,valid=[],found=new Set(),path=[],dragging=false,started=false,finished=false,endAt=0,timer=null,lastGrid={base:-1,advanced:-1};
+    const seconds=()=>mode==="base"?90:120;
+    function scoreWord(w){return w.length===3?1:w.length===4?2:w.length===5?3:w.length===6?5:w.length===7?8:12+(w.length-8)*2}
+    function format(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+    function hasPath(word){const seen=Array(n*n).fill(false);function go(i,k){if(grid[i]!==word[k])return false;if(k===word.length-1)return true;seen[i]=true;const r=Math.floor(i/n),c=i%n;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(!dr&&!dc)continue;const rr=r+dr,cc=c+dc,j=rr*n+cc;if(rr>=0&&rr<n&&cc>=0&&cc<n&&!seen[j]&&go(j,k+1)){seen[i]=false;return true}}seen[i]=false;return false}for(let i=0;i<grid.length;i++)if(go(i,0))return true;return false}
+    function beginTimer(){if(started||finished)return;started=true;endAt=Date.now()+seconds()*1000;if(window.GiochiSATStats)window.GiochiSATStats.recordPlay("parole-in-orbita");timer=setInterval(tick,200)}
+    function tick(){const left=Math.max(0,Math.ceil((endAt-Date.now())/1000));$("time").textContent=format(left);if(!left)endGame()}
+    function setFeedback(text,ok=false){feedback.textContent=text;feedback.classList.toggle("ok",ok)}
+    function updatePath(){[...board.children].forEach((c,i)=>c.classList.toggle("selected",path.includes(i)));const word=path.map(i=>grid[i]).join("");current.textContent=word||"Trascina sulle lettere";current.classList.toggle("placeholder",!word);const points=path.map(i=>{const r=Math.floor(i/n),c=i%n;return `${(c+.5)*100/n},${(r+.5)*100/n}`});$("line").setAttribute("points",points.join(" "))}
+    function addCell(i){if(path.length){const prev=path[path.length-1],r1=Math.floor(prev/n),c1=prev%n,r2=Math.floor(i/n),c2=i%n;if(path.length>1&&i===path[path.length-2]){path.pop();updatePath();return}if(path.includes(i)||Math.abs(r1-r2)>1||Math.abs(c1-c2)>1)return}path.push(i);updatePath()}
+    function submit(){if(!path.length)return;const word=path.map(i=>grid[i]).join("");path=[];updatePath();if(word.length<3){setFeedback("Le parole devono avere almeno 3 lettere.");return}if(!wordSet.has(word)){setFeedback(`${word} non è riconosciuta come parola italiana.`);return}if(found.has(word)){setFeedback(`${word} è già stata trovata.`);return}found.add(word);const env=environmentalSet.has(word);setFeedback(`Ottimo! ${word}: +${scoreWord(word)} punti${env?" · parola ambientale 🌿":""}`,true);renderFound()}
+    function renderFound(){const list=[...found].sort((a,b)=>b.length-a.length||a.localeCompare(b));$("foundCount").textContent=`${list.length} ${list.length===1?"parola":"parole"}`;$("found").innerHTML=list.length?list.map(w=>`<span class="chip${environmentalSet.has(w)?" env":""}">${environmentalSet.has(w)?"🌿 ":""}${w}</span>`).join(""):'<span class="empty">Nessuna parola trovata</span>';$("score").textContent=list.reduce((s,w)=>s+scoreWord(w),0)}
+    function cellFromPoint(x,y){const el=document.elementFromPoint(x,y);return el&&el.closest&&el.closest(".cell")}
+    function startSelection(i,e){if(finished)return;beginTimer();dragging=true;path=[];addCell(i);try{board.setPointerCapture(e.pointerId)}catch(_){}}
+    board.addEventListener("pointermove",e=>{if(!dragging)return;const cell=cellFromPoint(e.clientX,e.clientY);if(cell&&cell.parentElement===board)addCell(Number(cell.dataset.i));e.preventDefault()},{passive:false});
+    board.addEventListener("pointerup",e=>{if(!dragging)return;dragging=false;try{board.releasePointerCapture(e.pointerId)}catch(_){}submit()});board.addEventListener("pointercancel",()=>{dragging=false;path=[];updatePath()});
+    function chooseGrid(){const arr=GRIDS[mode];let k;do{k=Math.floor(Math.random()*arr.length)}while(arr.length>1&&k===lastGrid[mode]);lastGrid[mode]=k;grid=arr[k].join("").split("");n=arr[k].length;valid=ENV_WORDS.filter(hasPath).sort((a,b)=>b.length-a.length||a.localeCompare(b))}
+    function startGame(selectedMode){mode=selectedMode;if(timer)clearInterval(timer);timer=null;found=new Set();path=[];started=false;finished=false;chooseGrid();board.innerHTML="";board.style.gridTemplateColumns=`repeat(${n},1fr)`;board.setAttribute("aria-label",`Griglia di lettere ${n} per ${n}`);grid.forEach((letter,i)=>{const cell=document.createElement("button");cell.type="button";cell.className="cell";cell.dataset.i=i;cell.textContent=letter;cell.setAttribute("role","gridcell");cell.setAttribute("aria-label",letter);cell.addEventListener("pointerdown",e=>{e.preventDefault();startSelection(i,e)});board.appendChild(cell)});$("levelLabel").textContent=mode==="base"?"Livello base · 4×4":"Livello avanzato · 5×5";$("time").textContent=format(seconds());$("score").textContent="0";setFeedback("");renderFound();updatePath();$("chooser").classList.add("hidden");$("result").classList.add("hidden")}
+    function endGame(){if(finished)return;finished=true;if(timer)clearInterval(timer);timer=null;dragging=false;path=[];updatePath();const got=[...found].sort(),missed=valid.filter(w=>!found.has(w)),noun=got.length===1?"parola":"parole";$("resultText").textContent=`Hai ottenuto ${$("score").textContent} punti trovando ${got.length} ${noun}.`;$("resultFound").textContent=got.length?got.join(" · "):"Nessuna";$("resultMissed").textContent=missed.length?missed.join(" · "):"Le hai trovate tutte!";$("result").classList.remove("hidden");GiochiSAT.fineGioco("parole-in-orbita",{punti:Number($("score").textContent)||0})}
+    document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>startGame(b.dataset.mode));$("change").onclick=()=>{if(timer)clearInterval(timer);timer=null;$("chooser").classList.remove("hidden")};$("rules").onclick=()=>$("rulesPanel").classList.remove("hidden");$("closeRules").onclick=()=>$("rulesPanel").classList.add("hidden");$("again").onclick=()=>startGame(mode);$("resultChange").onclick=()=>{$("result").classList.add("hidden");$("chooser").classList.remove("hidden")};
+  (function () {                              // Sfida: livello deciso dalla difficoltà
+  const livello = GiochiSAT.sfida.livello("parole-in-orbita");
+  if (!livello) return;
+  startGame(livello);
+  const cambia = document.getElementById("change"); if (cambia) cambia.hidden = true;
+})();
+})();
+  </script>
+</body>
+</html>
