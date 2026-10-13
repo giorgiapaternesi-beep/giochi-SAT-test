@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<script src="../assets/config.js"></script>
+<link rel="stylesheet" href="../assets/css/giochisat.css">
+<script src="../assets/js/giochisat.js"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitora con il sensore giusto - Osserva la Terra</title>
+<style>
+:root{--blu:#2f6bff;--blu-scuro:#b1c0f2;--verde:#22c55e;--verde-scuro:#b0f2c9;--corallo:#fb7185;--giallo:#facc15;
+  --cielo1:#1f426b;--cielo2:#1f2458;--testo:#e8e5f5;--grigio:#bab5d9;--card:#1c204f;--bordo:#3d5f8f}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{font-family:var(--gs-testo-font);color:var(--testo);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:22px 18px 90px}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.top svg{width:46px;height:46px;flex:0 0 auto}
+.top h1{font-family:var(--gs-titoli-font);font-weight:700;font-size:22px;margin:0;line-height:1}
+.top p{margin:3px 0 0;color:var(--grigio);font-weight:700;font-size:13px}
+.btn{font-family:var(--gs-titoli-font);font-weight:600;font-size:18px;border:none;cursor:pointer;border-radius:16px;padding:15px 26px;color:#ffffff;
+  background:var(--blu);box-shadow:0 8px 0 #1f4fd6,0 12px 22px rgba(47,107,255,0.28);transition:transform .08s,box-shadow .08s}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(4px);box-shadow:0 4px 0 #1f4fd6,0 6px 12px rgba(47,107,255,0.28)}
+.btn.verde{background:var(--blu);box-shadow:0 8px 0 #1f4fd6,0 12px 22px rgba(47,107,255,0.28)}
+.btn.verde:active{box-shadow:0 4px 0 #1f4fd6,0 6px 12px rgba(47,107,255,0.28)}
+.btn:focus-visible{outline:3px solid var(--blu-scuro);outline-offset:3px}.btn[disabled]{opacity:.5;cursor:default;transform:none}
+.card{background:var(--card);border:2px solid var(--bordo);border-radius:26px;padding:22px;box-shadow:0 18px 40px rgba(31,43,69,0.1)}
+.hidden{display:none !important}
+.hero{text-align:center;padding:32px 26px}
+.hero h2{font-family:var(--gs-titoli-font);font-weight:700;font-size:clamp(24px,5.4vw,32px);margin:10px 0 8px;line-height:1.12}
+.hero p{color:var(--grigio);font-size:16px;font-weight:600;max-width:44ch;margin:0 auto 18px;line-height:1.5}
+.hero .legenda{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:440px;margin:0 auto 22px;text-align:left}
+.hero .legenda .s{display:flex;align-items:center;gap:9px;background:#1e2255;border:1.5px solid var(--bordo);border-radius:12px;padding:9px 11px;font-weight:700;font-size:13.5px}
+.hero .legenda .s b{font-family:var(--gs-titoli-font);font-weight:600}
+.hero .legenda .s .d{width:12px;height:12px;border-radius:4px;flex:0 0 auto}
+.hero .miniglobe{width:120px;height:120px;margin:0 auto 4px}
+.mode-actions{display:grid;gap:12px;max-width:330px;margin:0 auto}.mode-actions a{text-decoration:none;display:block}
+.challenge-box{max-width:460px;margin:0 auto 22px;padding:16px;background:#1b395e;border:2px solid #3d648f;border-radius:18px;text-align:left}
+.challenge-box h3{font-family:var(--gs-titoli-font);font-size:20px;color:var(--blu-scuro);margin:0 0 5px}.challenge-box p{font-size:14px;margin:0 0 10px;max-width:none}
+.challenge-box label{display:block;font-weight:800;font-size:13px;margin-bottom:5px}.challenge-box input{width:100%;padding:11px;border:2px solid var(--bordo);border-radius:11px;font:700 16px var(--gs-testo-font);margin-bottom:9px}
+.challenge-box input:focus{outline:3px solid #3d618f;border-color:var(--blu)}.challenge-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.challenge-actions .btn{font-size:15px;padding:11px 8px;box-shadow:none}.challenge-error{color:#f7abbe!important;font-weight:800!important;min-height:20px;margin:7px 0 0!important}
+
+.scene-card{background:linear-gradient(180deg,#0f1a44,#1b2668);border:2px solid #3d4c8f;border-radius:22px;padding:8px 8px 2px;
+  box-shadow:0 18px 40px rgba(15,26,68,0.35);overflow:hidden;position:relative}
+.scene-card svg{width:100%;height:auto;display:block;touch-action:none}
+.scanhint{font-family:var(--gs-testo-font);font-weight:700;color:#bcd0ff;font-size:12.5px;text-align:center;padding:6px 4px 8px}
+.scanhint .live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#34e0a1;box-shadow:0 0 8px #34e0a1;margin-right:7px;vertical-align:middle;animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.35}}
+
+/* satelliti */
+.sat{cursor:pointer}
+.sat.dim{opacity:.32;pointer-events:none}
+.sat.active .body{filter:drop-shadow(0 0 7px var(--c))}
+.sat.active .lab rect{fill:var(--c)}
+.sat.shake .body{animation:sh .4s}
+@keyframes sh{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}60%{transform:translateX(4px)}}
+.sat .ring{fill:none;stroke:var(--c);stroke-width:2;opacity:0}
+.sat.active .ring{opacity:.9;animation:satring 1s ease-out infinite}
+@keyframes satring{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+.sat .ring{transform-box:fill-box;transform-origin:center}
+
+/* hotspot */
+.hs .pr{fill:none;stroke:var(--c);stroke-width:2.5;transform-box:fill-box;transform-origin:center;animation:hsp 1.8s ease-out infinite}
+@keyframes hsp{0%{opacity:.9;transform:scale(.85)}100%{opacity:0;transform:scale(1.45)}}
+.hs.found .pr{animation:none;opacity:0}
+.hs .tick{opacity:0;transition:opacity .3s}
+.hs.found .tick{opacity:1}
+
+/* footprint + beam */
+#beam{opacity:0;transition:opacity .2s}#beam.on{opacity:1}
+#beam polygon{fill:var(--c);fill-opacity:.22}
+#beam line{stroke:var(--c);stroke-width:2;opacity:.7;stroke-dasharray:5 6}
+#foot{opacity:0;pointer-events:none}#foot.on{opacity:1;pointer-events:all;cursor:grab}
+#foot .ell{fill:var(--c);fill-opacity:.16;stroke:var(--c);stroke-width:2.5;stroke-dasharray:6 6}
+#foot .cross{stroke:var(--c);stroke-width:1.8;opacity:.9}
+#foot.near .ell{stroke-dasharray:none}
+#foot.lock .ell{stroke:#22c55e;fill:#22c55e;fill-opacity:.2;stroke-dasharray:none;animation:fp .6s}
+#foot.lock .cross{stroke:#22c55e}
+@keyframes fp{0%{transform:scale(.7)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+#foot .ell,#foot.lock .ell{transform-box:fill-box;transform-origin:center}
+
+.dots{display:flex;justify-content:center;gap:9px;margin:14px 0 6px}
+.dots i{width:12px;height:12px;border-radius:50%;background:#2e446d;transition:.3s}
+.dots i.on{background:var(--verde);box-shadow:0 0 0 4px rgba(34,197,94,0.15)}
+.statusline{text-align:center;font-family:var(--gs-titoli-font);font-weight:600;color:var(--grigio);font-size:15px;margin-bottom:14px}
+.statusline b{color:var(--verde-scuro)}
+
+.detect-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.tag{font-family:var(--gs-titoli-font);font-weight:600;font-size:13px;color:#ffffff;padding:5px 12px;border-radius:999px}
+.dquestion{font-family:var(--gs-titoli-font);font-weight:600;font-size:clamp(18px,4vw,22px);line-height:1.3;margin:0 0 6px}
+.feedback{margin-top:6px;font-family:var(--gs-titoli-font);font-weight:600;font-size:15px;min-height:22px}
+.feedback.ok{color:var(--verde-scuro)}.feedback.no{color:#ef8199}.feedback.info{color:var(--blu-scuro)}
+.reveal{margin-top:12px;border-top:1px dashed var(--bordo);padding-top:10px}
+.dtitle{font-family:var(--gs-titoli-font);font-weight:700;font-size:20px;margin:0 0 4px}
+.lines .line{opacity:0;transform:translateY(6px);transition:.45s;font-weight:700;font-size:15.5px;line-height:1.5;padding:8px 0 8px 20px;position:relative}
+.lines .line.show{opacity:1;transform:none}
+.lines .line::before{content:"";position:absolute;left:0;top:14px;width:9px;height:9px;border-radius:50%;background:var(--spot)}
+.foot-btn{display:flex;justify-content:center;margin:16px 0 4px}.foot-btn .btn{min-width:230px;text-align:center}
+.diario{margin-top:18px}.diario-title{font-family:var(--gs-titoli-font);font-weight:600;color:var(--grigio);font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;min-height:34px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:#1f2459;border:1.5px solid var(--bordo);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;animation:chipin .3s}
+.chip .d{width:9px;height:9px;border-radius:50%}@keyframes chipin{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+.result{text-align:center;padding:32px 26px}.result .miniglobe{width:120px;height:120px;margin:0 auto 8px}
+.result h2{font-family:var(--gs-titoli-font);font-weight:700;font-size:27px;margin:6px 0 8px}
+.result .punteggio{font-family:var(--gs-titoli-font);font-weight:700;font-size:18px;color:var(--blu);margin-bottom:14px}
+.result p{color:var(--grigio);font-weight:700;font-size:16px;max-width:40ch;margin:0 auto 18px;line-height:1.5}
+.recap{display:grid;gap:8px;text-align:left;margin:0 auto 22px;max-width:400px}
+.recap .r{display:flex;align-items:center;gap:11px;background:#1e2255;border:1.5px solid var(--bordo);border-radius:14px;padding:10px 14px}
+.recap .r .d{width:12px;height:12px;border-radius:50%;flex:0 0 auto}.recap .r b{font-family:var(--gs-titoli-font);font-weight:600}
+.recap .r span{color:var(--grigio);font-weight:700;font-size:13px;margin-left:auto}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+.confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:2px;opacity:.95;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media (max-width:520px){.card{padding:18px}.hero,.result{padding:26px 18px}.hero .legenda{grid-template-columns:1fr}.foot-btn .btn{min-width:0;width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+<script src="../assets/game-stats.js" defer></script>
+</head>
+<body class="gs" data-gioco="sensore-adatto" style="--gs-colore:#FFB238">
+<header class="gs-barra">
+  <a class="gs-home" href="../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></a>
+  <div class="gs-titolo"><i aria-hidden="true"></i><h1>Il sensore giusto</h1></div>
+  <button class="gs-nome" type="button" aria-label="Cambia soprannome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Soprannome</span></button>
+  <img class="gs-logo" src="../assets/logo-arpa-lazio.jpg" alt="ARPA Lazio">
+</header>
+
+<div class="wrap">
+
+  <!-- START -->
+  <section id="start">
+    <div class="card hero">
+      <svg class="miniglobe" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="62" r="46" fill="#2f6bff"/>
+        <path d="M20 56 q22 -12 44 -4 q20 10 5 24 q-24 12 -48 2 q-12 -12 -1 -22z" fill="#4ade80"/><circle cx="40" cy="86" r="11" fill="#4ade80"/>
+        <ellipse cx="60" cy="60" rx="54" ry="20" fill="none" stroke="#cbd8ff" stroke-width="2" stroke-dasharray="3 6" transform="rotate(-18 60 60)"/></svg>
+      <h2>Il sensore giusto per ogni problema</h2>
+      <p>Ogni satellite ha un sensore diverso. Scegli quello adatto al problema che vedi sul globo, poi trascina il suo footprint proprio sopra al punto.</p>
+      <div class="legenda" id="legenda"></div>
+      <div class="challenge-box hidden" id="openChallenge">
+        <h3>Sfida aperta</h3>
+        <p id="challengerText"></p>
+        <label for="challengeName">Il tuo nome o soprannome</label>
+        <input id="challengeName" maxlength="15" autocomplete="nickname" placeholder="Da 2 a 15 caratteri">
+        <div class="challenge-actions"><button class="btn" id="acceptChallenge">Accetta</button><button class="btn secondary" id="declineChallenge" style="background:#1c204f;color:#b1c0f2;border:2px solid #3d648f">Gioca da solo</button></div>
+        <p class="challenge-error" id="challengeError"></p>
+      </div>
+      <div class="mode-actions">
+        <button class="btn verde" id="go">Gioca da solo</button>
+        <a class="btn" href="../sensore-sfida/">Sfida a due</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="hidden">
+    <div class="scene-card">
+      <svg id="scene" viewBox="0 0 640 520" aria-hidden="false">
+        <defs>
+          <radialGradient id="space" cx="70%" cy="8%" r="120%"><stop offset="0" stop-color="#2a3a86"/><stop offset=".55" stop-color="#1a2560"/><stop offset="1" stop-color="#0d1440"/></radialGradient>
+          <radialGradient id="earthG" cx="36%" cy="28%" r="82%"><stop offset="0" stop-color="#8fd0ff"/><stop offset=".5" stop-color="#2f86e6"/><stop offset="1" stop-color="#0f4a9e"/></radialGradient>
+          <radialGradient id="atmoG" cx="50%" cy="50%" r="50%"><stop offset="72%" stop-color="#7fd0ff" stop-opacity="0"/><stop offset="90%" stop-color="#8fe0ff" stop-opacity=".55"/><stop offset="100%" stop-color="#8fe0ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="night" cx="76%" cy="74%" r="62%"><stop offset="42%" stop-color="#0a1a3a" stop-opacity="0"/><stop offset="100%" stop-color="#081026" stop-opacity=".5"/></radialGradient>
+          <linearGradient id="panelG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ad6ff"/><stop offset="1" stop-color="#1f6fd6"/></linearGradient>
+          <clipPath id="earthClip"><circle cx="320" cy="250" r="132"/></clipPath>
+          <clipPath id="patchClip"><circle r="32"/></clipPath>
+        </defs>
+        <rect width="640" height="520" fill="url(#space)"/>
+        <g fill="#fff"><circle cx="60" cy="120" r="1.6" opacity=".8"/><circle cx="320" cy="24" r="1.4" opacity=".7"/><circle cx="600" cy="120" r="1.6" opacity=".8"/><circle cx="40" cy="330" r="1.4" opacity=".7"/><circle cx="605" cy="360" r="1.5" opacity=".7"/><circle cx="320" cy="500" r="1.4" opacity=".7"/><circle cx="130" cy="40" r="1.2" opacity=".6"/><circle cx="520" cy="40" r="1.2" opacity=".6"/><circle cx="20" cy="220" r="1.2" opacity=".6"/><circle cx="620" cy="230" r="1.2" opacity=".6"/></g>
+        <g id="orbits"></g>
+        <circle cx="320" cy="250" r="150" fill="url(#atmoG)"/>
+        <circle cx="320" cy="250" r="132" fill="url(#earthG)"/>
+        <g clip-path="url(#earthClip)">
+          <ellipse cx="320" cy="146" rx="100" ry="34" fill="#eaf6ff" opacity=".92"/>
+          <ellipse cx="320" cy="356" rx="92" ry="30" fill="#eaf6ff" opacity=".86"/>
+          <g fill="#4fbf74">
+            <path d="M232 190 q64 -36 126 -12 q50 22 22 62 q-34 46 -110 34 q-60 -10 -66 -52 q-4 -26 28 -34z"/>
+            <path d="M356 300 q50 -20 90 8 q24 30 -8 56 q-46 26 -90 6 q-28 -18 -14 -46 q6 -14 22 -24z"/>
+            <path d="M232 306 q34 -14 60 6 q16 24 -12 38 q-46 16 -62 -8 q-10 -22 14 -36z"/>
+            <path d="M400 196 q32 -10 48 10 q8 20 -14 28 q-34 6 -44 -18 q-2 -14 10 -20z"/>
+          </g>
+          <g fill="#6bd492" opacity=".6">
+            <path d="M230 188 q62 -30 118 -8 q22 14 6 30 q-62 20 -116 4z"/>
+            <path d="M358 300 q46 -16 84 8 q8 12 -10 20 q-46 10 -66 -14z"/>
+          </g>
+          <g fill="#3a9a5a" opacity=".7"><ellipse cx="285" cy="222" rx="36" ry="16"/><ellipse cx="252" cy="322" rx="20" ry="10"/></g>
+          <g fill="#d8c98a" opacity=".55"><ellipse cx="336" cy="216" rx="26" ry="12"/><ellipse cx="406" cy="322" rx="22" ry="11"/></g>
+          <g stroke="#2f7d4a" stroke-width="2.4" fill="none" opacity=".55"><path d="M256 214 l8 -11 8 11"/><path d="M272 216 l8 -11 8 11"/><path d="M288 214 l8 -11 8 11"/></g>
+          <g stroke="#bfe6ff" stroke-width="2.4" fill="none" opacity=".7"><path d="M300 200 q22 22 6 46 q-14 24 18 40"/><path d="M392 316 q16 14 6 34"/></g>
+          <g fill="none" stroke="#2f8f57" stroke-width="1.6" opacity=".3">
+            <path d="M232 190 q64 -36 126 -12 q50 22 22 62 q-34 46 -110 34 q-60 -10 -66 -52 q-4 -26 28 -34z"/>
+            <path d="M356 300 q50 -20 90 8 q24 30 -8 56 q-46 26 -90 6 q-28 -18 -14 -46 q6 -14 22 -24z"/>
+          </g>
+          <g fill="#57c47e"><circle cx="474" cy="242" r="6"/><circle cx="250" cy="372" r="5"/><circle cx="444" cy="192" r="4"/><circle cx="300" cy="392" r="4"/></g>
+          <g stroke="#cfeaff" stroke-width="1" fill="none" opacity=".16">
+            <ellipse cx="320" cy="250" rx="132" ry="44"/><ellipse cx="320" cy="250" rx="132" ry="88"/>
+            <ellipse cx="320" cy="250" rx="44" ry="132"/><ellipse cx="320" cy="250" rx="88" ry="132"/>
+            <line x1="188" y1="250" x2="452" y2="250" opacity=".5"/>
+          </g>
+          <g fill="#ffffff" opacity=".24">
+            <ellipse cx="268" cy="188" rx="30" ry="9" transform="rotate(-12 268 188)"/>
+            <ellipse cx="392" cy="240" rx="22" ry="7"/>
+            <ellipse cx="300" cy="304" rx="26" ry="8" transform="rotate(8 300 304)"/>
+            <ellipse cx="430" cy="286" rx="18" ry="6"/>
+            <ellipse cx="240" cy="270" rx="16" ry="6"/>
+          </g>
+          <circle cx="320" cy="250" r="132" fill="url(#night)"/>
+          <ellipse cx="272" cy="196" rx="86" ry="58" fill="#ffffff" opacity=".08"/>
+        </g>
+        <path d="M224 178 A132 132 0 0 1 320 134" fill="none" stroke="#cdefff" stroke-width="3" opacity=".5"/>
+        <g id="hotspot"></g>
+        <g id="beam"></g>
+        <g id="foot"><ellipse class="ell" rx="36" ry="19"/><g class="cross"><line x1="-11" y1="0" x2="11" y2="0"/><line x1="0" y1="-9" x2="0" y2="9"/></g></g>
+        <circle id="globeCatch" cx="320" cy="250" r="132" fill="transparent" style="pointer-events:none"/>
+        <g id="sats"></g>
+      </svg>
+      <div class="scanhint"><span class="live"></span><span id="scanhint">Osserva il problema sul globo…</span></div>
+    </div>
+
+    <div class="dots" id="dots"></div>
+    <div class="statusline">Problemi monitorati <b id="count">0</b>/<span id="total">6</span></div>
+
+    <div class="card">
+      <div class="detect-head"><span class="tag" id="probtag">Problema</span></div>
+      <h3 class="dquestion" id="dquestion">…</h3>
+      <div class="feedback info" id="fb">Tocca il satellite con il sensore giusto.</div>
+      <div class="reveal hidden" id="reveal"><h4 class="dtitle" id="dtitle"></h4><div class="lines" id="dlines"></div></div>
+    </div>
+
+    <div class="foot-btn"><button class="btn" id="nextBtn" disabled>Prossimo problema</button></div>
+
+    <div class="diario"><div class="diario-title">Diario di bordo</div><div class="chips" id="diario"></div></div>
+  </section>
+
+  <!-- END -->
+  <section id="end" class="hidden">
+    <div class="card result">
+      <svg class="miniglobe" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="46" fill="#2f6bff"/>
+        <path d="M20 54 q22 -12 44 -4 q20 10 5 24 q-24 12 -48 2 q-12 -12 -1 -22z" fill="#4ade80"/><circle cx="40" cy="84" r="11" fill="#4ade80"/>
+        <circle cx="46" cy="50" r="4" fill="#0f2a63"/><circle cx="74" cy="50" r="4" fill="#0f2a63"/>
+        <path d="M46 68 q14 12 28 0" stroke="#0f2a63" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+      <h2>Missione compiuta!</h2>
+      <div class="punteggio" id="punteggio"></div>
+      <p>Hai scelto il sensore giusto e puntato il satellite su ogni problema del pianeta.</p>
+      <div class="recap" id="recap"></div>
+      <button class="btn" id="again">Rigioca</button>
+    </div>
+  </section>
+</div>
+<div class="confetti" id="confetti"></div>
+
+<script>
+const SENSORI = [{"id": "termico", "nome": "Termico IR", "desc": "vede il calore", "colore": "#ef4444", "rx": 245, "ry": 198, "tilt": 0, "period": 19, "dir": 1, "phase": 0.3}, {"id": "radar", "nome": "Radar", "desc": "attraversa le nuvole", "colore": "#10b981", "rx": 250, "ry": 186, "tilt": 18, "period": 23, "dir": -1, "phase": 1.8}, {"id": "multi", "nome": "Multispettrale", "desc": "legge la vegetazione", "colore": "#a855f7", "rx": 232, "ry": 210, "tilt": -14, "period": 17, "dir": 1, "phase": 3.2}, {"id": "ottico", "nome": "Ottico HR", "desc": "dettagli alta ris.", "colore": "#3b82f6", "rx": 250, "ry": 184, "tilt": 8, "period": 21, "dir": -1, "phase": 4.7}];
+const ROUND = [{"problema": "Incendio boschivo", "tipo": "fuoco", "colore": "#f97316", "sensore": "termico", "hx": 255, "hy": 205, "domanda": "Sul globo è scoppiato un incendio. Con quale sensore lo rilevi meglio?", "righe": ["Il fuoco è caldissimo: il sensore termico a infrarossi lo vede dal calore.", "Funziona anche tra il fumo e persino di notte."]}, {"problema": "Alluvione", "tipo": "acqua", "colore": "#2563eb", "sensore": "radar", "hx": 395, "hy": 210, "domanda": "Un fiume ha allagato i campi, ma è tutto nuvoloso. Quale sensore usi?", "righe": ["Il radar attraversa le nuvole e distingue bene l'acqua.", "Perfetto per le alluvioni, anche col brutto tempo e di notte."]}, {"problema": "Deforestazione", "tipo": "albero", "colore": "#b45309", "sensore": "multi", "hx": 250, "hy": 300, "domanda": "Una foresta è stata tagliata. Quale sensore se ne accorge?", "righe": ["Il multispettrale misura la luce che le piante riflettono.", "Vede il verde sparire confrontando le immagini nel tempo."]}, {"problema": "Nuova urbanizzazione", "tipo": "edifici", "colore": "#e11d48", "sensore": "ottico", "hx": 400, "hy": 300, "domanda": "Sono comparsi nuovi edifici e strade. Quale sensore mostra i dettagli?", "righe": ["L'ottico ad alta risoluzione mostra case e strade con grande nitidezza.", "Ideale per seguire la crescita delle città."]}, {"problema": "Frana / terreno che si muove", "tipo": "frana", "colore": "#a16207", "sensore": "radar", "hx": 320, "hy": 175, "domanda": "Un versante si sta muovendo di pochi millimetri. Quale sensore lo misura?", "righe": ["Il radar riesce a misurare spostamenti minuscoli del suolo.", "Serve a tenere d'occhio frane e cedimenti prima che diventino pericolosi."]}, {"problema": "Alghe nel lago", "tipo": "alghe", "colore": "#16a34a", "sensore": "multi", "hx": 320, "hy": 330, "domanda": "Un lago è diventato verde. Quale sensore capisce che sono alghe?", "righe": ["Il multispettrale legge il colore dell'acqua e rivela le alghe (clorofilla).", "Aiuta a controllare la qualità dell'acqua."]}];
+const $ = s => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const scene = $("#scene");
+const EC = {x:320, y:250, r:132};
+let idx=0, monitorati=0, alPrimo=0, tentato=false, fase="scegli", finito=false;
+let foot={x:320,y:250}, dragging=false, chosen=null, chosenOrbit=null;
+const TWO_PI=Math.PI*2, T0=performance.now();
+const ORB = SENSORI.map(s=>({id:s.id, rx:s.rx, ry:s.ry, tilt:(s.tilt||0)*Math.PI/180, w:(s.dir||1)*TWO_PI/s.period, phase:s.phase||0, x:EC.x, y:EC.y}));
+function orbPos(o,t){ const a=o.phase+o.w*t, bx=o.rx*Math.cos(a), by=o.ry*Math.sin(a), c=Math.cos(o.tilt), sn=Math.sin(o.tilt); return {x:EC.x+bx*c-by*sn, y:EC.y+bx*sn+by*c}; }
+function buildOrbits(){ document.getElementById("orbits").innerHTML = SENSORI.map(o=>`<ellipse cx="${EC.x}" cy="${EC.y}" rx="${o.rx}" ry="${o.ry}" fill="none" stroke="${o.colore}" stroke-width="1.2" stroke-dasharray="2 9" opacity=".32" transform="rotate(${o.tilt||0} ${EC.x} ${EC.y})"/>`).join(""); }
+function loop(now){ const t=(now-T0)/1000; ORB.forEach((o,i)=>{ const p=orbPos(o,t); o.x=p.x; o.y=p.y; const g=document.getElementById("sat"+i); if(g) g.setAttribute("transform",`translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`); }); if((fase==="punta"||fase==="done")&&chosenOrbit) drawBeam(); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+
+function emblem(id){
+  if(id==="termico") return '<path d="M0 -6 C3 -2 5 0 3 4 C2 2 1 2 0 3 C-1 2 -2 2 -3 4 C-5 0 -3 -2 0 -6Z" fill="var(--c)"/>';
+  if(id==="radar")   return '<g fill="none" stroke="var(--c)" stroke-width="2"><path d="M-6 3 A7 7 0 0 1 6 3"/><path d="M-3 3 A4 4 0 0 1 3 3"/></g><circle cy="3" r="1.6" fill="var(--c)"/>';
+  if(id==="multi")   return '<rect x="-6" y="-5" width="12" height="3.1" fill="#ef4444"/><rect x="-6" y="-1.4" width="12" height="3.1" fill="#22c55e"/><rect x="-6" y="2.2" width="12" height="3.1" fill="#3b82f6"/>';
+  return '<circle r="6" fill="none" stroke="var(--c)" stroke-width="2"/><circle r="2.4" fill="var(--c)"/>'; // ottico
+}
+function icona(tipo){
+  if(tipo==="fuoco")   return '<path d="M0 -9 C4 -3 8 0 4 6 C3 3 1 3 0 5 C-1 3 -3 3 -4 6 C-8 0 -4 -3 0 -9Z" fill="var(--c)"/>';
+  if(tipo==="acqua")   return '<path d="M0 -9 C6 -1 6 8 0 8 C-6 8 -6 -1 0 -9Z" fill="var(--c)"/>';
+  if(tipo==="albero")  return '<rect x="-1.6" y="2" width="3.2" height="7" fill="#8a5a3c"/><circle cx="0" cy="-2" r="7" fill="var(--c)"/>';
+  if(tipo==="edifici") return '<rect x="-8" y="-4" width="7" height="13" rx="1" fill="var(--c)"/><rect x="1" y="-9" width="7" height="18" rx="1" fill="var(--c)"/>';
+  if(tipo==="frana")   return '<path d="M-9 8 Q-2 -8 9 8 Z" fill="var(--c)"/><path d="M2 -1 l6 7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>';
+  return '<path d="M-9 3 q4 -6 9 0 t9 0" stroke="var(--c)" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="-4" cy="-3" r="2" fill="var(--c)"/><circle cx="5" cy="-4" r="2" fill="var(--c)"/>'; // alghe
+}
+
+let ROOFS=""; { const col=["#c8705a","#8f99a8"]; let k=0;
+  for(const gy of [-13,-2,9]) for(const gx of [-16,-5,6]){ ROOFS+=`<rect x="${gx}" y="${gy}" width="9" height="9" rx="1.5" fill="${col[k%2]}"/>`; k++; } }
+
+function patchInner(t){
+  const P={
+   fuoco:'<rect x="-28" y="-28" width="56" height="56" fill="#5aa84e"/><rect x="-28" y="6" width="56" height="22" fill="#4c9a44"/><circle cx="-15" cy="12" r="5.5" fill="#3f8f46"/><circle cx="15" cy="15" r="5" fill="#3f8f46"/><path d="M0 -18 C7 -9 11 -3 5 6 C3 2 1 2 0 5 C-1 2 -3 2 -5 6 C-11 -3 -7 -9 0 -18Z" fill="#ff7a1a"/><path d="M0 -12 C4 -6 7 -2 3 5 C2 2 1 2 0 4 C-1 2 -2 2 -3 5 C-7 -2 -4 -6 0 -12Z" fill="#ffd23e"/><g fill="#aab2be" opacity=".85"><circle cx="9" cy="-16" r="5"/><circle cx="16" cy="-21" r="6"/><circle cx="4" cy="-20" r="4"/></g>',
+   acqua:'<rect x="-28" y="-28" width="56" height="56" fill="#79b356"/><path d="M-28 -6 Q-10 -14 6 -8 Q20 -3 28 -10 L28 28 L-28 28Z" fill="#3f9fe0"/><g fill="#c85a3c"><path d="M-15 0 l5 -7 5 7z"/><path d="M6 4 l5 -7 5 7z"/></g><g stroke="#dff2ff" stroke-width="1.4" fill="none" opacity=".7"><path d="M-16 13 q6 3 12 0"/><path d="M2 18 q6 3 12 0"/></g>',
+   albero:'<rect x="-28" y="-28" width="56" height="56" fill="#3f8f42"/><g fill="#48a24c"><circle cx="-18" cy="-10" r="5"/><circle cx="-9" cy="-16" r="5"/><circle cx="-20" cy="5" r="5"/><circle cx="-8" cy="9" r="6"/><circle cx="-16" cy="17" r="5"/></g><rect x="2" y="-16" width="24" height="34" fill="#a9824f"/><g stroke="#8a6a3c" stroke-width="1.5"><line x1="2" y1="-2" x2="26" y2="-2"/><line x1="14" y1="-16" x2="14" y2="18"/></g><g fill="#7a5a34"><circle cx="8" cy="6" r="2.2"/><circle cx="20" cy="10" r="2.2"/></g>',
+   edifici:'<rect x="-28" y="-28" width="56" height="56" fill="#a9c86e"/><rect x="-20" y="-16" width="40" height="34" fill="#cfd2d6"/>'+ROOFS+'<g stroke="#aeb3bb" stroke-width="2"><line x1="-20" y1="0" x2="20" y2="0"/><line x1="0" y1="-16" x2="0" y2="18"/></g>',
+   frana:'<rect x="-28" y="-28" width="56" height="56" fill="#6cae4c"/><path d="M-20 -18 L2 16 L14 16 L-8 -18Z" fill="#a9824f"/><path d="M-8 16 L14 16 L20 26 L-14 26Z" fill="#8a6a44"/><g fill="#7a746c"><circle cx="0" cy="10" r="3"/><circle cx="8" cy="16" r="2.5"/><circle cx="-4" cy="18" r="2.5"/></g>',
+   alghe:'<rect x="-28" y="-28" width="56" height="56" fill="#2f8fd6"/><path d="M-24 6 Q-10 -6 4 2 Q16 8 24 -2 L24 28 L-24 28Z" fill="#2f7fb0" opacity=".5"/><g fill="#3fae4a" opacity=".92"><ellipse cx="-8" cy="-4" rx="12" ry="7"/><ellipse cx="10" cy="6" rx="10" ry="6"/><ellipse cx="0" cy="12" rx="8" ry="5"/></g><g fill="#63c46a"><circle cx="-6" cy="-4" r="2"/><circle cx="8" cy="6" r="2"/></g>'
+  };
+  return P[t]||"";
+}
+function patchMarkup(t){ return '<g clip-path="url(#patchClip)"><g transform="scale(1.2)">'+patchInner(t)+'</g></g>'; }
+
+function buildLegenda(){
+  $("#legenda").innerHTML = SENSORI.map(s=>`<div class="s"><span class="d" style="background:${s.colore}"></span><span><b>${s.nome}</b> — ${s.desc}</span></div>`).join("");
+}
+function buildSats(){
+  $("#sats").innerHTML = SENSORI.map((s,i)=>`
+    <g class="sat" id="sat${i}" data-id="${s.id}" style="--c:${s.colore}">
+      <rect class="hit" x="-52" y="-30" width="104" height="86" rx="10" fill="transparent"/>
+      <circle class="ring" r="30"/>
+      <g class="body">
+        <rect x="-40" y="-11" width="22" height="22" rx="3" fill="url(#panelG)" stroke="#0f356f" stroke-width="1.5"/>
+        <rect x="18" y="-11" width="22" height="22" rx="3" fill="url(#panelG)" stroke="#0f356f" stroke-width="1.5"/>
+        <line x1="-18" y1="0" x2="-14" y2="0" stroke="#8b97a8" stroke-width="3"/><line x1="14" y1="0" x2="18" y2="0" stroke="#8b97a8" stroke-width="3"/>
+        <rect x="-15" y="-15" width="30" height="32" rx="8" fill="#eef3fb" stroke="#b7c1d0" stroke-width="1.5"/>
+        <g transform="translate(0,1)">${emblem(s.id)}</g>
+        <rect x="-7" y="17" width="14" height="6" rx="2" fill="var(--c)"/>
+      </g>
+      <g class="lab"><rect x="-48" y="30" width="96" height="22" rx="8" fill="#0e1936" stroke="var(--c)" stroke-width="1.5"/>
+        <text x="0" y="45" text-anchor="middle" font-family="Poppins, sans-serif" font-weight="600" font-size="12" fill="#eaf2ff">${s.nome}</text></g>
+    </g>`).join("");
+  const t=(performance.now()-T0)/1000;
+  ORB.forEach((o,i)=>{ const p=orbPos(o,t); const g=document.getElementById("sat"+i); if(g) g.setAttribute("transform",`translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`); });
+  $("#sats").querySelectorAll(".sat").forEach(g=> g.addEventListener("click",()=>scegliSat(g.dataset.id, g)));
+  buildOrbits();
+}
+
+function initGioco(){
+  if(window.GiochiSATStats) window.GiochiSATStats.recordPlay("sensore-adatto");
+  idx=0; monitorati=0; alPrimo=0; finito=false;
+  $("#count").textContent="0"; $("#total").textContent=ROUND.length;
+  $("#diario").innerHTML=""; $("#dots").innerHTML=ROUND.map(()=>'<i></i>').join("");
+  buildSats();
+  $("#start").classList.add("hidden"); $("#end").classList.add("hidden"); $("#game").classList.remove("hidden");
+  setRound(0);
+}
+
+function setRound(i){
+  const r=ROUND[i]; fase="scegli"; tentato=false; chosen=null; chosenOrbit=null;
+  // hotspot
+  const hs=$("#hotspot"); hs.className.baseVal=""; hs.setAttribute("class","hs");
+  hs.style.setProperty("--c", r.colore);
+  hs.setAttribute("transform",`translate(${r.hx},${r.hy})`);
+  hs.innerHTML = `<circle class="pr" r="34"/>${patchMarkup(r.tipo)}`
+     + `<circle r="32" fill="none" stroke="#ffffff" stroke-width="2.5" opacity=".55"/>`
+     + `<circle r="32" fill="none" stroke="${r.colore}" stroke-width="2.5" opacity=".95"/>`
+     + `<g class="tick"><circle cx="23" cy="-23" r="10" fill="#22c55e"/><path d="M18.5 -23 l3.4 3.4 6.6 -6.6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+  // reset satelliti
+  $("#sats").querySelectorAll(".sat").forEach(g=>g.classList.remove("dim","active","shake"));
+  // beam/foot off
+  $("#beam").classList.remove("on"); $("#beam").innerHTML="";
+  const f=$("#foot"); f.classList.remove("on","near","lock");
+  $("#globeCatch").style.pointerEvents="none";
+  // card
+  $("#probtag").textContent=r.problema; $("#probtag").style.background=r.colore;
+  $("#dquestion").textContent=r.domanda;
+  const fb=$("#fb"); fb.className="feedback info"; fb.textContent="Tocca il satellite con il sensore giusto.";
+  $("#reveal").classList.add("hidden");
+  const nb=$("#nextBtn"); nb.disabled=true; nb.textContent=(i===ROUND.length-1)?"Vedi il resoconto":"Prossimo problema";
+  $("#scanhint").textContent="Scegli il sensore adatto al problema.";
+}
+
+function scegliSat(id,g){
+  if(fase!=="scegli") return;
+  const r=ROUND[idx];
+  if(id===r.sensore){
+    chosen=SENSORI.find(s=>s.id===id);
+    chosenOrbit=ORB[SENSORI.findIndex(s=>s.id===id)];
+    fase="punta";
+    $("#sats").querySelectorAll(".sat").forEach(x=>{ if(x!==g) x.classList.add("dim"); });
+    g.classList.add("active");
+    // posizione iniziale footprint: lato opposto al problema
+    foot={x:2*EC.x-r.hx, y:2*EC.y-r.hy}; clampFoot();
+    const f=$("#foot"); f.style.setProperty("--c", chosen.colore); f.classList.add("on");
+    $("#beam").style.setProperty("--c", chosen.colore); $("#beam").classList.add("on");
+    updateFoot();
+    $("#globeCatch").style.pointerEvents="all";
+    const fb=$("#fb"); fb.className="feedback ok"; fb.textContent="Sensore giusto! Ora trascina il footprint sul problema.";
+    $("#scanhint").textContent="Trascina il raggio sul punto esatto.";
+  } else {
+    tentato=true; g.classList.add("shake"); setTimeout(()=>g.classList.remove("shake"),450);
+    const fb=$("#fb"); fb.className="feedback no"; fb.textContent="Questo sensore non è il più adatto. Riprova!";
+  }
+}
+
+function clampFoot(){
+  const dx=foot.x-EC.x, dy=foot.y-EC.y, d=Math.hypot(dx,dy), max=EC.r-20;
+  if(d>max){ foot.x=EC.x+dx/d*max; foot.y=EC.y+dy/d*max; }
+}
+function drawBeam(){
+  if(!chosenOrbit) return;
+  const sx=chosenOrbit.x, sy=chosenOrbit.y;
+  const dx=foot.x-sx, dy=foot.y-sy, d=Math.hypot(dx,dy)||1;
+  const px=-dy/d, py=dx/d, b=5, t=34;
+  const p1=[sx+px*b, sy+py*b], p2=[foot.x+px*t, foot.y+py*t], p3=[foot.x-px*t, foot.y-py*t], p4=[sx-px*b, sy-py*b];
+  $("#beam").innerHTML=`<polygon points="${p1} ${p2} ${p3} ${p4}"/><line x1="${sx}" y1="${sy}" x2="${foot.x}" y2="${foot.y}"/>`;
+}
+function updateFoot(){
+  $("#foot").setAttribute("transform",`translate(${foot.x},${foot.y})`);
+  drawBeam();
+  const r=ROUND[idx]; const dist=Math.hypot(foot.x-r.hx, foot.y-r.hy);
+  $("#foot").classList.toggle("near", dist<46 && fase==="punta");
+  if(fase==="punta" && dist<30){ lock(); }
+}
+function lock(){
+  fase="done";
+  const r=ROUND[idx];
+  foot={x:r.hx,y:r.hy}; $("#foot").setAttribute("transform",`translate(${foot.x},${foot.y})`); drawBeam();
+  $("#foot").classList.add("lock"); $("#globeCatch").style.pointerEvents="none"; dragging=false;
+  $("#hotspot").classList.add("found");
+  $("#dots").children[idx].classList.add("on");
+  monitorati++; if(!tentato) alPrimo++; $("#count").textContent=monitorati;
+  aggiungiDiario(r);
+  const fb=$("#fb"); fb.className="feedback ok"; fb.textContent="Rilevato! Problema monitorato.";
+  $("#scanhint").textContent="Ottimo lavoro.";
+  mostraSpiegazione(r);
+  const nb=$("#nextBtn"); nb.disabled=false;
+}
+
+
+function mostraSpiegazione(r){
+  const rv=$("#reveal"); rv.classList.remove("hidden"); rv.style.setProperty("--spot", r.colore);
+  const t=$("#dtitle"); t.textContent=r.problema; t.style.color=r.colore;
+  const box=$("#dlines"); box.innerHTML=""; let i=0;
+  const conSensore = ROUND[idx].righe.slice();
+  (function passo(){ if(i>=conSensore.length) return;
+    const d=document.createElement("div"); d.className="line"; d.textContent=conSensore[i]; box.appendChild(d);
+    requestAnimationFrame(()=>d.classList.add("show")); i++; setTimeout(passo,900); })();
+}
+function aggiungiDiario(r){
+  const c=document.createElement("span"); c.className="chip";
+  const s=SENSORI.find(x=>x.id===r.sensore);
+  c.innerHTML=`<span class="d" style="background:${r.colore}"></span>${r.problema} · ${s.nome}`;
+  $("#diario").appendChild(c);
+}
+
+// drag footprint
+function toSvg(e){ const p=scene.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; const m=scene.getScreenCTM().inverse(); const q=p.matrixTransform(m); return {x:q.x,y:q.y}; }
+function pointerMove(e){ if(!dragging||fase!=="punta") return; const q=toSvg(e); foot.x=q.x; foot.y=q.y; clampFoot(); updateFoot(); }
+$("#globeCatch").addEventListener("pointerdown",e=>{ if(fase!=="punta") return; dragging=true; scene.setPointerCapture(e.pointerId); const q=toSvg(e); foot.x=q.x; foot.y=q.y; clampFoot(); updateFoot(); });
+$("#foot").addEventListener("pointerdown",e=>{ if(fase!=="punta") return; dragging=true; scene.setPointerCapture(e.pointerId); });
+scene.addEventListener("pointermove",pointerMove);
+scene.addEventListener("pointerup",()=>{dragging=false;});
+scene.addEventListener("pointercancel",()=>{dragging=false;});
+
+function nextRound(){
+  if(idx>=ROUND.length-1){ vaiFine(); return; }
+  idx++; setRound(idx); window.scrollTo({top:0,behavior:"smooth"});
+}
+function vaiFine(){
+  $("#game").classList.add("hidden"); $("#end").classList.remove("hidden");
+  $("#punteggio").textContent=`Al primo colpo: ${alPrimo}/${ROUND.length}`;
+  $("#recap").innerHTML=ROUND.map(r=>{ const s=SENSORI.find(x=>x.id===r.sensore);
+    return `<div class="r"><span class="d" style="background:${r.colore}"></span><b>${r.problema}</b><span>${s.nome}</span></div>`; }).join("");
+  coriandoli(); window.scrollTo({top:0,behavior:"smooth"});
+  GiochiSAT.fineGioco("sensore-adatto", { punti: alPrimo });
+}
+function coriandoli(){ const box=$("#confetti"); box.innerHTML=""; const col=["#2f6bff","#22c55e","#facc15","#fb7185","#38bdf8"];
+  for(let k=0;k<90;k++){ const c=document.createElement("i"); c.style.left=Math.random()*100+"vw"; c.style.background=col[k%col.length];
+    c.style.animationDuration=(2.4+Math.random()*1.8)+"s"; c.style.animationDelay=(Math.random()*.5)+"s"; c.style.transform="rotate("+(Math.random()*360)+"deg)"; box.appendChild(c);} 
+  setTimeout(()=>box.innerHTML="",4800); }
+
+buildLegenda();
+const DUEL_URL=GIOCHISAT_CONFIG.supabaseUrl,DUEL_KEY=GIOCHISAT_CONFIG.supabaseKey;
+let openDuelId=null;
+async function duelRpc(name,args={}){const r=await fetch(`${DUEL_URL}/rest/v1/rpc/${name}`,{method:"POST",headers:{apikey:DUEL_KEY,Authorization:`Bearer ${DUEL_KEY}`,"Content-Type":"application/json"},body:JSON.stringify(args)});const body=await r.json().catch(()=>null);if(!r.ok)throw new Error(body?.message||"Collegamento non riuscito");return body}
+async function cercaSfidaAperta(){try{const d=await duelRpc("sensor_duel_available");if(d&&d.available){openDuelId=d.duel_id;$("#challengerText").textContent=`${d.challenger} cerca un avversario. Vuoi accettare?`;$("#challengeName").value=GiochiSAT.nome.get();$("#openChallenge").classList.remove("hidden")}}catch(e){/* La modalità singola resta sempre disponibile. */}}
+$("#acceptChallenge").addEventListener("click",async()=>{const n=$("#challengeName").value.trim();if(n.length<2){$("#challengeError").textContent="Inserisci almeno due caratteri.";return}let token=localStorage.getItem("giochisat_duel_token");if(!token){token=crypto.randomUUID();localStorage.setItem("giochisat_duel_token",token)}$("#challengeError").textContent="Collegamento alla sfida…";try{await duelRpc("sensor_duel_join",{p_duel_id:openDuelId,p_token:token,p_name:n});GiochiSAT.nome.set(n);location.href=`../sensore-sfida/?duel=${encodeURIComponent(openDuelId)}`}catch(e){$("#challengeError").textContent=e.message;openDuelId=null;setTimeout(()=>$("#openChallenge").classList.add("hidden"),1800)}});
+$("#declineChallenge").addEventListener("click",()=>$("#openChallenge").classList.add("hidden"));
+if(!GiochiSAT.sfida.attiva())cercaSfidaAperta();
+$("#go").addEventListener("click",initGioco);
+$("#nextBtn").addEventListener("click",nextRound);
+$("#again").addEventListener("click",initGioco);
+</script>
+<script>
+if (GiochiSAT.sfida.attiva()) {            // durante la Sfida si gioca da soli
+  document.querySelectorAll('.mode-actions a[href*="sensore-sfida"]').forEach(a => a.hidden = true);
+}
+</script>
+</body>
+</html>

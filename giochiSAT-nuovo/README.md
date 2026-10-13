@@ -1,0 +1,159 @@
+# Giochi SAT – ARPA Lazio
+
+Giochi educativi sull'osservazione satellitare della Terra, realizzati dal
+Servizio Attività Produttive e Controlli di ARPA Lazio.
+
+**Sito pubblicato:** https://arpalaziosat.github.io/giochiSAT/
+(GitHub Pages: ogni file caricato sul ramo `main` va online in qualche minuto).
+
+## Come si usa il sito
+
+- **Home**: tre scelte, come nello schizzo di progetto.
+  - **Modalità sfida**: si sceglie la difficoltà, il sito estrae a caso alcuni
+    giochi singleplayer da completare uno dopo l'altro entro un tempo limite.
+    Chi finisce tutto in tempo ottiene la ricompensa.
+  - **Esercitati → Singleplayer**: i giochi della sfida, uno alla volta.
+  - **Esercitati → Multiplayer**: Quizzone Live, Duello orbitale, Sfida del sensore.
+- **Soprannome**: nessuna registrazione. Il soprannome si sceglie una volta
+  (in alto a destra, nella sfida o nei giochi che lo chiedono) e resta valido
+  passando da un gioco all'altro. **Ricaricando la pagina viene dimenticato**:
+  utile sui monitor degli eventi, dove giocano persone diverse.
+  Sono accettati solo lettere, numeri, spazi, punto, trattino e underscore
+  (niente email o numeri di telefono).
+- Ogni pagina ha in alto il pulsante **Home**.
+
+## Struttura
+
+```
+giochiSAT/
+├── index.html                 Home
+├── 404.html                   Pagina per gli indirizzi sbagliati
+├── sfida/                     Modalità sfida: scelta della difficoltà
+│   ├── risultato/             Com'è andata
+│   └── ricompensa/            Ricompensa (segnaposto) + ricompensa.js da completare
+├── esercitazione/
+│   ├── singleplayer/          Elenco dei giochi singleplayer
+│   └── multiplayer/           Elenco dei giochi multiplayer
+│
+├── memory/  missione-satellite/  quiz-terra/  sensore-adatto/
+├── puzzle-satelliti/  sat-doku/  parole-in-orbita/      ← singleplayer
+├── quizzone/  duello-orbitale/  sensore-sfida/          ← multiplayer
+│
+├── quizzone-monitor/          Schermo pubblico del Quizzone (con QR code)
+├── quizzone-regia/            Regia del Quizzone (password)
+├── statistiche/               Statistiche di utilizzo (password)
+├── classifica-memory/         Classifica del Memory per i monitor
+│
+├── assets/
+│   ├── config.js              ★ Configurazione: database, giochi, regole della sfida
+│   ├── css/giochisat.css      Stile comune (colori, cielo, barra, pulsanti)
+│   ├── js/giochisat.js        Script comune (cielo stellato, soprannome, sfida)
+│   ├── fonts/                 Font Poppins ospitato sul sito + licenza
+│   ├── terra/                 Terra della home (mappa.svg; spazio per un video)
+│   ├── ricompense/            File della ricompensa (da preparare)
+│   ├── game-stats.js          Conteggio anonimo delle partite
+│   └── parole-italiane-giochisat.js   Vocabolario di "Parole in orbita"
+├── immagini/                  Carte del Memory
+└── docs/                      Istruzioni storiche degli aggiornamenti
+```
+
+I due file `.html` nella radice (`missione_satellite_gioco2.html`,
+`quiz_osserva_la_terra_gioco1.html`) rinviano ai vecchi indirizzi: si possono
+eliminare quando nessun QR o link li usa più.
+
+## Cosa si cambia da `assets/config.js`
+
+- **Regole della sfida** (`sfida.difficolta`): numero di giochi e minuti per
+  ogni difficoltà. Oggi sono impostati per il **play testing** (tutti i 7 giochi,
+  60 minuti): abbassarli dopo aver misurato i tempi reali.
+- **Livello dei giochi nella sfida** (`sfida.livelli`): tempo del Memory e
+  livello base/avanzato di SAT-Doku e Parole in orbita per ogni difficoltà.
+- **Elenco dei giochi** (`giochi`): nome, descrizione, colore, tipo
+  (`single` o `multi`). Le pagine di Esercitazione si costruiscono da qui.
+- **Video della Terra** (`terraVideo`): vedi `assets/terra/LEGGIMI.md`.
+- **Database**: indirizzo e chiave pubblica di Supabase (unico punto).
+
+## Pagine e file comuni
+
+Ogni pagina carica, nell'`<head>` e in quest'ordine:
+
+```html
+<script src="../assets/config.js"></script>
+<link rel="stylesheet" href="../assets/css/giochisat.css">
+<script src="../assets/js/giochisat.js"></script>
+```
+
+e ha `<body class="gs" data-gioco="id-del-gioco" style="--gs-colore:#...">`
+seguito dalla barra comune `<header class="gs-barra">` (copiarla da un gioco).
+Le classi comuni iniziano con `gs-` per non scontrarsi con quelle dei giochi.
+
+### Collegare un gioco alla sfida
+
+1. Aggiungerlo in `assets/config.js` con `tipo: "single"`.
+2. Quando la partita finisce, chiamare:
+   ```js
+   GiochiSAT.fineGioco("id-del-gioco", { completato: true, punti: 42 });
+   ```
+   (`completato: false` se la partita è persa: la sfida propone Riprova o Salta).
+3. Facoltativo: leggere il livello imposto dalla difficoltà con
+   `GiochiSAT.sfida.livello("id-del-gioco")` (restituisce `null` fuori dalla sfida).
+
+Fuori dalla sfida `fineGioco` non fa nulla di visibile, quindi si può
+chiamare sempre.
+
+### Soprannome nei giochi
+
+```js
+GiochiSAT.nome.get()              // soprannome attuale ("" se non scelto)
+GiochiSAT.nome.set("Stella23")    // salva (false se non valido)
+GiochiSAT.nome.errore(testo)      // messaggio d'errore oppure ""
+GiochiSAT.nome.collega(input)     // collega un campo del gioco al soprannome comune
+GiochiSAT.nome.chiedi()           // finestra per sceglierlo
+```
+
+## Database (Supabase)
+
+- Indirizzo e chiave pubblica sono **solo** in `assets/config.js`.
+- La chiave è di tipo *publishable*: è pensata per pagine pubbliche. La
+  protezione dei dati dipende dalle regole RLS e dalle funzioni in Supabase.
+- **Mai** inserire nel repository la chiave *secret* / *service_role*.
+- Gli script `.sql` si eseguono nel SQL Editor di Supabase e **non** vanno qui.
+- Sul piano gratuito i progetti inattivi vengono messi in pausa: prima di un
+  evento aprire il pannello Supabase e verificare che il progetto sia attivo.
+
+## Privacy e buone pratiche già applicate
+
+- Nessun nome vero, email o registrazione; il soprannome vive solo nella scheda del browser.
+- Il Quizzone ricorda la partecipazione solo per la scheda aperta (non più in modo permanente).
+- I font sono ospitati sul sito: nessuna richiesta a Google Fonts.
+- Pagine di regia e statistiche escluse dai motori di ricerca (`noindex`).
+- Animazioni disattivate per chi ha impostato "riduci movimento" sul dispositivo.
+- Il monitor del Quizzone carica il logo come file (la pagina è passata da 180 KB a 28 KB).
+
+## Come aggiornare
+
+1. Se l'aggiornamento richiede uno script SQL, eseguirlo prima in Supabase.
+2. Caricare i file mantenendo la struttura delle cartelle (non caricare la
+   cartella contenitore come sottocartella).
+3. Scrivere un messaggio che descriva la modifica (es. «SAT-Doku: aggiunto
+   livello avanzato») invece di «Add files via upload».
+4. Non caricare copie come `index (3).html`: sostituire il file esistente.
+5. Attendere qualche minuto e ricaricare il sito con Ctrl+F5.
+
+## Da fare
+
+- Decidere e preparare la **ricompensa** (`assets/ricompense/LEGGIMI.md`).
+- Misurare i tempi reali e abbassare giochi e minuti della sfida.
+- Fissare la versione della libreria Supabase (oggi `@supabase/supabase-js@2`
+  carica sempre l'ultima 2.x): sostituire `@2` con la versione esatta in uso.
+- Far scrivere la classifica del Memory tramite una funzione con controlli,
+  come già avviene per Quizzone e sfida del sensore.
+- Le foto delle carte del Memory potrebbero diventare illustrazioni piatte,
+  nello stile del resto del sito.
+
+## Licenze
+
+- Font Poppins: SIL Open Font License 1.1, vedi `assets/fonts/OFL.txt`.
+- Vocabolario di "Parole in orbita": da
+  [napolux/paroleitaliane](https://github.com/napolux/paroleitaliane), licenza
+  MIT, vedi `LICENZA_DIZIONARIO_ITALIANO.txt`.
