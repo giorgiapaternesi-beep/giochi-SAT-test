@@ -20,8 +20,8 @@ window.GIOCHISAT_CONFIG = Object.freeze({
       descrizione: "Trova le coppie di immagini prima che finisca il tempo." },
     { id: "missione-satellite", nome: "Missione satellite",  tipo: "single", colore: "#FF5C8A", percorso: "missione-satellite/",
       descrizione: "Leggi i dati del satellite e scopri quale problema nascondono." },
-    { id: "quiz-terra",         nome: "Osserva la Terra",    tipo: "single", colore: "#2ED3A0", percorso: "quiz-terra/",
-      descrizione: "Otto domande su come i satelliti studiano il pianeta." },
+    { id: "quiz-terra",         nome: "Quizzone",            tipo: "single", colore: "#2ED3A0", percorso: "quiz-terra/",
+      descrizione: "Cinque domande a sorpresa su satelliti e ambiente." },
     { id: "sensore-adatto",     nome: "Il sensore giusto",   tipo: "single", colore: "#FFB238", percorso: "sensore-adatto/",
       descrizione: "Incendi, alluvioni, frane: scegli il sensore adatto e puntalo." },
     { id: "puzzle-satelliti",   nome: "Puzzle della Terra",  tipo: "single", colore: "#FF6B4A", percorso: "puzzle-satelliti/",
@@ -59,10 +59,10 @@ window.GIOCHISAT_CONFIG = Object.freeze({
       media:     { opzioni: 3, secondi: 0,  descrizione: "3 risposte possibili, senza tempo" },
       difficile: { opzioni: 3, secondi: 20, descrizione: "3 risposte, 20 secondi per anomalia" }
     },
-    "quiz-terra": {                   // secondi per domanda (0 = senza tempo)
-      facile:    { secondi: 0,  descrizione: "Senza tempo" },
-      media:     { secondi: 30, descrizione: "30 secondi a domanda" },
-      difficile: { secondi: 15, descrizione: "15 secondi a domanda" }
+    "quiz-terra": {                   // Quizzone: domande pescate per difficoltà (file assets/quiz/domande.txt); secondi per domanda (0 = senza tempo)
+      facile:    { domande: { facile: 3, normale: 2 },               secondi: 0,  descrizione: "3 domande facili e 2 normali, senza tempo" },
+      media:     { domande: { facile: 1, normale: 3, difficile: 1 }, secondi: 30, descrizione: "1 facile, 3 normali e 1 difficile, 30 secondi a domanda" },
+      difficile: { domande: { normale: 2, difficile: 3 },            secondi: 15, descrizione: "2 domande normali e 3 difficili, 15 secondi a domanda" }
     },
     "sensore-adatto": {               // precisione richiesta per centrare il problema; aiuto = il bersaglio si illumina
       facile:    { tolleranza: 44, aiuto: true,  descrizione: "Mira facile, con aiuto" },
@@ -94,9 +94,9 @@ window.GIOCHISAT_CONFIG = Object.freeze({
      Abbassarli quando si saranno misurati i tempi reali. */
   sfida: {
     difficolta: {
-      facile:    { nome: "Facile",    giochi: 7, minuti: 60, descrizione: "Pochi pezzi e coppie, tempi larghi, nessun conto alla rovescia nei quiz." },
-      media:     { nome: "Media",     giochi: 7, minuti: 60, descrizione: "Griglie più grandi e un po' di tempo nei quiz." },
-      difficile: { nome: "Difficile", giochi: 7, minuti: 60, descrizione: "Tanti pezzi, tempi stretti e nessun aiuto." }
+      facile:    { nome: "Facile",    giochi: 7, minuti: 60, descrizione: "Pochi pezzi e coppie, domande facili, tempi larghi e nessun conto alla rovescia nei quiz." },
+      media:     { nome: "Media",     giochi: 7, minuti: 60, descrizione: "Griglie più grandi, domande un po' più impegnative e un po' di tempo nei quiz." },
+      difficile: { nome: "Difficile", giochi: 7, minuti: 60, descrizione: "Tanti pezzi, domande difficili, tempi stretti e nessun aiuto." }
     }
   },
 

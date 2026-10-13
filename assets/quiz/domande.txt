@@ -1,0 +1,174 @@
+# =====================================================================
+#  DOMANDE DEL QUIZZONE (gioco da soli)
+#
+#  Si può modificare direttamente su GitHub: apri questo file, premi la
+#  matita, cambia il testo e salva con "Commit changes".
+#
+#  Ogni domanda è un blocco di righe. Tra un blocco e l'altro lascia
+#  una riga vuota.
+#
+#    [facile] Testo della domanda?
+#    + Risposta giusta
+#    - Risposta sbagliata
+#    - Risposta sbagliata
+#    > Spiegazione mostrata dopo la risposta (facoltativa).
+#
+#  - Tra parentesi quadre la difficoltà: facile, normale o difficile.
+#  - Da 2 a 4 risposte. Il segno + indica quella giusta (una sola),
+#    il segno - quelle sbagliate. L'ordine non conta: il gioco le mescola.
+#  - Nella spiegazione, **parola** diventa grassetto.
+#  - Le righe che iniziano con # sono note: il gioco le ignora.
+#
+#  Dopo una modifica apri  quiz-terra/?controlla  sul sito: vedrai se il
+#  file è scritto bene e quante domande ci sono per ogni difficoltà.
+#
+#  Quante domande facili, normali e difficili pesca ogni partita si
+#  decide in assets/config.js, alla voce "quiz-terra" dentro "livelli".
+# =====================================================================
+
+
+# ---------------------------------------------------------------------
+#  FACILI
+# ---------------------------------------------------------------------
+
+[facile] Come fanno i satelliti per l'osservazione della Terra a raccogliere i dati?
++ Le girano intorno e la riprendono dall'alto con sensori speciali
+- Restano fermi lontanissimi dalla Terra e la fotografano da lì
+- Scattano una sola foto e poi tornano subito a terra
+> Un satellite di osservazione gira in **orbita** e riprende la Terra dall'alto tante volte, con sensori che colgono anche ciò che i nostri occhi non vedono.
+
+[facile] Perché d'estate una città è spesso più calda della campagna intorno?
++ Asfalto e cemento assorbono e trattengono il calore
+- In città ci sono più alberi che fanno ombra
+- La campagna riceve molto più sole della città
+> Superfici scure come **asfalto e cemento** accumulano calore e ci sono poche piante a rinfrescare: è l'**isola di calore**, che i satelliti mappano dall'alto.
+
+[facile] I dati dei satelliti europei Copernicus, chi può usarli?
++ Chiunque: sono gratuiti e aperti a tutti
+- Solo le agenzie spaziali e i governi
+- Solo chi paga un abbonamento annuale
+> I dati di **Copernicus** sono gratuiti e aperti: può scaricarli e usarli chiunque, basta citare la fonte. Sì, anche tu!
+
+# nuova
+[facile] Che cos'è un satellite artificiale?
++ Un oggetto costruito dall'uomo che gira intorno alla Terra
+- Una stella molto vicina alla Terra
+- Un aereo che vola altissimo
+> Un satellite artificiale viene costruito sulla Terra e portato in **orbita** da un razzo: da lassù gira intorno al pianeta senza cadere, grazie alla sua grande velocità.
+
+# nuova
+[facile] Perché è utile osservare la Terra dallo spazio?
++ Si vedono in un colpo solo zone grandissime, anche difficili da raggiungere
+- Dallo spazio le cose sembrano più piccole e si studiano più in fretta
+- Serve solo a scattare belle fotografie
+> Da lassù un satellite vede in pochi minuti territori enormi, compresi mari, ghiacciai e montagne dove è difficile arrivare, e torna a osservarli **regolarmente**.
+
+# nuova
+[facile] Quale di questi oggetti usa i satelliti per dirti dove ti trovi?
++ Il navigatore
+- Il termometro
+- La bussola
+> Il navigatore riceve i segnali di più **satelliti di navigazione**, come il GPS americano o l'europeo **Galileo**, e da questi calcola la tua posizione.
+
+# nuova
+[facile] A che cosa servono soprattutto le immagini dei satelliti meteorologici?
++ A seguire nuvole e perturbazioni per fare le previsioni del tempo
+- A misurare la temperatura del Sole
+- A contare gli aerei in volo
+> I **satelliti meteorologici** osservano di continuo nuvole, vento e temporali: i loro dati sono alla base delle previsioni del tempo che vediamo ogni giorno.
+
+
+# ---------------------------------------------------------------------
+#  NORMALI
+# ---------------------------------------------------------------------
+
+[normale] Come fa un satellite ad accorgersi di un incendio anche a distanza?
++ Rileva il calore e il fumo con sensori a infrarossi
+- Registra il rumore delle fiamme dallo spazio
+- Riesce a vederlo solo con un cielo perfettamente sereno
+> I satelliti hanno sensori a **infrarossi** che percepiscono il calore, oltre a vedere il fumo: così scoprono un incendio anche lontano e molto in fretta.
+
+[normale] Come capisce un satellite se un bosco è sano o in sofferenza?
++ Misura la luce infrarossa che le foglie riflettono
+- Conta gli alberi uno per uno dallo spazio
+- Guarda solo il colore verde, come farebbero i nostri occhi
+> Le piante sane riflettono molta **luce infrarossa**, che noi non vediamo ma i satelliti sì: il solo verde a occhio non basterebbe a capirlo.
+
+[normale] In che modo i satelliti ci aiutano a controllare l'inquinamento dell'aria?
++ Misurano dall'alto i gas come il biossido di azoto (NO₂)
+- Aspirano un po' d'aria e la analizzano a bordo
+- Contano le automobili in strada una per una
+> Certi satelliti misurano come i **gas inquinanti** (per esempio il NO₂) assorbono la luce, e disegnano una mappa dell'aria sopra le città.
+
+# nuova
+[normale] Che cosa sono i satelliti Sentinel?
++ I satelliti del programma europeo Copernicus che osservano la Terra
+- Satelliti che sorvegliano le persone per motivi di sicurezza
+- Sonde spaziali che esplorano Marte
+> I **Sentinel** sono la famiglia di satelliti di Copernicus e ognuno ha un compito: Sentinel-1 usa il radar, Sentinel-2 scatta immagini a colori del territorio, Sentinel-5P misura la qualità dell'aria.
+
+# nuova
+[normale] Dopo un'alluvione, come aiutano i satelliti?
++ Mostrano in poco tempo quali zone sono finite sott'acqua
+- Fanno smettere di piovere
+- Asciugano il terreno con il loro calore
+> Confrontando le immagini di prima e di dopo, si preparano **mappe delle aree allagate** che aiutano la Protezione civile a organizzare i soccorsi.
+
+# nuova
+[normale] Che cosa si scopre confrontando immagini satellitari dei ghiacciai scattate in anni diversi?
++ Quanto si stanno ritirando
+- Quanti animali ci vivono sopra
+- Quanto rumore fa il ghiaccio quando si rompe
+> Mettendo a confronto immagini di anni diversi si misura quanto i **ghiacciai** si stanno ritirando a causa del riscaldamento globale.
+
+# nuova
+[normale] Che cosa si intende per "consumo di suolo"?
++ La copertura di terreno naturale o agricolo con edifici, strade e asfalto
+- L'uso dei campi per coltivare frutta e verdura
+- L'erosione delle spiagge causata dalle onde
+> Il **consumo di suolo** è la perdita di terreno naturale coperto da costruzioni e asfalto. In Italia lo misurano ogni anno ISPRA e le ARPA, anche grazie alle immagini satellitari.
+
+
+# ---------------------------------------------------------------------
+#  DIFFICILI
+# ---------------------------------------------------------------------
+
+[difficile] Perché alcuni satelliti riescono a osservare anche di notte o con le nuvole?
++ Usano un radar che manda un proprio segnale, senza bisogno di luce
+- Hanno fari potentissimi che illuminano la Terra
+- Schiariscono le foto con un filtro speciale
+> Il **radar** invia un proprio segnale a microonde che passa tra le nuvole e non ha bisogno del sole: perfetto per seguire le alluvioni col brutto tempo.
+
+[difficile] Come fanno i satelliti a capire se il livello del mare si sta alzando?
++ Calcolano con precisione la distanza tra il satellite e la superficie del mare
+- Contano le onde che arrivano sulla spiaggia
+- Misurano quanto è salata l'acqua
+> Un **altimetro radar** misura con grande precisione la distanza fino al mare: ripetuta negli anni, rivela di quanto il livello si sta alzando.
+
+# nuova
+[difficile] A che altezza vola, più o meno, un satellite Sentinel-2?
++ Circa 800 km
+- Circa 10 km, come un aereo di linea
+- Circa 384.000 km, come la Luna
+> I Sentinel-2 orbitano a circa **786 km** di quota, su un'orbita che passa vicino ai poli: così, giorno dopo giorno, fotografano tutta la Terra.
+
+# nuova
+[difficile] Più o meno ogni quanto i due satelliti Sentinel-2 ripassano sopra lo stesso punto dell'equatore?
++ Ogni 5 giorni
+- Una volta all'anno
+- Ogni 10 minuti
+> Lavorando in coppia, i Sentinel-2 ripassano sullo stesso punto circa **ogni 5 giorni** all'equatore, e ancora più spesso alle nostre latitudini: così si seguono i cambiamenti di campi, boschi e città.
+
+# nuova
+[difficile] Che cos'è un'orbita eliosincrona?
++ Un'orbita in cui il satellite passa sopra ogni luogo sempre alla stessa ora
+- Un'orbita intorno al Sole invece che intorno alla Terra
+- Un'orbita in cui il satellite resta fermo sopra lo stesso punto
+> Nell'orbita **eliosincrona** il satellite passa su ogni luogo sempre alla stessa ora solare: la luce è simile in tutte le immagini ed è più facile confrontarle. Il satellite che resta fermo sopra lo stesso punto si chiama invece **geostazionario**.
+
+# nuova
+[difficile] Cosa vuol dire che un'immagine satellitare ha una risoluzione di 10 metri?
++ Ogni pixel corrisponde a un quadrato di 10 × 10 metri sul terreno
+- Il satellite si trova a 10 metri da terra
+- L'immagine mostra in tutto una zona larga 10 metri
+> Con 10 metri di **risoluzione**, come nelle immagini a colori di Sentinel-2, ogni pixel copre un quadrato di 10 × 10 m: si riconosce un campo da calcio, ma non un'automobile.

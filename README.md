@@ -12,7 +12,9 @@ Servizio Attività Produttive e Controlli di ARPA Lazio.
   - **Modalità sfida**: si sceglie la difficoltà, il sito estrae a caso alcuni
     giochi singleplayer da completare uno dopo l'altro entro un tempo limite.
     Chi finisce tutto in tempo ottiene la ricompensa.
-  - **Esercitati → Singleplayer**: i giochi della sfida, uno alla volta.
+  - **Esercitati → Singleplayer**: i giochi della sfida, uno alla volta
+    (tra questi il **Quizzone** da giocare da soli, che ha preso il posto di
+    Osserva la Terra).
   - **Esercitati → Multiplayer**: Quizzone Live, Duello orbitale, Sfida del sensore.
 - **Soprannome**: nessuna registrazione. Il soprannome si sceglie una volta
   (in alto a destra, nella sfida o nei giochi che lo chiedono) e resta valido
@@ -41,6 +43,8 @@ giochiSAT/
 │
 ├── memory/  missione-satellite/  quiz-terra/  sensore-adatto/
 ├── puzzle-satelliti/  sat-doku/  parole-in-orbita/      ← singleplayer
+│   (quiz-terra/ è il Quizzone da soli: la cartella ha tenuto il vecchio
+│    nome per non rompere link, QR e statistiche)
 ├── quizzone/  duello-orbitale/  sensore-sfida/          ← multiplayer
 │
 ├── quizzone-monitor/          Schermo pubblico del Quizzone (con QR code)
@@ -54,6 +58,7 @@ giochiSAT/
 │   ├── js/giochisat.js        Script comune (cielo stellato, soprannome, sfida)
 │   ├── fonts/                 Font Poppins ospitato sul sito + licenza
 │   ├── terra/                 Terra della home (mappa.svg; spazio per un video)
+│   ├── quiz/domande.txt       ★ Domande del Quizzone da soli (si modificano qui)
 │   ├── memory/retro.svg       Retro delle carte del Memory (segnaposto da sostituire)
 │   ├── puzzle/                Immagini extra del Puzzle della Terra
 │   ├── ricompense/            File della ricompensa (da preparare)
@@ -80,7 +85,7 @@ eliminare quando nessun QR o link li usa più.
   |---|---|---|---|
   | Memory | 6 coppie, 90 s | 8 coppie, 60 s | 8 coppie, 30 s |
   | Missione satellite | 2 risposte | 3 risposte | 3 risposte, 20 s per anomalia |
-  | Osserva la Terra | senza tempo | 30 s a domanda | 15 s a domanda |
+  | Quizzone | 3 facili + 2 normali, senza tempo | 1 facile + 3 normali + 1 difficile, 30 s a domanda | 2 normali + 3 difficili, 15 s a domanda |
   | Il sensore giusto | mira larga, aiuto | mira normale, aiuto | mira precisa, senza aiuto |
   | Puzzle della Terra | 12 pezzi | 20 pezzi | 30 pezzi |
   | SAT-Doku | 4×4, suggerimenti | 5×5, suggerimenti | 5×5, senza suggerimenti |
@@ -94,10 +99,55 @@ eliminare quando nessun QR o link li usa più.
   una diversa. `file: null` è il disegno originale del gioco; le altre stanno
   in `assets/puzzle/` (formato 5:4, per esempio 1000×800). `titolo` è il testo
   mostrato a puzzle completato.
+- **Domande del Quizzone**: non stanno in `config.js` ma in
+  `assets/quiz/domande.txt` (vedi sotto). In `config.js` si decide solo quante
+  domande facili, normali e difficili pescare (`livelli` → `"quiz-terra"` →
+  `domande`) e i secondi per domanda.
 - **Elenco dei giochi** (`giochi`): nome, descrizione, colore, tipo
   (`single` o `multi`). Le pagine di Esercitazione si costruiscono da qui.
 - **Video della Terra** (`terraVideo`): vedi `assets/terra/LEGGIMI.md`.
 - **Database**: indirizzo e chiave pubblica di Supabase (unico punto).
+
+## Domande del Quizzone
+
+Il Quizzone da giocare da soli pesca **5 domande a caso** da
+`assets/quiz/domande.txt`, secondo la difficoltà scelta (tabella sopra), e le
+propone dalla più facile alla più difficile. Anche l'ordine delle risposte
+cambia a ogni partita.
+
+Il file si modifica direttamente su GitHub (apri il file → matita → *Commit
+changes*). Ogni domanda è un blocco così:
+
+```
+[normale] Come fa un satellite ad accorgersi di un incendio anche a distanza?
++ Rileva il calore e il fumo con sensori a infrarossi
+- Registra il rumore delle fiamme dallo spazio
+- Riesce a vederlo solo con un cielo perfettamente sereno
+> I satelliti hanno sensori a **infrarossi** che percepiscono il calore…
+```
+
+- `[facile]`, `[normale]` o `[difficile]` all'inizio: per cambiare la
+  difficoltà di una domanda basta cambiare questa parola.
+- `+` la risposta giusta (una sola), `-` le sbagliate: da 2 a 4 risposte.
+- `>` la spiegazione mostrata dopo la risposta (facoltativa);
+  `**parola**` diventa grassetto.
+- Le righe che iniziano con `#` sono note e vengono ignorate.
+
+Dopo una modifica aprire **`quiz-terra/?controlla`** sul sito: la pagina dice
+quante domande valide ci sono per ogni difficoltà, se bastano per le tre
+difficoltà della partita e, riga per riga, cosa c'è da correggere. Una
+domanda scritta male viene saltata, ma il gioco continua a funzionare. Se per
+una difficoltà le domande non bastano, il gioco completa la partita con
+quelle della difficoltà più vicina.
+
+Le domande segnate `# nuova` sono state scritte per avere abbastanza varietà
+e vanno ricontrollate. Il **Quizzone Live** degli eventi è un'altra cosa: le
+sue domande e risposte stanno nel database Supabase, così i partecipanti non
+possono leggerle nella pagina, e non usano questo file.
+
+Per provare il Quizzone sul proprio computer serve un piccolo server (per
+esempio `python -m http.server` nella cartella del sito): aprendo il file
+`index.html` con un doppio clic il browser non lascia leggere `domande.txt`.
 
 ## Pagine e file comuni
 
@@ -181,6 +231,8 @@ GiochiSAT.nome.chiedi()           // finestra per sceglierlo
   carica sempre l'ultima 2.x): sostituire `@2` con la versione esatta in uso.
 - Far scrivere la classifica del Memory tramite una funzione con controlli,
   come già avviene per Quizzone e sfida del sensore.
+- Ricontrollare le domande nuove del Quizzone (segnate `# nuova`) e
+  aggiungere quelle del Quizzone Live.
 - Sostituire il retro delle carte del Memory e, se si vuole, le immagini
   extra del puzzle (oggi disegni segnaposto).
 - Le foto delle carte del Memory potrebbero diventare illustrazioni piatte,
