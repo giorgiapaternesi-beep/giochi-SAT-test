@@ -39,13 +39,13 @@
       <div class="boardWrap"><div class="board" id="board" role="grid" aria-label="Griglia di lettere"></div><svg class="lines" id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline id="line" points=""/></svg></div>
       <p class="feedback" id="feedback" aria-live="polite"></p><p class="hint">Trascina il dito, anche in diagonale. Ogni casella si usa una sola volta.</p>
       <div class="foundBox"><div class="foundTitle"><span>Parole trovate</span><span id="foundCount">0</span></div><div class="found" id="found"><span class="empty">Nessuna parola trovata</span></div></div>
-      <div class="actions"><button class="btn secondary" id="rules">Istruzioni</button><button class="btn primary" id="change">Cambia livello</button></div>
+      <div class="actions"><button class="btn secondary" id="rules">Istruzioni</button><button class="btn primary" id="change" data-gs-esercitazione>Cambia livello</button></div>
     </section>
   </main>
 
   <div class="overlay" id="chooser"><div class="panel"><h2>Scegli il livello</h2><p>Trova più parole italiane possibili collegando le lettere vicine.</p><div class="levels"><button class="levelBtn" data-mode="base"><strong>Livello base</strong><span>Griglia 4×4 · 90 secondi</span></button><button class="levelBtn" data-mode="advanced"><strong>Livello avanzato</strong><span>Griglia 5×5 · 120 secondi</span></button></div></div></div>
   <div class="overlay hidden" id="rulesPanel"><div class="panel"><h2>Come si gioca</h2><p>Trascina il dito sulle lettere adiacenti, anche in diagonale, per formare parole italiane di almeno tre lettere. Nella stessa parola non puoi passare due volte sulla medesima casella. Le parole più lunghe valgono più punti; quelle ambientali sono contrassegnate con una foglia.</p><button class="btn primary" id="closeRules">Ho capito</button></div></div>
-  <div class="overlay hidden" id="result"><div class="panel"><h2>Tempo scaduto!</h2><p id="resultText"></p><div class="resultList"><div><h3>Parole trovate</h3><div class="scroll" id="resultFound"></div></div><div><h3>Parole ambientali suggerite</h3><div class="scroll" id="resultMissed"></div></div></div><div class="resultBtns"><button class="btn primary" id="again">Gioca ancora</button><button class="btn secondary" id="resultChange">Cambia livello</button></div></div></div>
+  <div class="overlay hidden" id="result"><div class="panel"><h2>Tempo scaduto!</h2><p id="resultText"></p><div class="resultList"><div><h3>Parole trovate</h3><div class="scroll" id="resultFound"></div></div><div><h3>Parole ambientali suggerite</h3><div class="scroll" id="resultMissed"></div></div></div><div class="resultBtns"><button class="btn primary" id="again" data-gs-esercitazione>Gioca ancora</button><button class="btn secondary" id="resultChange" data-gs-esercitazione>Cambia livello</button></div></div></div>
 
   <script>
   (()=>{

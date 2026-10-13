@@ -7,13 +7,14 @@
 <script src="../assets/config.js"></script>
 <link rel="stylesheet" href="../assets/css/giochisat.css">
 <script src="../assets/js/giochisat.js"></script>
+<script src="../assets/js/domande.js"></script>
 <script src="../assets/game-stats.js" defer></script>
 <!--
   Quizzone da giocare da soli.
   Le domande NON sono in questa pagina: stanno in assets/quiz/domande.txt
   (istruzioni in cima al file). Quante domande facili, normali e difficili
   pescare per ogni difficoltà si decide in assets/config.js → livelli.
-  Per controllare il file delle domande: quiz-terra/?controlla
+  Per controllare il file delle domande: quiz-terra/controllo/
 -->
 <style>
 .qz{width:min(100%,720px);margin:0 auto;padding:22px var(--gs-margine) 56px}
@@ -71,15 +72,6 @@
 .qz-riepilogo span{font-size:15px}
 .qz-riepilogo small{color:var(--gs-testo-2);font-size:13.5px}
 .qz-azioni{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-
-/* --- controllo del file (quiz-terra/?controlla) --- */
-.qz-controllo h2{font-size:24px}
-.qz-controllo table{width:100%;border-collapse:collapse;margin:10px 0 18px;font-size:15px}
-.qz-controllo th,.qz-controllo td{padding:8px 10px;border-bottom:1px solid var(--gs-bordo);text-align:left;vertical-align:top}
-.qz-controllo .qz-ok{color:var(--gs-verde);font-weight:700}
-.qz-controllo .qz-ko{color:var(--gs-rosa);font-weight:700}
-.qz-controllo details{margin-top:8px}
-.qz-controllo summary{cursor:pointer;font-weight:600}
 
 .qz-coriandoli{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:30}
 .qz-coriandoli i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:qz-cade linear forwards}
@@ -140,13 +132,10 @@
     <p class="qz-guida" id="fine-testo"></p>
     <ol class="qz-riepilogo" id="riepilogo"></ol>
     <div class="qz-azioni">
-      <button class="gs-btn" id="ancora" type="button">Gioca ancora</button>
-      <a class="gs-btn gs-secondario" href="../esercitazione/singleplayer/">Altri giochi</a>
+      <button class="gs-btn" id="ancora" type="button" data-gs-esercitazione>Gioca ancora</button>
+      <a class="gs-btn gs-secondario" href="../esercitazione/singleplayer/" data-gs-esercitazione>Altri giochi</a>
     </div>
   </section>
-
-  <!-- CONTROLLO DEL FILE DELLE DOMANDE (solo con ?controlla nell'indirizzo) -->
-  <section id="controllo" class="qz-scheda qz-controllo" hidden></section>
 
 </main>
 <div class="qz-coriandoli" id="coriandoli" aria-hidden="true"></div>
@@ -156,11 +145,8 @@
   "use strict";
 
   var ID = "quiz-terra";
-  var FILE_DOMANDE = GiochiSAT.url("assets/quiz/domande.txt");
-  var ORDINE = ["facile", "normale", "difficile"];
-  var NOMI = { facile: "Facile", normale: "Normale", difficile: "Difficile" };
+  var D = window.GiochiSATDomande;              // lettura del file e scelta delle domande (assets/js/domande.js)
   var COLORI = { facile: "var(--gs-verde)", normale: "var(--gs-giallo)", difficile: "var(--gs-rosa)" };
-  var VICINE = { facile: ["normale", "difficile"], normale: ["facile", "difficile"], difficile: ["normale", "facile"] };
 
   /* Difficoltà della partita (assets/config.js → livelli → "quiz-terra"):
      domande = quante domande pescare per ogni difficoltà; secondi = tempo per domanda (0 = senza tempo) */
@@ -170,85 +156,13 @@
   var $ = function (id) { return document.getElementById(id); };
   var tutte = [], partita = [], indice = 0, giuste = 0, risposto = false, tempo = { ferma: function () {} };
 
-  /* ---------- Lettura del file delle domande ---------------------------
-     Formato (vedi le istruzioni in cima a domande.txt):
-       [facile] Testo della domanda
-       + risposta giusta
-       - risposta sbagliata
-       > spiegazione                                                     */
-  function leggiDomande(testo) {
-    var domande = [], errori = [], d = null;
-    function errore(riga, msg) { errori.push({ riga: riga, testo: msg }); }
-    function chiudi() {
-      if (!d) return;
-      var n = d.risposte.length, buone = d.risposte.filter(function (r) { return r.giusta; }).length;
-      if (d.scarta) { /* errore già segnalato */ }
-      else if (!d.testo) errore(d.riga, "manca il testo della domanda");
-      else if (n < 2) errore(d.riga, "servono almeno 2 risposte");
-      else if (n > 4) errore(d.riga, "al massimo 4 risposte (ce ne sono " + n + ")");
-      else if (buone === 0) errore(d.riga, "manca la risposta giusta: mettere + davanti");
-      else if (buone > 1) errore(d.riga, "c'è più di una risposta giusta (+)");
-      else domande.push(d);
-      d = null;
-    }
-    testo.replace(/^﻿/, "").split(/\r\n|\r|\n/).forEach(function (grezza, i) {
-      var riga = i + 1, t = grezza.trim();
-      if (!t || t.charAt(0) === "#") return;                           // righe vuote e note
-      var m = t.match(/^\[([^\]]*)\]\s*(.*)$/);
-      if (m) {                                                           // inizio di una nuova domanda
-        chiudi();
-        var livello = m[1].trim().toLowerCase();
-        if (livello === "media") livello = "normale";
-        d = { riga: riga, livello: livello, testo: m[2].trim(), risposte: [], spiegazione: "" };
-        if (ORDINE.indexOf(livello) < 0) { d.scarta = true; errore(riga, 'difficoltà "' + m[1].trim() + '" sconosciuta: usare facile, normale o difficile'); }
-        return;
-      }
-      if (!d) { errore(riga, "riga fuori da una domanda: ogni domanda inizia con [facile], [normale] o [difficile]"); return; }
-      var segno = t.charAt(0), resto = t.slice(1).trim();
-      if (segno === "+" || segno === "-" || segno === "–") {
-        if (resto) d.risposte.push({ testo: resto, giusta: segno === "+" });
-        else errore(riga, "risposta vuota");
-      } else if (segno === ">") {
-        d.spiegazione += (d.spiegazione ? " " : "") + resto;
-      } else if (!d.risposte.length && !d.spiegazione) {
-        d.testo += (d.testo ? " " : "") + t;                             // domanda scritta su più righe
-      } else {
-        errore(riga, "riga non riconosciuta: le risposte iniziano con + o -, la spiegazione con >");
-      }
-    });
-    chiudi();
-    return { domande: domande, errori: errori };
-  }
-
-  function mescola(a) {
-    a = a.slice();
-    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var x = a[i]; a[i] = a[j]; a[j] = x; }
-    return a;
-  }
-
-  /* Pesca le domande della partita: prima quelle della difficoltà richiesta,
-     poi, se non bastano, quelle della difficoltà più vicina. */
-  function pesca() {
-    var gruppi = {}, scelte = [];
-    ORDINE.forEach(function (l) { gruppi[l] = mescola(tutte.filter(function (d) { return d.livello === l; })); });
-    ORDINE.forEach(function (l) {
-      var n = Number(QUANTE[l]) || 0;
-      var prese = gruppi[l].splice(0, n);
-      VICINE[l].forEach(function (v) { if (prese.length < n) prese = prese.concat(gruppi[v].splice(0, n - prese.length)); });
-      scelte = scelte.concat(prese);
-    });
-    // dalla più facile alla più difficile
-    return scelte.sort(function (a, b) { return ORDINE.indexOf(a.livello) - ORDINE.indexOf(b.livello); });
-  }
-
   function testoSicuro(s) { return GiochiSAT.testo(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
-  function plurale(livello, n) { return Number(n) === 1 ? livello : livello.replace(/e$/, "i"); }   // facile → facili
-  function quanteTotali() { return ORDINE.reduce(function (s, l) { return s + (Number(QUANTE[l]) || 0); }, 0); }
+  function quanteTotali() { return D.LIVELLI.reduce(function (s, l) { return s + (Number(QUANTE[l]) || 0); }, 0); }
   function mostraSolo(id) { ["inizio", "gioco", "fine"].forEach(function (x) { $(x).hidden = x !== id; }); window.scrollTo({ top: 0 }); }
 
   /* ---------- Schermata iniziale ------------------------------------- */
   function preparaInizio() {
-    var mix = ORDINE.filter(function (l) { return QUANTE[l]; }).map(function (l) { return QUANTE[l] + " " + plurale(l, QUANTE[l]); });
+    var mix = D.LIVELLI.filter(function (l) { return QUANTE[l]; }).map(function (l) { return QUANTE[l] + " " + D.plurale(l, QUANTE[l]); });
     var voci = [Math.min(quanteTotali(), tutte.length) + " domande", mix.join(" · "), LIVELLO.secondi ? LIVELLO.secondi + " secondi a domanda" : "Senza tempo"];
     $("chips").innerHTML = voci.map(function (v) { return "<li>" + GiochiSAT.testo(v) + "</li>"; }).join("");
     $("via").disabled = false;
@@ -258,7 +172,7 @@
   /* ---------- Partita ------------------------------------------------- */
   function inizia() {
     if (window.GiochiSATStats) window.GiochiSATStats.recordPlay(ID);
-    partita = pesca().map(function (d) { return { d: d, risposte: mescola(d.risposte), scelta: null }; });
+    partita = D.pesca(tutte, QUANTE).map(function (d) { return { d: d, risposte: D.mescola(d.risposte), scelta: null }; });
     indice = 0; giuste = 0;
     $("passi").innerHTML = partita.map(function () { return "<li></li>"; }).join("");
     mostraSolo("gioco");
@@ -269,7 +183,7 @@
     risposto = false;
     var p = partita[indice], d = p.d;
     [].forEach.call($("passi").children, function (li, i) { li.classList.toggle("qz-ora", i === indice); });
-    $("tag").textContent = NOMI[d.livello];
+    $("tag").textContent = D.nome(d.livello);
     $("tag").style.setProperty("--c", COLORI[d.livello]);
     $("numero").textContent = "Domanda " + (indice + 1) + " di " + partita.length;
     $("domanda").textContent = d.testo;
@@ -355,33 +269,6 @@
     setTimeout(function () { box.innerHTML = ""; }, 4800);
   }
 
-  /* ---------- Controllo del file: quiz-terra/?controlla ---------------- */
-  function controllo(esito) {
-    var conta = {};
-    ORDINE.forEach(function (l) { conta[l] = esito.domande.filter(function (d) { return d.livello === l; }).length; });
-    var livelli = (GIOCHISAT_CONFIG.livelli || {})[ID] || {};
-    var righeLivelli = GiochiSAT.difficolta.elenco.map(function (g) {
-      var q = (livelli[g] || {}).domande || {};
-      var bastano = ORDINE.every(function (l) { return (Number(q[l]) || 0) <= conta[l]; });
-      var richiesta = ORDINE.filter(function (l) { return q[l]; }).map(function (l) { return q[l] + " " + plurale(l, q[l]); }).join(", ");
-      return "<tr><td>" + GiochiSAT.difficolta.nome(g) + "</td><td>" + richiesta + "</td><td class=\"" + (bastano ? "qz-ok\">Bastano" : "qz-ko\">Non bastano: verranno prese da altre difficoltà") + "</td></tr>";
-    }).join("");
-    var errori = esito.errori.length
-      ? "<p class=\"qz-ko\">Domande ignorate perché scritte male:</p><ul>" + esito.errori.map(function (e) { return "<li>Riga " + e.riga + ": " + GiochiSAT.testo(e.testo) + "</li>"; }).join("") + "</ul>"
-      : "<p class=\"qz-ok\">Nessun errore: tutte le domande sono scritte bene.</p>";
-    var elenco = ORDINE.map(function (l) {
-      return "<details><summary>" + NOMI[l] + " (" + conta[l] + ")</summary><ol>" + esito.domande.filter(function (d) { return d.livello === l; }).map(function (d) {
-        var g = d.risposte.filter(function (r) { return r.giusta; })[0];
-        return "<li>" + GiochiSAT.testo(d.testo) + " <small>— giusta: " + GiochiSAT.testo(g.testo) + " (riga " + d.riga + ")</small></li>";
-      }).join("") + "</ol></details>";
-    }).join("");
-    $("controllo").innerHTML = "<h2>Controllo delle domande</h2>" +
-      "<p>File: <code>assets/quiz/domande.txt</code> · " + esito.domande.length + " domande valide (" + ORDINE.map(function (l) { return conta[l] + " " + plurale(l, conta[l]); }).join(", ") + ").</p>" +
-      errori +
-      "<table><thead><tr><th>Partita</th><th>Domande pescate</th><th>Nel file</th></tr></thead><tbody>" + righeLivelli + "</tbody></table>" + elenco;
-    $("controllo").hidden = false;
-  }
-
   /* ---------- Avvio ---------------------------------------------------- */
   $("via").addEventListener("click", inizia);
   $("avanti").addEventListener("click", avanti);
@@ -392,13 +279,10 @@
     if (!risposto && n >= 1 && n <= partita[indice].risposte.length) rispondi(n - 1);
   });
 
-  fetch(FILE_DOMANDE, { cache: "no-cache" })
-    .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
-    .then(function (testo) {
-      var esito = leggiDomande(testo);
+  D.carica()
+    .then(function (esito) {
       tutte = esito.domande;
-      if (esito.errori.length && window.console) console.warn("Quizzone – domande ignorate:", esito.errori);
-      if (/[?&]controlla\b/.test(location.search)) controllo(esito);
+      if (esito.errori.length && window.console) console.warn("Quizzone – domande ignorate (dettagli in quiz-terra/controllo/):", esito.errori);
       if (!tutte.length) throw new Error("nessuna domanda valida");
       preparaInizio();
     })

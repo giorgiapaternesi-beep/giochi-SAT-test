@@ -7,10 +7,15 @@
    Offre window.GiochiSAT con:
      .nome      soprannome del giocatore (vale finché non si ricarica la pagina)
      .sfida     modalità Sfida (giochi estratti a caso + tempo limite)
-     .fineGioco(id, {completato, punti, dettagli})  da chiamare a fine partita
+     .difficolta  difficoltà dei giochi (si sceglie solo prima di iniziare)
+     .fineGioco(id, {completato, punti})  da chiamare a fine partita
      .dialogo({...})   finestra di dialogo comune
      .giochi()  catalogo dei giochi preso da config.js
      .url(p)    indirizzo assoluto partendo dalla radice del sito
+
+   Convenzione per i giochi: i pulsanti che servono solo in Esercitazione
+   (Gioca ancora, Ricomincia, Menu…) hanno l'attributo data-gs-esercitazione
+   e durante la Sfida vengono nascosti.
    ===================================================================== */
 (function () {
   "use strict";
@@ -254,49 +259,93 @@
 
   /* ==================================================================
      Difficoltà dei giochi
-     In Sfida vale quella scelta all'inizio; in Esercitazione si sceglie
-     con la barra sotto l'intestazione (resta nell'indirizzo: ?livello=...).
+     Si sceglie una sola volta, prima di iniziare, e non si cambia durante
+     la partita:
+       - Sfida: all'inizio della sfida, vale per tutti i giochi estratti;
+       - Esercitazione: quando si apre un gioco dall'elenco, con una
+         finestra; resta nell'indirizzo del gioco (?livello=...).
+     Un gioco aperto senza difficoltà (es. da un QR code) rimanda
+     all'elenco, che apre subito la finestra di scelta.
      ================================================================== */
   var LIVELLI = ["facile", "media", "difficile"];
+  var CHIAVE_LIVELLO = "giochisat:livello:";       // ultima difficoltà scelta per ogni gioco
+  var ELENCO_SINGLE = "esercitazione/singleplayer/";
+
+  function livelliDi(id) { return (CFG.livelli || {})[id] || null; }
+  function livelloNellIndirizzo() { var m = location.search.match(/[?&]livello=(facile|media|difficile)\b/); return m ? m[1] : null; }
+
   var difficolta = {
     elenco: LIVELLI.slice(),
     nome: function (d) { return ((CFG.difficolta || {})[d] || {}).nome || d; },
-    /* difficoltà attuale per il gioco indicato */
+    /* true se il gioco ha più difficoltà (voce in config.js → livelli) */
+    ha: function (id) { return !!livelliDi(id); },
+    /* difficoltà della partita in corso per il gioco indicato */
     di: function (id) {
       if (sfida.attiva()) return leggiSfida().difficolta;
-      var m = location.search.match(/[?&]livello=(facile|media|difficile)\b/);
-      if (m) return m[1];
-      var salvata = memoria.leggi("giochisat:livello:" + id);
-      return LIVELLI.indexOf(salvata) >= 0 ? salvata : (CFG.difficoltaPredefinita || "media");
+      var d = livelloNellIndirizzo() || memoria.leggi(CHIAVE_LIVELLO + id);
+      return LIVELLI.indexOf(d) >= 0 ? d : (CFG.difficoltaPredefinita || "media");
     },
-    /* parametri del gioco per la difficoltà attuale (da config.js), o null */
-    parametri: function (id) {
-      var t = (CFG.livelli || {})[id];
-      return t ? (t[difficolta.di(id)] || null) : null;
+    /* parametri del gioco per la difficoltà della partita (da config.js), o null */
+    parametri: function (id) { var t = livelliDi(id); return t ? (t[difficolta.di(id)] || null) : null; },
+    /* Finestra "Scegli la difficoltà" → Promise(difficoltà scelta, oppure null se annullata) */
+    scegli: function (id) {
+      var t = livelliDi(id), g = gioco(id);
+      if (!t || !g) return Promise.resolve(null);
+      var ultima = memoria.leggi(CHIAVE_LIVELLO + id);                 // evidenziata come "ultima scelta"
+      var proposta = ultima || CFG.difficoltaPredefinita || "media";      // pulsante pronto per Invio
+      return new Promise(function (risolvi) {
+        var d = creaDialogo(), scelta = null;
+        d.classList.add("gs-dialogo-livello");
+        d.style.setProperty("--gs-colore", g.colore);
+        d.innerHTML = "<h2>" + testo(g.nome) + "</h2><p>Scegli la difficoltà: resterà la stessa per tutta la partita.</p>" +
+          '<div class="gs-livelli">' + LIVELLI.map(function (l) {
+            return '<button type="button" class="gs-livello-scelta" data-livello="' + l + '"' + (l === ultima ? ' aria-current="true"' : "") + ">" +
+              "<b>" + testo(difficolta.nome(l)) + "</b><span>" + testo((t[l] || {}).descrizione || "") + "</span></button>";
+          }).join("") + "</div>" +
+          '<div class="gs-azioni"><button type="button" class="gs-btn gs-secondario" data-livello="">Annulla</button></div>';
+        d.querySelectorAll("button[data-livello]").forEach(function (b) {
+          b.addEventListener("click", function () { scelta = b.getAttribute("data-livello") || null; d.close(); });
+        });
+        d.addEventListener("close", function () {
+          d.remove();
+          if (scelta) memoria.scrivi(CHIAVE_LIVELLO + id, scelta);
+          risolvi(scelta);
+        }, { once: true });
+        d.showModal();
+        d.querySelector('.gs-livello-scelta[data-livello="' + proposta + '"]').focus();
+      });
+    },
+    /* Chiede la difficoltà e apre il gioco */
+    apri: function (id) {
+      return difficolta.scegli(id).then(function (l) { if (l) location.href = url(gioco(id).percorso) + "?livello=" + l; return l; });
     }
   };
 
-  function barraLivello() {
-    var id = document.body.getAttribute("data-gioco");
-    if (!id || !(CFG.livelli || {})[id] || sfida.attiva()) return;
-    var attuale = difficolta.di(id), t = CFG.livelli[id];
-    var el = document.createElement("div");
+  /* Pagina di un gioco aperta senza difficoltà e fuori dalla sfida? Allora
+     si ferma il caricamento (il gioco non parte) e si torna all'elenco. */
+  function richiediDifficolta() {
+    var pagina = location.href.split(/[?#]/)[0].replace(/index\.html$/, "");
+    var g = giochi().filter(function (x) { return url(x.percorso) === pagina; })[0];
+    if (!g || !livelliDi(g.id) || livelloNellIndirizzo()) return false;
+    var s = leggiSfida();
+    if (s && s.stato === "in_corso" && s.giochi[s.indice] === g.id && /[?&]sfida=1\b/.test(location.search)) return false;
+    if (window.stop) window.stop();
+    location.replace(url(ELENCO_SINGLE) + "?gioco=" + encodeURIComponent(g.id));
+    return true;
+  }
+
+  /* Etichetta sotto la barra (solo da leggere): difficoltà della partita */
+  function etichettaLivello() {
+    var id = document.body.getAttribute("data-gioco"), t = livelliDi(id);
+    if (!t || sfida.attiva()) return;
+    var d = difficolta.di(id);
+    var el = document.createElement("p");
     el.className = "gs-livello";
-    el.innerHTML = '<span class="gs-livello-nome" id="gs-livello-et">Difficoltà</span><div class="gs-livello-scelte" role="radiogroup" aria-labelledby="gs-livello-et">' +
-      LIVELLI.map(function (d) {
-        return '<button type="button" role="radio" aria-checked="' + (d === attuale) + '" data-livello="' + d + '">' + testo(difficolta.nome(d)) + "</button>";
-      }).join("") + '</div><span class="gs-livello-descr">' + testo((t[attuale] || {}).descrizione || "") + "</span>";
+    el.style.setProperty("--c", "var(--gs-livello-" + d + ")");
+    el.innerHTML = '<span class="gs-livello-nome">Difficoltà</span><b>' + testo(difficolta.nome(d)) + "</b>" +
+      '<span class="gs-livello-descr">' + testo((t[d] || {}).descrizione || "") + "</span>";
     var barraEl = document.querySelector(".gs-barra");
     if (barraEl) barraEl.after(el); else document.body.prepend(el);
-    el.querySelectorAll("button").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var d = b.getAttribute("data-livello");
-        if (d === attuale) return;
-        memoria.scrivi("giochisat:livello:" + id, d);
-        var u = new URL(location.href); u.searchParams.set("livello", d);
-        location.href = u.href;               // riapre il gioco con la nuova difficoltà
-      });
-    });
   }
 
   /* ==================================================================
@@ -347,6 +396,7 @@
     if (!sfida.attiva()) return;
     var s = leggiSfida();
     if (!s.inizioGioco) { s.inizioGioco = Date.now(); scriviSfida(s); }
+    document.body.classList.add("gs-in-sfida");       // nasconde i pulsanti data-gs-esercitazione
     var h = document.createElement("div");
     h.className = "gs-hud";
     h.setAttribute("role", "status");
@@ -385,7 +435,9 @@
   }
 
   /* Da chiamare in ogni gioco quando la partita finisce.
-     completato:false = partita persa (es. tempo del gioco scaduto). */
+     completato:false = partita persa (es. tempo del gioco scaduto).
+     Nella sfida compare subito la finestra per passare al gioco successivo
+     (ritardo: millisecondi per lasciar vedere l'ultima mossa). */
   function fineGioco(id, info) {
     info = info || {};
     document.dispatchEvent(new CustomEvent("giochisat:fine", { detail: { id: id, completato: info.completato !== false, punti: info.punti } }));
@@ -393,7 +445,7 @@
     var s = leggiSfida();
     setTimeout(function () {
       if (info.completato === false) {
-        dialogo({ titolo: "Quasi!", testo: "Questo gioco non è stato completato. Puoi riprovare (il tempo della sfida continua a scorrere) oppure saltarlo.",
+        dialogo({ titolo: "Quasi!", testo: "Questo gioco non è stato completato. Puoi riprovare (il tempo della sfida continua a scorrere) oppure saltarlo.", bloccante: true,
           azioni: [{ id: "salta", etichetta: "Salta", secondario: true }, { id: "riprova", etichetta: "Riprova" }] })
           .then(function (r) { if (r === "salta") vaiAvanti(registra("saltato")); else if (r === "riprova") location.href = urlGiocoSfida(id); });
         return;
@@ -404,15 +456,15 @@
       if (hud) { var b = hud.querySelector('[data-azione="avanti"]'); b.classList.remove("gs-nascosto"); hud.querySelector('[data-azione="salta"]').classList.add("gs-nascosto"); }
       if (dopo.stato !== "in_corso") {
         dialogo({ titolo: dopo.stato === "vinta" ? "Sfida completata!" : "Hai finito i giochi",
-          testo: "Hai concluso l'ultimo gioco della sfida.", azioni: [{ id: "ok", etichetta: "Vedi il risultato" }] })
+          testo: "Hai concluso l'ultimo gioco della sfida.", bloccante: true, azioni: [{ id: "ok", etichetta: "Vedi il risultato" }] })
           .then(function (r) { if (r === "ok") location.href = url("sfida/risultato/"); });
         return;
       }
       var prossimo = gioco(dopo.giochi[dopo.indice]);
       dialogo({ titolo: "Gioco completato!", testo: "Prossimo: " + prossimo.nome + " (gioco " + (dopo.indice + 1) + " di " + dopo.giochi.length + ").",
-        azioni: [{ id: "resta", etichetta: "Resta qui", secondario: true }, { id: "vai", etichetta: "Prossimo gioco" }] })
-        .then(function (r) { if (r === "vai") vaiAvanti(dopo); });
-    }, info.ritardo != null ? info.ritardo : 1200);
+        bloccante: true, azioni: [{ id: "vai", etichetta: "Prossimo gioco" }] })
+        .then(function () { vaiAvanti(dopo); });
+    }, info.ritardo != null ? info.ritardo : 400);
   }
 
   /* Se il tempo è scaduto mentre si era fuori da un gioco, chiude la sfida */
@@ -440,13 +492,26 @@
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONE[id] || '<circle cx="12" cy="12" r="8"/>') + "</svg>";
   }
   var FRECCIA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
-  /* Riempie un <ul> con i giochi di un tipo ("single" o "multi"). */
+  /* Riempie un <ul> con i giochi di un tipo ("single" o "multi").
+     Per i giochi con più difficoltà, il clic apre prima la finestra di scelta;
+     con ?gioco=<id> nell'indirizzo la finestra si apre subito per quel gioco. */
   function elencoGiochi(ul, tipo) {
     ul.innerHTML = giochi().filter(function (g) { return !tipo || g.tipo === tipo; }).map(function (g) {
-      return '<li><a class="gs-gioco" href="' + url(g.percorso) + '" style="--c:' + testo(g.colore) + '">' +
+      return '<li><a class="gs-gioco" href="' + url(g.percorso) + '" data-id="' + testo(g.id) + '" style="--c:' + testo(g.colore) + '">' +
         '<span class="gs-pallino">' + icona(g.id) + '</span><span><h3>' + testo(g.nome) + '</h3><p>' + testo(g.descrizione) + '</p></span>' +
         '<span class="gs-freccia">' + FRECCIA + "</span></a></li>";
     }).join("");
+    ul.addEventListener("click", function (ev) {
+      var a = ev.target.closest("a.gs-gioco");
+      if (!a || !difficolta.ha(a.getAttribute("data-id")) || ev.button || ev.ctrlKey || ev.metaKey || ev.shiftKey) return;
+      ev.preventDefault();
+      difficolta.apri(a.getAttribute("data-id"));
+    });
+    var richiesto = new URLSearchParams(location.search).get("gioco");
+    if (richiesto && difficolta.ha(richiesto) && ul.querySelector('[data-id="' + richiesto + '"]')) {
+      history.replaceState(null, "", location.pathname);    // tornando indietro la finestra non si riapre
+      difficolta.apri(richiesto);
+    }
   }
 
   /* ==================================================================
@@ -456,10 +521,13 @@
     controllaScadenza();
     cielo();
     barra();
-    barraLivello();
+    etichettaLivello();
     hudSfida();
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", avvia); else avvia();
+  var rimanda = richiediDifficolta();
+  if (!rimanda) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", avvia); else avvia();
+  }
 
   window.GiochiSAT = {
     nome: nome, sfida: sfida, fineGioco: fineGioco, dialogo: dialogo,

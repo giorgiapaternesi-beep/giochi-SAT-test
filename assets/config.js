@@ -27,7 +27,7 @@ window.GIOCHISAT_CONFIG = Object.freeze({
     { id: "puzzle-satelliti",   nome: "Puzzle della Terra",  tipo: "single", colore: "#FF6B4A", percorso: "puzzle-satelliti/",
       descrizione: "Ricomponi l'immagine della Terra vista dai satelliti." },
     { id: "sat-doku",           nome: "SAT-Doku",            tipo: "single", colore: "#29C7D9", percorso: "sat-doku/",
-      descrizione: "Un satellite per riga, colonna e area, senza interferenze." },
+      descrizione: "Un satellite per riga, colonna e area: mai vicini, nemmeno in diagonale." },
     { id: "parole-in-orbita",   nome: "Parole in orbita",    tipo: "single", colore: "#C77DFF", percorso: "parole-in-orbita/",
       descrizione: "Collega le lettere e trova le parole dell'ambiente." },
 

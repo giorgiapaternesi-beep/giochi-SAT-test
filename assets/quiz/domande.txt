@@ -19,7 +19,7 @@
 #  - Nella spiegazione, **parola** diventa grassetto.
 #  - Le righe che iniziano con # sono note: il gioco le ignora.
 #
-#  Dopo una modifica apri  quiz-terra/?controlla  sul sito: vedrai se il
+#  Dopo una modifica apri  quiz-terra/controllo/  sul sito: vedrai se il
 #  file è scritto bene e quante domande ci sono per ogni difficoltà.
 #
 #  Quante domande facili, normali e difficili pesca ogni partita si

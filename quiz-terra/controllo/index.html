@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Controllo domande – Quizzone</title>
+<script src="../../assets/config.js"></script>
+<link rel="stylesheet" href="../../assets/css/giochisat.css">
+<script src="../../assets/js/giochisat.js"></script>
+<script src="../../assets/js/domande.js"></script>
+<!--
+  Pagina di servizio: controlla assets/quiz/domande.txt dopo una modifica.
+  Dice quante domande valide ci sono per ogni difficoltà, se bastano per le
+  partite (assets/config.js → livelli → "quiz-terra") e cosa correggere.
+-->
+<style>
+.ck h2{margin:0 0 6px;font-size:clamp(22px,4vw,28px)}
+.ck p{margin:0 0 12px}
+.ck code{font-size:.95em;color:var(--gs-azzurro)}
+.ck-sezione{margin-top:16px}
+.ck table{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:15px}
+.ck th,.ck td{padding:8px 10px;border-bottom:1px solid var(--gs-bordo);text-align:left;vertical-align:top}
+.ck th{color:var(--gs-testo-2);font-weight:600}
+.ck-ok{color:var(--gs-verde);font-weight:700}
+.ck-ko{color:var(--gs-rosa);font-weight:700}
+.ck-errori li{margin-bottom:4px}
+.ck details{margin-top:8px;padding:10px 14px;border-radius:14px;background:var(--gs-superficie)}
+.ck summary{cursor:pointer;font-weight:600}
+.ck ol{margin:10px 0 0;padding-left:22px}
+.ck ol li{margin-bottom:6px}
+.ck small{color:var(--gs-testo-2)}
+.ck-azioni{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+</style>
+</head>
+<body class="gs" style="--gs-colore:#2ED3A0">
+<header class="gs-barra">
+  <a class="gs-home" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></a>
+  <div class="gs-titolo"><i aria-hidden="true"></i><h1>Controllo domande</h1></div>
+  <img class="gs-logo" src="../../assets/logo-arpa-lazio.jpg" alt="ARPA Lazio">
+</header>
+
+<main class="gs-pagina">
+  <section class="gs-scheda ck" id="esito" aria-live="polite">
+    <h2>Domande del Quizzone</h2>
+    <p>Lettura di <code>assets/quiz/domande.txt</code>…</p>
+  </section>
+  <div class="ck-azioni">
+    <a class="gs-btn" href="../">Prova il Quizzone</a>
+    <button class="gs-btn gs-secondario" type="button" id="ricarica">Controlla di nuovo</button>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var D = window.GiochiSATDomande, t = GiochiSAT.testo;
+  var livelliPartita = (GIOCHISAT_CONFIG.livelli || {})["quiz-terra"] || {};
+  var $esito = document.getElementById("esito");
+
+  function quanteDi(domande, livello) { return domande.filter(function (d) { return d.livello === livello; }).length; }
+  function elencoQuante(q) {
+    return D.LIVELLI.filter(function (l) { return q[l]; }).map(function (l) { return q[l] + " " + D.plurale(l, q[l]); }).join(", ");
+  }
+
+  /* quante domande valide ci sono per ogni difficoltà */
+  function riepilogo(esito, conta) {
+    return "<p><b>" + esito.domande.length + " domande valide</b>: " +
+      D.LIVELLI.map(function (l) { return conta[l] + " " + D.plurale(l, conta[l]); }).join(", ") + ".</p>";
+  }
+
+  /* righe scritte male (il gioco le salta) */
+  function errori(esito) {
+    if (!esito.errori.length) return '<p class="ck-ok">Nessun errore: tutte le domande sono scritte bene.</p>';
+    return '<div class="ck-sezione"><p class="ck-ko">' + esito.errori.length + " da correggere (il gioco per ora le salta):</p>" +
+      '<ul class="ck-errori">' + esito.errori.map(function (e) { return "<li>Riga " + e.riga + ": " + t(e.testo) + "</li>"; }).join("") + "</ul></div>";
+  }
+
+  /* per ogni difficoltà della partita: le domande nel file bastano? */
+  function bastano(conta) {
+    var righe = GiochiSAT.difficolta.elenco.map(function (g) {
+      var q = (livelliPartita[g] || {}).domande || {};
+      var ok = D.LIVELLI.every(function (l) { return (Number(q[l]) || 0) <= conta[l]; });
+      return "<tr><td>" + t(GiochiSAT.difficolta.nome(g)) + "</td><td>" + t(elencoQuante(q)) + "</td><td class=\"" +
+        (ok ? 'ck-ok">Bastano' : 'ck-ko">Non bastano: il gioco ne prende da altre difficoltà') + "</td></tr>";
+    }).join("");
+    return '<div class="ck-sezione"><table><thead><tr><th>Partita</th><th>Domande pescate</th><th>Nel file</th></tr></thead><tbody>' + righe + "</tbody></table></div>";
+  }
+
+  /* tutte le domande valide, divise per difficoltà, con la risposta giusta */
+  function elenco(esito, conta) {
+    return '<div class="ck-sezione">' + D.LIVELLI.map(function (l) {
+      return "<details><summary>" + D.nome(l) + " (" + conta[l] + ")</summary><ol>" +
+        esito.domande.filter(function (d) { return d.livello === l; }).map(function (d) {
+          var giusta = d.risposte.filter(function (r) { return r.giusta; })[0];
+          return "<li>" + t(d.testo) + "<br><small>Giusta: " + t(giusta.testo) + " · riga " + d.riga + "</small></li>";
+        }).join("") + "</ol></details>";
+    }).join("") + "</div>";
+  }
+
+  function controlla() {
+    D.carica().then(function (esito) {
+      var conta = {};
+      D.LIVELLI.forEach(function (l) { conta[l] = quanteDi(esito.domande, l); });
+      $esito.innerHTML = "<h2>Domande del Quizzone</h2>" + riepilogo(esito, conta) + errori(esito) + bastano(conta) + elenco(esito, conta);
+    }).catch(function () {
+      $esito.innerHTML = '<h2>Domande del Quizzone</h2><p class="ck-ko">Non riesco a leggere <code>assets/quiz/domande.txt</code>. Controlla che il file esista con questo nome.</p>';
+    });
+  }
+
+  document.getElementById("ricarica").addEventListener("click", controlla);
+  controlla();
+})();
+</script>
+</body>
+</html>

@@ -32,7 +32,12 @@
     @keyframes pulse{50%{box-shadow:inset 0 0 0 5px #facc15;transform:scale(.93)}}
     @media(max-width:460px){.wrap{padding:12px 9px 30px}.top{align-items:flex-start}.mark{width:43px;height:43px}.top p{font-size:12px}.home{padding:8px 9px}.card{padding:11px;border-radius:18px}.legend{font-size:13px}.status{font-size:14px}.levels{grid-template-columns:1fr}.choosebox{padding:20px}}
     @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-  </style>
+  
+/* regole sempre visibili sopra la griglia */
+.regole{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 12px;padding:0}
+.regole li{padding:4px 11px;border-radius:999px;background:var(--gs-superficie-2);color:var(--gs-testo);font-size:13px;font-weight:600}
+.regole b{color:var(--gs-colore)}
+</style>
   <script src="../assets/game-stats.js" defer></script>
 </head>
 <body class="gs" data-gioco="sat-doku" style="--gs-colore:#29C7D9">
@@ -47,13 +52,16 @@
 
     <section class="card">
       <div class="status"><span id="levelLabel">Scegli il livello</span><span>Satelliti <b id="count">0</b>/<b id="target">–</b></span><span>Tempo <b id="time">00:00</b></span></div>
+      <ul class="regole" aria-label="Regole">
+        <li>1 satellite per <b>riga</b></li><li>1 per <b>colonna</b></li><li>1 per <b>area colorata</b></li><li>mai <b>vicini</b>, nemmeno in diagonale</li>
+      </ul>
       <div class="board" id="board" role="grid" aria-label="Griglia SAT-Doku"></div>
       <p class="legend"><strong>Tocca una casella:</strong> una volta per la X, due per il satellite, tre per cancellare.</p>
       <div class="actions">
         <button class="btn secondary" id="rules">Istruzioni</button>
         <button class="btn secondary" id="hint">Suggerimento</button>
-        <button class="btn primary" id="newGame">Nuova partita</button>
-        <button class="btn secondary" id="changeLevel">Cambia livello</button>
+        <button class="btn primary" id="newGame" data-gs-esercitazione>Nuova partita</button>
+        <button class="btn secondary" id="changeLevel" data-gs-esercitazione>Cambia livello</button>
       </div>
       <p class="message" id="message" aria-live="polite"></p>
     </section>
@@ -76,7 +84,7 @@
   </dialog>
 
   <div class="win" id="win" role="dialog" aria-modal="true" aria-labelledby="winTitle">
-    <div class="winbox"><h2 id="winTitle">Missione completata!</h2><p id="winText"></p><button class="btn primary" id="again">Gioca ancora</button></div>
+    <div class="winbox"><h2 id="winTitle">Missione completata!</h2><p id="winText"></p><button class="btn primary" id="again" data-gs-esercitazione>Gioca ancora</button></div>
   </div>
 
   <template id="satellite">
@@ -119,16 +127,20 @@
     function startTimer(){if(started||finished)return;started=Date.now();timer=setInterval(()=>time.textContent=format(Date.now()-started),250);if(window.GiochiSATStats)window.GiochiSATStats.recordPlay("sat-doku")}
     function stopTimer(){if(timer)clearInterval(timer);timer=null;return started?Date.now()-started:0}
     function setMessage(text,good=false){message.textContent=text;message.classList.toggle("good",good)}
+    /* perché due satelliti sono in conflitto: una voce per ogni regola */
+    const MOTIVI={riga:"due satelliti sono sulla stessa riga",colonna:"due satelliti sono sulla stessa colonna",area:"due satelliti sono nella stessa area colorata",vicini:"due satelliti si toccano in diagonale: sono troppo vicini e si disturbano"};
+    function spiegaConflitto(motivi){return "Attenzione: "+[...motivi].map(m=>MOTIVI[m]).join("; ")+"."}
     function render(){
       const queens=[];states.forEach((v,i)=>{if(v===2)queens.push(i)});
-      const bad=new Set();
+      const bad=new Set(),motivi=new Set();
       for(let a=0;a<queens.length;a++)for(let b=a+1;b<queens.length;b++){
         const i=queens[a],j=queens[b],r1=Math.floor(i/n),c1=i%n,r2=Math.floor(j/n),c2=j%n;
-        if(r1===r2||c1===c2||puzzle.r[r1][c1]===puzzle.r[r2][c2]||(Math.abs(r1-r2)===1&&Math.abs(c1-c2)===1)){bad.add(i);bad.add(j)}
+        const motivo=r1===r2?"riga":c1===c2?"colonna":puzzle.r[r1][c1]===puzzle.r[r2][c2]?"area":(Math.abs(r1-r2)===1&&Math.abs(c1-c2)===1)?"vicini":"";
+        if(motivo){bad.add(i);bad.add(j);motivi.add(motivo)}
       }
       [...board.children].forEach((cell,i)=>{cell.innerHTML=states[i]===1?'<span class="x">×</span>':states[i]===2?satMarkup:"";cell.classList.toggle("conflict",bad.has(i));cell.setAttribute("aria-label",`Riga ${Math.floor(i/n)+1}, colonna ${i%n+1}: ${states[i]===1?'esclusa':states[i]===2?'satellite':'vuota'}`)});
       count.textContent=queens.length;
-      if(bad.size)setMessage("Attenzione: alcuni satelliti sono in conflitto.");else if(!finished)setMessage(queens.length===n?"Controllo della costellazione…":"");
+      if(bad.size)setMessage(spiegaConflitto(motivi));else if(!finished)setMessage(queens.length===n?"Controllo della costellazione…":"");
       if(queens.length===n&&!bad.size&&!finished)win();
     }
     function win(){finished=true;const elapsed=stopTimer();time.textContent=format(elapsed);setMessage("Schema completato correttamente!",true);document.getElementById("winText").textContent=`Hai posizionato tutti i satelliti in ${format(elapsed)}${hints?` usando ${hints} ${hints===1?'suggerimento':'suggerimenti'}`:" senza suggerimenti"}.`;setTimeout(()=>document.getElementById("win").classList.add("show"),250);GiochiSAT.fineGioco("sat-doku",{punti:elapsed})}

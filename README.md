@@ -23,9 +23,15 @@ Servizio Attività Produttive e Controlli di ARPA Lazio.
   Sono accettati solo lettere, numeri, spazi, punto, trattino e underscore
   (niente email o numeri di telefono).
 - **Difficoltà**: ogni gioco singleplayer ha tre difficoltà (Facile, Media,
-  Difficile). In Esercitazione si sceglie dalla fascia sotto la barra del
-  gioco e resta ricordata per quella scheda; nella Sfida si sceglie una sola
-  volta all'inizio e vale per tutti i giochi estratti.
+  Difficile) e si sceglie **solo prima di iniziare**:
+  - in Esercitazione, toccando un gioco nell'elenco si apre la finestra di
+    scelta; durante la partita la difficoltà si vede sotto la barra ma non si
+    cambia. Un gioco aperto da un link diretto (per esempio un QR code) passa
+    prima dall'elenco con la finestra già aperta;
+  - nella Sfida si sceglie una volta all'inizio e vale per tutti i giochi.
+- **Sfida veloce**: finito un gioco compare subito *Prossimo gioco*; i
+  pulsanti come *Gioca ancora* o *Menu* dei singoli giochi durante la sfida
+  sono nascosti.
 - Ogni pagina ha in alto il pulsante **Home**.
 
 ## Struttura
@@ -59,6 +65,7 @@ giochiSAT/
 │   ├── fonts/                 Font Poppins ospitato sul sito + licenza
 │   ├── terra/                 Terra della home (mappa.svg; spazio per un video)
 │   ├── quiz/domande.txt       ★ Domande del Quizzone da soli (si modificano qui)
+│   ├── js/domande.js          Lettura delle domande (usato dal Quizzone e dal controllo)
 │   ├── memory/retro.svg       Retro delle carte del Memory (segnaposto da sostituire)
 │   ├── puzzle/                Immagini extra del Puzzle della Terra
 │   ├── ricompense/            File della ricompensa (da preparare)
@@ -133,7 +140,7 @@ changes*). Ogni domanda è un blocco così:
   `**parola**` diventa grassetto.
 - Le righe che iniziano con `#` sono note e vengono ignorate.
 
-Dopo una modifica aprire **`quiz-terra/?controlla`** sul sito: la pagina dice
+Dopo una modifica aprire **`quiz-terra/controllo/`** sul sito: la pagina dice
 quante domande valide ci sono per ogni difficoltà, se bastano per le tre
 difficoltà della partita e, riga per riga, cosa c'è da correggere. Una
 domanda scritta male viene saltata, ma il gioco continua a funzionare. Se per
@@ -177,12 +184,21 @@ Le classi comuni iniziano con `gs-` per non scontrarsi con quelle dei giochi.
    const LIVELLO = GiochiSAT.difficolta.parametri("id-del-gioco");
    // es. { coppie: 8, secondi: 60, descrizione: "..." }
    ```
-   La fascia per scegliere la difficoltà compare da sola nei giochi che hanno
-   una voce in `livelli` (tranne durante la sfida, dove la difficoltà è fissa).
-   La difficoltà si può anche indicare nell'indirizzo: `memory/?livello=facile`.
+   La scelta all'ingresso e l'etichetta sotto la barra arrivano da sole per
+   i giochi che hanno una voce in `livelli`. La difficoltà viaggia
+   nell'indirizzo (`memory/?livello=facile`); senza, il gioco non parte e
+   rimanda alla scelta.
+4. Ai pulsanti che servono solo in Esercitazione (*Gioca ancora*,
+   *Ricomincia*, *Menu*…) aggiungere l'attributo `data-gs-esercitazione`:
+   durante la sfida vengono nascosti, così si passa subito al gioco dopo.
+   ```html
+   <button id="again" data-gs-esercitazione>Gioca ancora</button>
+   ```
 
 Fuori dalla sfida `fineGioco` non fa nulla di visibile, quindi si può
-chiamare sempre.
+chiamare sempre. Nella sfida la finestra *Prossimo gioco* compare dopo 0,4
+secondi (per lasciar vedere l'ultima mossa); si può cambiare con
+`{ ritardo: millisecondi }`.
 
 ### Soprannome nei giochi
 

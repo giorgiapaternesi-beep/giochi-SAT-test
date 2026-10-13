@@ -148,7 +148,7 @@ dialog.gs-dialogo::backdrop{background:rgb(6 6 26 / .7);backdrop-filter:blur(3px
 @media (prefers-reduced-motion:reduce){
   .gs-stella{animation:none}
   .gs-cometa{display:none}
-  .gs-btn,.gs-gioco{transition:none}
+  .gs-btn,.gs-gioco,.gs-livello-scelta{transition:none}
 }
 
 /* ---------- Campi dei giochi: base scura (i giochi possono ridefinirli) */
@@ -157,15 +157,31 @@ dialog.gs-dialogo::backdrop{background:rgb(6 6 26 / .7);backdrop-filter:blur(3px
 :where(body.gs) :where(input,textarea)::placeholder{color:var(--gs-testo-2);opacity:.8}
 :where(body.gs) option{background:var(--gs-superficie);color:var(--gs-testo)}
 
-/* ---------- Scelta della difficoltà (Esercitazione) ---------------- */
-.gs-livello{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px var(--gs-margine);
+/* ---------- Difficoltà ------------------------------------------------
+   Si sceglie prima di entrare nel gioco (finestra .gs-dialogo-livello);
+   durante la partita resta solo l'etichetta .gs-livello, da leggere. */
+:root{--gs-livello-facile:var(--gs-verde);--gs-livello-media:var(--gs-giallo);--gs-livello-difficile:var(--gs-rosa)}
+.gs-livello{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:0;padding:8px var(--gs-margine);
   background:rgb(9 11 42 / .55);border-bottom:1px solid var(--gs-bordo);font-size:14px}
-.gs-livello-nome{font-weight:600;color:var(--gs-testo-2)}
-.gs-livello-scelte{display:inline-flex;padding:4px;border-radius:999px;background:var(--gs-superficie);border:1px solid var(--gs-bordo)}
-.gs-livello-scelte button{min-height:36px;padding:6px 16px;border:0;border-radius:999px;background:transparent;color:var(--gs-testo);font-weight:600;font-size:14px;cursor:pointer}
-.gs-livello-scelte button[aria-checked="true"]{background:var(--gs-colore);color:var(--gs-scuro)}
+.gs-livello-nome{color:var(--gs-testo-2)}
+.gs-livello b{padding:2px 12px;border-radius:999px;background:var(--c,var(--gs-colore));color:var(--gs-scuro);font-weight:700}
 .gs-livello-descr{color:var(--gs-testo-2)}
+.gs-livelli{display:grid;gap:10px;margin:4px 0 0}
+.gs-livello-scelta[data-livello="facile"]{--c:var(--gs-livello-facile)}
+.gs-livello-scelta[data-livello="media"]{--c:var(--gs-livello-media)}
+.gs-livello-scelta[data-livello="difficile"]{--c:var(--gs-livello-difficile)}
+.gs-livello-scelta{display:grid;gap:2px;width:100%;padding:12px 16px 12px 18px;border-radius:var(--gs-r-controllo);cursor:pointer;text-align:left;
+  border:2px solid var(--gs-bordo);border-left:6px solid var(--c);background:var(--gs-superficie-2);color:var(--gs-testo);font:inherit;
+  transition:transform .1s,border-color .1s}
+.gs-livello-scelta:hover{transform:translateY(-1px);border-color:var(--c)}
+.gs-livello-scelta[aria-current="true"]{border-color:var(--c)}
+.gs-livello-scelta[aria-current="true"] b::after{content:"ultima scelta";margin-left:8px;font-size:12px;font-weight:600;color:var(--gs-testo-2)}
+.gs-livello-scelta b{font:700 18px var(--gs-titoli-font)}
+.gs-livello-scelta span{font-size:14px;color:var(--gs-testo-2)}
 @media (max-width:640px){.gs-livello-descr{flex-basis:100%}}
+
+/* ---------- Sfida: i pulsanti che servono solo in Esercitazione spariscono */
+.gs-in-sfida [data-gs-esercitazione]{display:none!important}
 
 /* ---------- Conto alla rovescia (domande a tempo) ------------------ */
 .gs-tempo{display:flex;align-items:center;gap:10px;margin:10px 0 4px;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
