@@ -60,7 +60,7 @@
     ]};
     const environmentalSet=new Set(ENV_WORDS),wordSet=new Set([...(window.GIOCHISAT_ITALIAN_WORDS||[]),...ENV_WORDS]),$=id=>document.getElementById(id),board=$("board"),current=$("current"),feedback=$("feedback");
     let mode="base",grid=[],n=4,valid=[],found=new Set(),path=[],dragging=false,started=false,finished=false,endAt=0,timer=null,lastGrid={base:-1,advanced:-1};
-    const seconds=()=>mode==="base"?90:120;
+    const LIVELLO=GiochiSAT.difficolta.parametri("parole-in-orbita")||{griglia:"base",secondi:90};const seconds=()=>LIVELLO.secondi||(mode==="base"?90:120);
     function scoreWord(w){return w.length===3?1:w.length===4?2:w.length===5?3:w.length===6?5:w.length===7?8:12+(w.length-8)*2}
     function format(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
     function hasPath(word){const seen=Array(n*n).fill(false);function go(i,k){if(grid[i]!==word[k])return false;if(k===word.length-1)return true;seen[i]=true;const r=Math.floor(i/n),c=i%n;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(!dr&&!dc)continue;const rr=r+dr,cc=c+dc,j=rr*n+cc;if(rr>=0&&rr<n&&cc>=0&&cc<n&&!seen[j]&&go(j,k+1)){seen[i]=false;return true}}seen[i]=false;return false}for(let i=0;i<grid.length;i++)if(go(i,0))return true;return false}
@@ -79,11 +79,9 @@
     function startGame(selectedMode){mode=selectedMode;if(timer)clearInterval(timer);timer=null;found=new Set();path=[];started=false;finished=false;chooseGrid();board.innerHTML="";board.style.gridTemplateColumns=`repeat(${n},1fr)`;board.setAttribute("aria-label",`Griglia di lettere ${n} per ${n}`);grid.forEach((letter,i)=>{const cell=document.createElement("button");cell.type="button";cell.className="cell";cell.dataset.i=i;cell.textContent=letter;cell.setAttribute("role","gridcell");cell.setAttribute("aria-label",letter);cell.addEventListener("pointerdown",e=>{e.preventDefault();startSelection(i,e)});board.appendChild(cell)});$("levelLabel").textContent=mode==="base"?"Livello base · 4×4":"Livello avanzato · 5×5";$("time").textContent=format(seconds());$("score").textContent="0";setFeedback("");renderFound();updatePath();$("chooser").classList.add("hidden");$("result").classList.add("hidden")}
     function endGame(){if(finished)return;finished=true;if(timer)clearInterval(timer);timer=null;dragging=false;path=[];updatePath();const got=[...found].sort(),missed=valid.filter(w=>!found.has(w)),noun=got.length===1?"parola":"parole";$("resultText").textContent=`Hai ottenuto ${$("score").textContent} punti trovando ${got.length} ${noun}.`;$("resultFound").textContent=got.length?got.join(" · "):"Nessuna";$("resultMissed").textContent=missed.length?missed.join(" · "):"Le hai trovate tutte!";$("result").classList.remove("hidden");GiochiSAT.fineGioco("parole-in-orbita",{punti:Number($("score").textContent)||0})}
     document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>startGame(b.dataset.mode));$("change").onclick=()=>{if(timer)clearInterval(timer);timer=null;$("chooser").classList.remove("hidden")};$("rules").onclick=()=>$("rulesPanel").classList.remove("hidden");$("closeRules").onclick=()=>$("rulesPanel").classList.add("hidden");$("again").onclick=()=>startGame(mode);$("resultChange").onclick=()=>{$("result").classList.add("hidden");$("chooser").classList.remove("hidden")};
-  (function () {                              // Sfida: livello deciso dalla difficoltà
-  const livello = GiochiSAT.sfida.livello("parole-in-orbita");
-  if (!livello) return;
-  startGame(livello);
-  const cambia = document.getElementById("change"); if (cambia) cambia.hidden = true;
+  (function () {                              // difficoltà: griglia e tempo (vedi assets/config.js)
+  startGame(LIVELLO.griglia);
+  ["change", "resultChange"].forEach(id => { const b = document.getElementById(id); if (b) b.hidden = true; });
 })();
 })();
   </script>

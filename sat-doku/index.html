@@ -139,11 +139,11 @@
     function hint(){if(finished)return;startTimer();const candidates=[];for(let r=0;r<n;r++){const i=r*n+puzzle.s[r];if(states[i]!==2)candidates.push(i)}if(!candidates.length)return;const i=candidates[Math.floor(Math.random()*candidates.length)];states[i]=2;hints++;render();const cell=board.children[i];cell.classList.remove("hinted");void cell.offsetWidth;cell.classList.add("hinted");setMessage("Il satellite suggerito è evidenziato.",true)}
     document.querySelectorAll("[data-mode]").forEach(button=>button.onclick=()=>startLevel(button.dataset.mode));document.getElementById("newGame").onclick=newGame;document.getElementById("again").onclick=newGame;document.getElementById("hint").onclick=hint;document.getElementById("changeLevel").onclick=()=>{stopTimer();document.getElementById("chooser").classList.remove("hidden")};
     const dialog=document.getElementById("rulesDialog");document.getElementById("rules").onclick=()=>dialog.showModal();document.getElementById("closeRules").onclick=()=>dialog.close();dialog.addEventListener("click",e=>{if(e.target===dialog)dialog.close()});
-  (function () {                              // Sfida: livello deciso dalla difficoltà
-  const livello = GiochiSAT.sfida.livello("sat-doku");
-  if (!livello) return;
-  startLevel(livello);
+  (function () {                              // difficoltà: griglia e suggerimenti (vedi assets/config.js)
+  const livello = GiochiSAT.difficolta.parametri("sat-doku") || { griglia: "base", suggerimenti: true };
+  startLevel(livello.griglia);
   const cambia = document.getElementById("changeLevel"); if (cambia) cambia.hidden = true;
+  const aiuto = document.getElementById("hint"); if (aiuto && !livello.suggerimenti) aiuto.hidden = true;
 })();
 })();
   </script>

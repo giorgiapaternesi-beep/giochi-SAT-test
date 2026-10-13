@@ -156,3 +156,21 @@ dialog.gs-dialogo::backdrop{background:rgb(6 6 26 / .7);backdrop-filter:blur(3px
   background:rgb(9 11 42 / .55);color:var(--gs-testo);border-color:var(--gs-bordo)}
 :where(body.gs) :where(input,textarea)::placeholder{color:var(--gs-testo-2);opacity:.8}
 :where(body.gs) option{background:var(--gs-superficie);color:var(--gs-testo)}
+
+/* ---------- Scelta della difficoltà (Esercitazione) ---------------- */
+.gs-livello{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px var(--gs-margine);
+  background:rgb(9 11 42 / .55);border-bottom:1px solid var(--gs-bordo);font-size:14px}
+.gs-livello-nome{font-weight:600;color:var(--gs-testo-2)}
+.gs-livello-scelte{display:inline-flex;padding:4px;border-radius:999px;background:var(--gs-superficie);border:1px solid var(--gs-bordo)}
+.gs-livello-scelte button{min-height:36px;padding:6px 16px;border:0;border-radius:999px;background:transparent;color:var(--gs-testo);font-weight:600;font-size:14px;cursor:pointer}
+.gs-livello-scelte button[aria-checked="true"]{background:var(--gs-colore);color:var(--gs-scuro)}
+.gs-livello-descr{color:var(--gs-testo-2)}
+@media (max-width:640px){.gs-livello-descr{flex-basis:100%}}
+
+/* ---------- Conto alla rovescia (domande a tempo) ------------------ */
+.gs-tempo{display:flex;align-items:center;gap:10px;margin:10px 0 4px;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.gs-tempo b{flex:1;height:8px;border-radius:4px;background:rgb(255 255 255 / .14);overflow:hidden}
+.gs-tempo i{display:block;height:100%;background:var(--gs-colore);transform-origin:left center;transition:transform .1s linear}
+.gs-tempo span{min-width:36px;text-align:right}
+.gs-tempo.gs-poco i{background:var(--gs-rosa)}
+.gs-tempo.gs-poco span{color:var(--gs-rosa)}

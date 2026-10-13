@@ -110,6 +110,24 @@
 /* tema comune */
 .modal-box{background:var(--gs-superficie);border:1px solid var(--gs-bordo)}
 .leaderboard{background:rgb(9 11 42 / .5);color:var(--gs-testo)}
+.livello-info{margin:4px auto 20px;font-weight:600;color:var(--gs-testo-2)}
+/* lo schermo di gioco occupa lo spazio sotto le barre comuni */
+.screen{min-height:calc(100dvh - var(--gs-alto-barra,68px) - 60px)}
+.game{gap:14px}
+.grid-wrap{align-items:flex-start}
+.grid{width:auto;justify-content:center}
+/* carte: rotazione semplice che funziona in tutti i browser (niente 3D) */
+.card-inner{transform:none!important;transform-style:flat;transition:none}
+.memory-card .card-face{backface-visibility:visible;-webkit-backface-visibility:visible;transform:none!important;transition:opacity 0s linear .14s}
+.memory-card .card-front{opacity:0}
+.memory-card.flipped .card-front,.memory-card.matched .card-front{opacity:1}
+.memory-card.flipped .card-back,.memory-card.matched .card-back{opacity:0}
+.memory-card.flipped .card-inner,.memory-card.matched .card-inner{animation:gs-gira-carta .28s ease}
+@keyframes gs-gira-carta{0%{transform:scaleX(1)}50%{transform:scaleX(.02)}100%{transform:scaleX(1)}}
+.card-back{padding:0;background:var(--gs-superficie)}
+.card-back img{width:100%;height:100%;object-fit:cover;display:block}
+.memory-card.matched .card-front{box-shadow:0 0 0 4px var(--gs-verde)}
+@media (prefers-reduced-motion:reduce){.memory-card .card-inner{animation:none!important}}
 </style>
   <script src="../assets/game-stats.js" defer></script>
 </head>
@@ -132,11 +150,7 @@
         <p class="hint">Usa un nome di fantasia: comparirà nella classifica pubblica.</p>
       </div>
 
-      <div class="time-options" aria-label="Seleziona il tempo">
-        <button class="time-option" data-time="30">30 s</button>
-        <button class="time-option selected" data-time="60">60 s</button>
-        <button class="time-option" data-time="90">90 s</button>
-      </div>
+      <p class="livello-info" id="livello-info"></p>
       <button id="start-btn" class="primary">Inizia il gioco</button>
       <div id="home-status" class="status"></div>
     </section>
@@ -218,23 +232,14 @@
 
     GiochiSAT.nome.collega(nicknameInput);
 
-    /* Sfida: il tempo della partita dipende dalla difficoltà scelta */
-    const tempoSfida = GiochiSAT.sfida.livello("memory");
-    if (tempoSfida) {
-      selectedTime = tempoSfida;
-      document.querySelectorAll(".time-option").forEach(b => {
-        b.classList.toggle("selected", Number(b.dataset.time) === tempoSfida);
-        b.disabled = true;
-      });
-    }
+    /* Difficoltà: coppie e secondi (vedi "livelli" in assets/config.js) */
+    const LIVELLO = GiochiSAT.difficolta.parametri("memory") || { coppie: 8, secondi: 60 };
+    selectedTime = LIVELLO.secondi;
+    document.getElementById("livello-info").textContent =
+      GiochiSAT.difficolta.nome(GiochiSAT.difficolta.di("memory")) + ": " + LIVELLO.coppie + " coppie da trovare in " + LIVELLO.secondi + " secondi";
+    /* Retro delle carte: immagine indicata in assets/config.js (memory.retro) */
+    const RETRO = GiochiSAT.url((GIOCHISAT_CONFIG.memory && GIOCHISAT_CONFIG.memory.retro) || "assets/memory/retro.svg");
 
-    document.querySelectorAll(".time-option").forEach(button => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll(".time-option").forEach(b => b.classList.remove("selected"));
-        button.classList.add("selected");
-        selectedTime = Number(button.dataset.time);
-      });
-    });
 
     document.getElementById("start-btn").addEventListener("click", startGame);
     document.getElementById("restart-btn").addEventListener("click", startGame);
@@ -296,6 +301,7 @@
       buildGrid();
       updateTimer();
       showScreen(gameScreen);
+      adattaGriglia();
 
       timerId = setInterval(() => {
         timeRemaining -= 1;
@@ -306,7 +312,7 @@
 
     function buildGrid() {
       grid.innerHTML = "";
-      const deck = shuffle(imageSet.flatMap((image, pairId) => [
+      const deck = shuffle(shuffle(imageSet).slice(0, LIVELLO.coppie).flatMap((image, pairId) => [
         { ...image, pairId, uid: `${pairId}-a` },
         { ...image, pairId, uid: `${pairId}-b` }
       ]));
@@ -320,7 +326,7 @@
         card.setAttribute("aria-label", "Carta coperta");
         card.innerHTML = `
           <span class="card-inner">
-            <span class="card-face card-back">${index + 1}</span>
+            <span class="card-face card-back"><img src="${RETRO}" alt=""></span>
             <span class="card-face card-front">
               <img src="${cardData.src}" alt="${cardData.alt}"
                    onerror="this.style.display='none'; this.parentElement.textContent='Immagine non trovata';">
@@ -330,6 +336,25 @@
         grid.appendChild(card);
       });
     }
+
+    /* Dimensiona le carte perché stiano tutte nello schermo (formato 4:3). */
+    function adattaGriglia() {
+      if (!gameScreen.classList.contains("active")) return;
+      const n = grid.children.length, gap = window.innerWidth < 760 ? 10 : 14;
+      const W = grid.parentElement.clientWidth;
+      const H = window.innerHeight - grid.getBoundingClientRect().top - 16;
+      let migliore = { lato: 0, colonne: 4 };
+      for (let colonne = 2; colonne <= n; colonne++) {
+        const righe = Math.ceil(n / colonne);
+        const larghezza = Math.min((W - gap * (colonne - 1)) / colonne, ((H - gap * (righe - 1)) / righe) * 4 / 3);
+        if (larghezza > migliore.lato) migliore = { lato: larghezza, colonne };
+      }
+      const lato = Math.max(60, Math.floor(migliore.lato));
+      grid.style.gridTemplateColumns = `repeat(${migliore.colonne}, ${lato}px)`;
+      grid.style.gap = gap + "px";
+      grid.style.width = "auto";
+    }
+    window.addEventListener("resize", adattaGriglia);
 
     function flipCard(card) {
       if (locked || card.classList.contains("flipped") || card.classList.contains("matched")) return;
@@ -351,7 +376,7 @@
           secondCard.classList.add("matched");
           matched += 1;
           resetTurn();
-          if (matched === imageSet.length) endGame(true);
+          if (matched === LIVELLO.coppie) endGame(true);
         }, 350);
       } else {
         setTimeout(() => {
@@ -385,7 +410,7 @@
       resultTitle.textContent = won ? "Hai vinto!" : "Tempo scaduto";
       resultText.textContent = won
         ? `${currentNickname}, hai completato il Memory in ${formatMs(elapsedMs)} con ${moves} tentativi.`
-        : `Hai trovato ${matched} coppie su ${imageSet.length}.`;
+        : `Hai trovato ${matched} coppie su ${LIVELLO.coppie}.`;
       modal.classList.add("active");
       GiochiSAT.fineGioco("memory", { completato: won, punti: won ? elapsedMs : null });
 
@@ -442,7 +467,7 @@
         return;
       }
 
-      leaderboardTitle.textContent = `Classifica ${selectedTime} s — migliori tempi`;
+      leaderboardTitle.textContent = `Classifica ${GiochiSAT.difficolta.nome(GiochiSAT.difficolta.di("memory"))} — migliori tempi`;
       leaderboardList.innerHTML = "<li>Caricamento…</li>";
 
       try {

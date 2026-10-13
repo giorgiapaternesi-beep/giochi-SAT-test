@@ -50,6 +50,10 @@ body{font-family:var(--gs-testo-font);color:var(--testo);min-height:100vh;-webki
 .confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:2px;opacity:.95;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
 @media (prefers-reduced-motion:reduce){*{animation:none !important}}
+
+/* tema comune: a fine partita il messaggio sta sotto, il puzzle completato resta visibile */
+.win{inset:auto 8px 8px 8px;top:50%;background:none;backdrop-filter:none}
+.win .box{background:var(--gs-superficie);border:1px solid var(--gs-bordo);color:var(--gs-testo)}
 </style>
 <script src="../assets/game-stats.js" defer></script>
 </head>
@@ -254,7 +258,7 @@ body{font-family:var(--gs-testo-font);color:var(--testo);min-height:100vh;-webki
     </svg>
     <div class="win" id="win"><div class="box">
       <h2>Completato!</h2>
-      <p>Hai ricomposto la Terra vista dai satelliti Sentinel-2.</p>
+      <p id="wintitolo">Hai ricomposto la Terra vista dai satelliti Sentinel-2.</p>
       <p class="wintime" id="wintime"></p>
       <button class="btn" id="again">Gioca ancora</button>
     </div></div>
@@ -264,7 +268,9 @@ body{font-family:var(--gs-testo-font);color:var(--testo);min-height:100vh;-webki
 <div class="confetti" id="confetti"></div>
 
 <script>
-const NX=4, NY=4;
+/* Difficoltà (vedi "livelli" in assets/config.js): colonne x righe */
+const LIVELLO=GiochiSAT.difficolta.parametri("puzzle-satelliti")||{colonne:4,righe:4};
+const NX=LIVELLO.colonne, NY=LIVELLO.righe;
 const BX=40, BY=24, IW=480, IH=384;
 const W=NX*(IW/NX); // = IW
 const w=IW/NX, h=IH/NY;
@@ -307,7 +313,18 @@ function svgPoint(e){
   return p.matrixTransform(ctm.inverse());
 }
 
+let scenaOriginale=null, ultimaImmagine=-1;
+function scegliImmagine(){
+  const scena=document.getElementById("scene");
+  if(scenaOriginale===null) scenaOriginale=scena.innerHTML;
+  const elenco=(GIOCHISAT_CONFIG.puzzle&&GIOCHISAT_CONFIG.puzzle.immagini)||[{file:null,titolo:"la Terra vista dai satelliti Sentinel-2"}];
+  let k; do{ k=Math.floor(Math.random()*elenco.length); }while(elenco.length>1&&k===ultimaImmagine);
+  ultimaImmagine=k; const im=elenco[k];
+  scena.innerHTML = im.file ? `<image href="${GiochiSAT.url(im.file)}" x="0" y="0" width="${IW}" height="${IH}" preserveAspectRatio="xMidYMid slice"/>` : scenaOriginale;
+  document.getElementById("wintitolo").textContent="Hai ricomposto "+(im.titolo||"l'immagine")+".";
+}
 function costruisci(){
+  scegliImmagine();
   H=[]; V=[];
   for(let i=0;i<NX;i++){ H[i]=[]; V[i]=[]; for(let j=0;j<NY;j++){ H[i][j]=rnd(); V[i][j]=rnd(); } }
   const sl=document.getElementById("slots"); sl.innerHTML="";

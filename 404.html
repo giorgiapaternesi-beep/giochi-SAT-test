@@ -6,11 +6,20 @@
   <title>Pagina non trovata – Giochi SAT</title>
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#090B2A">
-  <!-- GitHub Pages mostra questa pagina per ogni indirizzo sbagliato:
-       i percorsi sono assoluti perché l'indirizzo può essere qualsiasi. -->
-  <link rel="stylesheet" href="/giochiSAT/assets/css/giochisat.css">
-  <script src="/giochiSAT/assets/config.js"></script>
-  <script src="/giochiSAT/assets/js/giochisat.js"></script>
+  <!-- GitHub Pages mostra questa pagina per ogni indirizzo sbagliato.
+       La radice del sito è il primo pezzo del percorso (il nome del
+       repository): così la pagina funziona anche in un repository di prova. -->
+  <script>
+    (function () {
+      var primo = location.pathname.split("/")[1];
+      var base = document.createElement("base");
+      base.href = /\.github\.io$/.test(location.hostname) && primo ? "/" + primo + "/" : "/";
+      document.head.appendChild(base);
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/css/giochisat.css">
+  <script src="assets/config.js"></script>
+  <script src="assets/js/giochisat.js"></script>
   <style>
     .vuoto{min-height:100dvh;display:grid;place-content:center;text-align:center;gap:14px;padding:24px}
     .vuoto h1{margin:0;font-size:clamp(28px,6vw,40px)}
@@ -21,7 +30,7 @@
   <main class="vuoto">
     <h1>Persi nello spazio!</h1>
     <p>Questa pagina non esiste o è stata spostata. Torna alla base e scegli un gioco.</p>
-    <p><a class="gs-btn" href="/giochiSAT/">Torna alla home</a></p>
+    <p><a class="gs-btn" href="./">Torna alla home</a></p>
   </main>
 </body>
 </html>

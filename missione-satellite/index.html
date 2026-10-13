@@ -218,6 +218,7 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none}
         <div class="detect-head"><span class="tag">Dato dal satellite</span></div>
         <figure class="figure"><img id="dimg" alt=""></figure>
         <h3 class="dquestion" id="dquestion"></h3>
+        <div id="tempo-anomalia"></div>
         <div class="options" id="opts"></div>
         <div class="feedback" id="fb"></div>
         <div class="reveal hidden" id="reveal">
@@ -306,7 +307,7 @@ function mostraProxy(i){
   const fb=$("#fb"); fb.className="feedback";
   const box=$("#opts"); box.innerHTML="";
   const lettere=["A","B","C","D"];
-  shuffle(p.opzioni).forEach((op,j)=>{
+  opzioniLivello(p).forEach((op,j)=>{
     const bt=document.createElement("button");
     bt.className="opt"; bt.dataset.val=op;
     bt.innerHTML=`<span class="k">${lettere[j]}</span><span>${op}</span>`;
@@ -315,13 +316,28 @@ function mostraProxy(i){
   });
   tentato=false; attendo=true;
   $("#scanhint").textContent="Anomalia rilevata: leggi il dato e scegli la causa.";
+  tempoAnomalia.ferma();
+  tempoAnomalia = GiochiSAT.contoAllaRovescia(LIVELLO.secondi, $("#tempo-anomalia"), () => {
+    if(!attendo) return;                        // tempo scaduto: si mostra la risposta giusta
+    tentato = true;
+    const giusta = [...$("#opts").children].find(x => x.dataset.val === p.corretta);
+    rispondi(p.corretta, giusta);
+  });
+}
+
+/* Difficoltà (vedi "livelli" in assets/config.js) */
+const LIVELLO = GiochiSAT.difficolta.parametri("missione-satellite") || { opzioni: 3, secondi: 0 };
+let tempoAnomalia = { ferma(){} };
+function opzioniLivello(p){
+  const sbagliate = shuffle(p.opzioni.filter(o => o !== p.corretta)).slice(0, Math.max(1, LIVELLO.opzioni - 1));
+  return shuffle([p.corretta, ...sbagliate]);
 }
 
 function rispondi(val,bt){
   if(!attendo) return;
   const p=PROBLEMI[idx];
   if(val===p.corretta){
-    attendo=false;
+    attendo=false; tempoAnomalia.ferma(); $("#tempo-anomalia").innerHTML="";
     [...$("#opts").children].forEach(x=>{ x.disabled=true;
       if(x.dataset.val===p.corretta) x.classList.add("giusta"); else x.classList.add("dim"); });
     const fb=$("#fb"); fb.className="feedback show ok"; fb.textContent=tentato?"Esatto, ci sei arrivato!":"Esatto, al primo colpo!";

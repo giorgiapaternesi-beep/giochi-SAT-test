@@ -39,6 +39,54 @@ window.GIOCHISAT_CONFIG = Object.freeze({
       descrizione: "Sfida online un'altra persona su sei problemi ambientali." }
   ],
 
+  /* --- Difficoltà ----------------------------------------------------
+     Ogni gioco singleplayer ha tre difficoltà. In Esercitazione si sceglie
+     in cima al gioco; nella Sfida si sceglie una volta sola all'inizio e
+     vale per tutti i giochi. Qui sotto cosa cambia per ogni gioco. */
+  difficolta: {
+    facile:    { nome: "Facile" },
+    media:     { nome: "Media" },
+    difficile: { nome: "Difficile" }
+  },
+  livelli: {
+    "memory": {                       // coppie da trovare e secondi a disposizione
+      facile:    { coppie: 6, secondi: 90, descrizione: "6 coppie, 90 secondi" },
+      media:     { coppie: 8, secondi: 60, descrizione: "8 coppie, 60 secondi" },
+      difficile: { coppie: 8, secondi: 30, descrizione: "8 coppie, 30 secondi" }
+    },
+    "missione-satellite": {           // risposte tra cui scegliere; secondi per anomalia (0 = senza tempo)
+      facile:    { opzioni: 2, secondi: 0,  descrizione: "2 risposte possibili, senza tempo" },
+      media:     { opzioni: 3, secondi: 0,  descrizione: "3 risposte possibili, senza tempo" },
+      difficile: { opzioni: 3, secondi: 20, descrizione: "3 risposte, 20 secondi per anomalia" }
+    },
+    "quiz-terra": {                   // secondi per domanda (0 = senza tempo)
+      facile:    { secondi: 0,  descrizione: "Senza tempo" },
+      media:     { secondi: 30, descrizione: "30 secondi a domanda" },
+      difficile: { secondi: 15, descrizione: "15 secondi a domanda" }
+    },
+    "sensore-adatto": {               // precisione richiesta per centrare il problema; aiuto = il bersaglio si illumina
+      facile:    { tolleranza: 44, aiuto: true,  descrizione: "Mira facile, con aiuto" },
+      media:     { tolleranza: 30, aiuto: true,  descrizione: "Mira normale, con aiuto" },
+      difficile: { tolleranza: 18, aiuto: false, descrizione: "Mira precisa, senza aiuto" }
+    },
+    "puzzle-satelliti": {             // pezzi del puzzle: colonne x righe
+      facile:    { colonne: 4, righe: 3, descrizione: "12 pezzi" },
+      media:     { colonne: 5, righe: 4, descrizione: "20 pezzi" },
+      difficile: { colonne: 6, righe: 5, descrizione: "30 pezzi" }
+    },
+    "sat-doku": {                     // griglia "base" 4x4 o "advanced" 5x5
+      facile:    { griglia: "base",     suggerimenti: true,  descrizione: "Griglia 4×4, suggerimenti attivi" },
+      media:     { griglia: "advanced", suggerimenti: true,  descrizione: "Griglia 5×5, suggerimenti attivi" },
+      difficile: { griglia: "advanced", suggerimenti: false, descrizione: "Griglia 5×5, senza suggerimenti" }
+    },
+    "parole-in-orbita": {             // griglia "base" 4x4 o "advanced" 5x5 e secondi
+      facile:    { griglia: "base",     secondi: 120, descrizione: "Griglia 4×4, 120 secondi" },
+      media:     { griglia: "base",     secondi: 90,  descrizione: "Griglia 4×4, 90 secondi" },
+      difficile: { griglia: "advanced", secondi: 120, descrizione: "Griglia 5×5, 120 secondi" }
+    }
+  },
+  difficoltaPredefinita: "media",
+
   /* --- Modalità Sfida ------------------------------------------------
      giochi: quanti giochi "single" vengono estratti a caso.
      minuti: tempo totale per completarli tutti.
@@ -46,16 +94,24 @@ window.GIOCHISAT_CONFIG = Object.freeze({
      Abbassarli quando si saranno misurati i tempi reali. */
   sfida: {
     difficolta: {
-      facile:    { nome: "Facile",    giochi: 7, minuti: 60, descrizione: "Livelli base e tempi larghi nei giochi." },
-      media:     { nome: "Media",     giochi: 7, minuti: 60, descrizione: "Un po' più di pepe: tempi più stretti." },
-      difficile: { nome: "Difficile", giochi: 7, minuti: 60, descrizione: "Livelli avanzati e tempi stretti." }
-    },
-    /* Livello che ogni gioco usa durante la Sfida, per difficoltà. */
-    livelli: {
-      "memory":           { facile: 90,     media: 60,     difficile: 30 },          // secondi
-      "sat-doku":         { facile: "base", media: "base", difficile: "advanced" },
-      "parole-in-orbita": { facile: "base", media: "advanced", difficile: "advanced" }
+      facile:    { nome: "Facile",    giochi: 7, minuti: 60, descrizione: "Pochi pezzi e coppie, tempi larghi, nessun conto alla rovescia nei quiz." },
+      media:     { nome: "Media",     giochi: 7, minuti: 60, descrizione: "Griglie più grandi e un po' di tempo nei quiz." },
+      difficile: { nome: "Difficile", giochi: 7, minuti: 60, descrizione: "Tanti pezzi, tempi stretti e nessun aiuto." }
     }
+  },
+
+  /* --- Memory: immagine del retro delle carte (segnaposto da sostituire) */
+  memory: { retro: "assets/memory/retro.svg" },
+
+  /* --- Puzzle: immagini tra cui viene scelta quella da ricomporre.
+     file: null = il disegno originale del gioco. Le altre vanno in
+     assets/puzzle/ e vengono ritagliate in formato 5:4 (es. 1000x800). */
+  puzzle: {
+    immagini: [
+      { file: null,                           titolo: "la Terra vista dai satelliti Sentinel-2" },
+      { file: "assets/puzzle/costa.svg",      titolo: "un satellite che osserva la costa" },
+      { file: "assets/puzzle/terra-notte.svg", titolo: "la Terra di notte vista dall'orbita" }
+    ]
   },
 
   /* --- Terra animata in home -----------------------------------------

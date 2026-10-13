@@ -145,7 +145,7 @@ body{font-family:var(--gs-testo-font);color:var(--testo);min-height:100vh;-webki
       </div>
       <div class="mode-actions">
         <button class="btn verde" id="go">Gioca da solo</button>
-        <a class="btn" href="../sensore-sfida/">Sfida a due</a>
+        
       </div>
     </div>
   </section>
@@ -389,12 +389,14 @@ function drawBeam(){
   const p1=[sx+px*b, sy+py*b], p2=[foot.x+px*t, foot.y+py*t], p3=[foot.x-px*t, foot.y-py*t], p4=[sx-px*b, sy-py*b];
   $("#beam").innerHTML=`<polygon points="${p1} ${p2} ${p3} ${p4}"/><line x1="${sx}" y1="${sy}" x2="${foot.x}" y2="${foot.y}"/>`;
 }
+/* Difficoltà (vedi "livelli" in assets/config.js) */
+const LIVELLO = GiochiSAT.difficolta.parametri("sensore-adatto") || { tolleranza: 30, aiuto: true };
 function updateFoot(){
   $("#foot").setAttribute("transform",`translate(${foot.x},${foot.y})`);
   drawBeam();
   const r=ROUND[idx]; const dist=Math.hypot(foot.x-r.hx, foot.y-r.hy);
-  $("#foot").classList.toggle("near", dist<46 && fase==="punta");
-  if(fase==="punta" && dist<30){ lock(); }
+  $("#foot").classList.toggle("near", LIVELLO.aiuto && dist<LIVELLO.tolleranza*1.5 && fase==="punta");
+  if(fase==="punta" && dist<LIVELLO.tolleranza){ lock(); }
 }
 function lock(){
   fase="done";
@@ -461,15 +463,10 @@ async function duelRpc(name,args={}){const r=await fetch(`${DUEL_URL}/rest/v1/rp
 async function cercaSfidaAperta(){try{const d=await duelRpc("sensor_duel_available");if(d&&d.available){openDuelId=d.duel_id;$("#challengerText").textContent=`${d.challenger} cerca un avversario. Vuoi accettare?`;$("#challengeName").value=GiochiSAT.nome.get();$("#openChallenge").classList.remove("hidden")}}catch(e){/* La modalità singola resta sempre disponibile. */}}
 $("#acceptChallenge").addEventListener("click",async()=>{const n=$("#challengeName").value.trim();if(n.length<2){$("#challengeError").textContent="Inserisci almeno due caratteri.";return}let token=localStorage.getItem("giochisat_duel_token");if(!token){token=crypto.randomUUID();localStorage.setItem("giochisat_duel_token",token)}$("#challengeError").textContent="Collegamento alla sfida…";try{await duelRpc("sensor_duel_join",{p_duel_id:openDuelId,p_token:token,p_name:n});GiochiSAT.nome.set(n);location.href=`../sensore-sfida/?duel=${encodeURIComponent(openDuelId)}`}catch(e){$("#challengeError").textContent=e.message;openDuelId=null;setTimeout(()=>$("#openChallenge").classList.add("hidden"),1800)}});
 $("#declineChallenge").addEventListener("click",()=>$("#openChallenge").classList.add("hidden"));
-if(!GiochiSAT.sfida.attiva())cercaSfidaAperta();
+/* la sfida a due si gioca da Esercitazione > Multiplayer */
 $("#go").addEventListener("click",initGioco);
 $("#nextBtn").addEventListener("click",nextRound);
 $("#again").addEventListener("click",initGioco);
-</script>
-<script>
-if (GiochiSAT.sfida.attiva()) {            // durante la Sfida si gioca da soli
-  document.querySelectorAll('.mode-actions a[href*="sensore-sfida"]').forEach(a => a.hidden = true);
-}
 </script>
 </body>
 </html>

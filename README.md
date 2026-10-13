@@ -20,6 +20,10 @@ Servizio Attività Produttive e Controlli di ARPA Lazio.
   utile sui monitor degli eventi, dove giocano persone diverse.
   Sono accettati solo lettere, numeri, spazi, punto, trattino e underscore
   (niente email o numeri di telefono).
+- **Difficoltà**: ogni gioco singleplayer ha tre difficoltà (Facile, Media,
+  Difficile). In Esercitazione si sceglie dalla fascia sotto la barra del
+  gioco e resta ricordata per quella scheda; nella Sfida si sceglie una sola
+  volta all'inizio e vale per tutti i giochi estratti.
 - Ogni pagina ha in alto il pulsante **Home**.
 
 ## Struttura
@@ -50,6 +54,8 @@ giochiSAT/
 │   ├── js/giochisat.js        Script comune (cielo stellato, soprannome, sfida)
 │   ├── fonts/                 Font Poppins ospitato sul sito + licenza
 │   ├── terra/                 Terra della home (mappa.svg; spazio per un video)
+│   ├── memory/retro.svg       Retro delle carte del Memory (segnaposto da sostituire)
+│   ├── puzzle/                Immagini extra del Puzzle della Terra
 │   ├── ricompense/            File della ricompensa (da preparare)
 │   ├── game-stats.js          Conteggio anonimo delle partite
 │   └── parole-italiane-giochisat.js   Vocabolario di "Parole in orbita"
@@ -66,8 +72,28 @@ eliminare quando nessun QR o link li usa più.
 - **Regole della sfida** (`sfida.difficolta`): numero di giochi e minuti per
   ogni difficoltà. Oggi sono impostati per il **play testing** (tutti i 7 giochi,
   60 minuti): abbassarli dopo aver misurato i tempi reali.
-- **Livello dei giochi nella sfida** (`sfida.livelli`): tempo del Memory e
-  livello base/avanzato di SAT-Doku e Parole in orbita per ogni difficoltà.
+- **Difficoltà dei giochi** (`livelli`): per ogni gioco e per ogni difficoltà
+  cosa cambia. Ogni voce ha una `descrizione`, che è il testo mostrato sotto
+  i pulsanti della difficoltà.
+
+  | Gioco | Facile | Media | Difficile |
+  |---|---|---|---|
+  | Memory | 6 coppie, 90 s | 8 coppie, 60 s | 8 coppie, 30 s |
+  | Missione satellite | 2 risposte | 3 risposte | 3 risposte, 20 s per anomalia |
+  | Osserva la Terra | senza tempo | 30 s a domanda | 15 s a domanda |
+  | Il sensore giusto | mira larga, aiuto | mira normale, aiuto | mira precisa, senza aiuto |
+  | Puzzle della Terra | 12 pezzi | 20 pezzi | 30 pezzi |
+  | SAT-Doku | 4×4, suggerimenti | 5×5, suggerimenti | 5×5, senza suggerimenti |
+  | Parole in orbita | 4×4, 120 s | 4×4, 90 s | 5×5, 120 s |
+
+- **Retro delle carte del Memory** (`memory.retro`): oggi è un segnaposto,
+  `assets/memory/retro.svg`. Per cambiarlo basta sostituire il file (stesso
+  nome) oppure indicare qui un'altra immagine (consigliato formato 4:3,
+  per esempio 400×300, PNG, JPG, WebP o SVG).
+- **Immagini del puzzle** (`puzzle.immagini`): a ogni partita ne viene scelta
+  una diversa. `file: null` è il disegno originale del gioco; le altre stanno
+  in `assets/puzzle/` (formato 5:4, per esempio 1000×800). `titolo` è il testo
+  mostrato a puzzle completato.
 - **Elenco dei giochi** (`giochi`): nome, descrizione, colore, tipo
   (`single` o `multi`). Le pagine di Esercitazione si costruiscono da qui.
 - **Video della Terra** (`terraVideo`): vedi `assets/terra/LEGGIMI.md`.
@@ -95,8 +121,15 @@ Le classi comuni iniziano con `gs-` per non scontrarsi con quelle dei giochi.
    GiochiSAT.fineGioco("id-del-gioco", { completato: true, punti: 42 });
    ```
    (`completato: false` se la partita è persa: la sfida propone Riprova o Salta).
-3. Facoltativo: leggere il livello imposto dalla difficoltà con
-   `GiochiSAT.sfida.livello("id-del-gioco")` (restituisce `null` fuori dalla sfida).
+3. Per avere le tre difficoltà, aggiungere il gioco in `livelli` dentro
+   `assets/config.js` e leggere i valori nel gioco con:
+   ```js
+   const LIVELLO = GiochiSAT.difficolta.parametri("id-del-gioco");
+   // es. { coppie: 8, secondi: 60, descrizione: "..." }
+   ```
+   La fascia per scegliere la difficoltà compare da sola nei giochi che hanno
+   una voce in `livelli` (tranne durante la sfida, dove la difficoltà è fissa).
+   La difficoltà si può anche indicare nell'indirizzo: `memory/?livello=facile`.
 
 Fuori dalla sfida `fineGioco` non fa nulla di visibile, quindi si può
 chiamare sempre.
@@ -148,6 +181,8 @@ GiochiSAT.nome.chiedi()           // finestra per sceglierlo
   carica sempre l'ultima 2.x): sostituire `@2` con la versione esatta in uso.
 - Far scrivere la classifica del Memory tramite una funzione con controlli,
   come già avviene per Quizzone e sfida del sensore.
+- Sostituire il retro delle carte del Memory e, se si vuole, le immagini
+  extra del puzzle (oggi disegni segnaposto).
 - Le foto delle carte del Memory potrebbero diventare illustrazioni piatte,
   nello stile del resto del sito.
 

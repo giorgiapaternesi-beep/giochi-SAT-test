@@ -150,7 +150,7 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none}
       <p>Mettiti alla prova con domande facili sui satelliti che studiano la Terra e ci aiutano a proteggere l'ambiente.</p>
       <div class="chips">
         <span class="chip" id="chip-n">8 domande</span>
-        <span class="chip">Nessun tempo</span>
+        <span class="chip" id="chip-tempo">Nessun tempo</span>
         <span class="chip">Solo per curiosi</span>
       </div>
       <button class="btn verde" id="go">Inizia il quiz</button>
@@ -177,6 +177,7 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none}
         <img id="qimg" alt="">
         <figcaption class="cap" id="qcap"></figcaption>
       </figure>
+      <div id="tempo-domanda"></div>
       <div class="options" id="opts"></div>
       <div class="feedback" id="fb"><span class="titolo" id="fbt"></span><span id="fbx"></span></div>
       <div class="foot"><button class="btn" id="next" disabled>Avanti</button></div>
@@ -253,11 +254,19 @@ function mostra(){
   $('#fb').className = 'feedback';
   const nx = $('#next'); nx.disabled = true;
   nx.textContent = (i === DOMANDE.length - 1) ? 'Vedi il risultato' : 'Avanti';
+  tempoDomanda.ferma();
+  tempoDomanda = GiochiSAT.contoAllaRovescia(LIVELLO.secondi, $('#tempo-domanda'), () => scegli(-1));
 }
+
+/* Difficoltà (vedi "livelli" in assets/config.js): secondi per domanda, 0 = senza tempo */
+const LIVELLO = GiochiSAT.difficolta.parametri("quiz-terra") || { secondi: 0 };
+let tempoDomanda = { ferma(){} };
+if (LIVELLO.secondi) document.getElementById('chip-tempo').textContent = LIVELLO.secondi + ' secondi a domanda';
 
 function scegli(j){
   if (risposto) return;
   risposto = true;
+  tempoDomanda.ferma();
   const d = DOMANDE[i];
   const bottoni = [...document.querySelectorAll('.opt')];
   bottoni.forEach((b, k) => {
@@ -271,7 +280,7 @@ function scegli(j){
   if (ok) giuste++;
   const fb = $('#fb');
   fb.className = 'feedback show ' + (ok ? 'ok' : 'no');
-  $('#fbt').textContent = ok ? 'Giusto!' : 'Quasi!';
+  $('#fbt').textContent = ok ? 'Giusto!' : (j < 0 ? 'Tempo scaduto!' : 'Quasi!');
   $('#fbx').innerHTML = d.why;
   $('#next').disabled = false;
 }
