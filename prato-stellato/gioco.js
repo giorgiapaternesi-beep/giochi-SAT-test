@@ -21,15 +21,20 @@
 
   const PRESSIONE_LUNGA = 400;          // millisecondi per mettere una stella tenendo premuto
   const CELLA_MIN = 30, CELLA_MAX = 44; // lato delle caselle in pixel (sotto i 30 il dito non ci sta)
-  const LUCCICHIO = 0.12;               // quota di caselle coperte che brillano (solo decorazione)
+  const BRILLANO = 0.12;                // quota di caselle coperte con una stellina che brilla (decorazione)
   const ONDA = 70, ONDA_MAX = 1400;     // vittoria: ritardo dell'animazione per casella di distanza (ms)
 
   const ICONA = (id, classe = "") => `<svg class="${classe}" viewBox="0 0 24 24" aria-hidden="true"><use href="#ps-icona-${id}"/></svg>`;
+  const BRILLIO = ICONA("stella", "ps-brillio");
+
+  // stessa stella del cielo di sfondo (assets/js/giochisat.js)
+  document.getElementById("ps-icona-stella").innerHTML = GiochiSAT.stella.forma;
   const $ = (id) => document.getElementById(id);
   const campoEl = $("campo");
 
   let campo = null;                     // partita in corso (campo.js)
   let celle = [];                       // pulsanti delle caselle
+  let brillano = new Set();             // caselle coperte con la stellina decorativa
   let attiva = 0;                       // casella raggiungibile con il tasto Tab
   let ultima = 0;                       // ultima casella toccata (da lì parte l'onda finale)
   let modoSegna = false;
@@ -59,15 +64,19 @@
     campoEl.style.setProperty("--colonne", campo.colonne);
     campoEl.setAttribute("aria-label", `Cielo da esplorare: ${campo.colonne} colonne per ${campo.righe} righe`);
     const frammento = document.createDocumentFragment();
+    const colori = GiochiSAT.stella.colori;
+    brillano = new Set();
     celle = campo.celle.map((_, i) => {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "ps-cella";
       b.dataset.i = i;
       b.tabIndex = i === 0 ? 0 : -1;
-      if (Math.random() < LUCCICHIO) {                       // non tutto quello che luccica è una stella
-        b.classList.add("ps-luccica");
-        b.style.setProperty("--ritardo", (-Math.random() * 3).toFixed(2) + "s");
+      if (Math.random() < BRILLANO) {                        // non tutto quello che luccica è una stella
+        brillano.add(i);
+        b.style.setProperty("--c", colori[Math.floor(Math.random() * colori.length)]);
+        b.style.setProperty("--t", (2.6 + Math.random() * 2.4).toFixed(1) + "s");      // come nel cielo di sfondo
+        b.style.setProperty("--ritardo", (-Math.random() * 4).toFixed(1) + "s");
       }
       frammento.appendChild(b);
       return b;
@@ -96,7 +105,7 @@
     else if (c.stato === SCOPERTA) {
       el.textContent = c.vicini || "";
       descrizione = c.vicini ? `${c.vicini} ${c.vicini === 1 ? "satellite" : "satelliti"} intorno` : "vuota";
-    } else { el.textContent = ""; descrizione = "coperta"; }
+    } else { el.innerHTML = brillano.has(i) ? BRILLIO : ""; descrizione = "coperta"; }
     el.setAttribute("aria-label", `Riga ${campo.riga(i) + 1}, colonna ${campo.colonna(i) + 1}: ${descrizione}`);
   }
 

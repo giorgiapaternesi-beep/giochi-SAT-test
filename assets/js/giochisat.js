@@ -154,8 +154,15 @@
   /* ==================================================================
      Cielo stellato: puntini fissi, stelle che brillano, comete rare
      ================================================================== */
-  var STELLA_SVG = '<svg viewBox="-12 -12 24 24"><circle r="9" fill="currentColor" opacity=".16"/>' +
-    '<path d="M0-12C.9-3.4 3.4-.9 12 0 3.4.9.9 3.4 0 12-.9 3.4-3.4.9-12 0-3.4-.9-.9-3.4 0-12Z" fill="currentColor"/></svg>';
+  /* La stella del sito: la usano il cielo di sfondo e i giochi (es. Prato stellato)
+     tramite GiochiSAT.stella. I colori sono in giochisat.css (--gs-stella-1/2/3). */
+  var STELLA = Object.freeze({
+    viewBox: "-12 -12 24 24",
+    forma: '<circle r="9" fill="currentColor" opacity=".16"/>' +
+      '<path d="M0-12C.9-3.4 3.4-.9 12 0 3.4.9.9 3.4 0 12-.9 3.4-3.4.9-12 0-3.4-.9-.9-3.4 0-12Z" fill="currentColor"/>',
+    colori: Object.freeze(["var(--gs-stella-1)", "var(--gs-stella-2)", "var(--gs-stella-3)"])
+  });
+  var STELLA_SVG = '<svg viewBox="' + STELLA.viewBox + '">' + STELLA.forma + "</svg>";
 
   function casuale(seme) { var s = seme >>> 0 || 1; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
   function semeDa(t) { var h = 2166136261; for (var i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -173,7 +180,7 @@
     }
     el.innerHTML = '<svg class="gs-puntini">' + punti + "</svg>";
     var quante = document.body.classList.contains("gs-pagina-home") ? 10 : 7;
-    var colori = ["#FFF6D8", "#FFE59A", "#BFE3FF"];
+    var colori = STELLA.colori;
     for (var k = 0; k < quante; k++) {
       var s = document.createElement("span");
       s.className = "gs-stella";
@@ -533,6 +540,7 @@
   window.GiochiSAT = {
     nome: nome, sfida: sfida, fineGioco: fineGioco, dialogo: dialogo,
     giochi: giochi, gioco: gioco, url: url, mmss: mmss, testo: testo, movimentoRidotto: movimentoRidotto,
-    icona: icona, elencoGiochi: elencoGiochi, difficolta: difficolta, contoAllaRovescia: contoAllaRovescia
+    icona: icona, elencoGiochi: elencoGiochi, difficolta: difficolta, contoAllaRovescia: contoAllaRovescia,
+    stella: STELLA
   };
 })();

@@ -33,6 +33,10 @@
 
   --gs-colore:var(--gs-giallo);  /* colore del gioco: ogni pagina lo imposta */
 
+  --gs-stella-1:#FFF6D8;         /* colori delle stelle (cielo di sfondo, Prato stellato…) */
+  --gs-stella-2:#FFE59A;
+  --gs-stella-3:#BFE3FF;
+
   --gs-testo-font:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --gs-titoli-font:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
 
