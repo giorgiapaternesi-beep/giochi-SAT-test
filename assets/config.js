@@ -30,6 +30,8 @@ window.GIOCHISAT_CONFIG = Object.freeze({
       descrizione: "Un satellite per riga, colonna e area: mai vicini, nemmeno in diagonale." },
     { id: "parole-in-orbita",   nome: "Parole in orbita",    tipo: "single", colore: "#C77DFF", percorso: "parole-in-orbita/",
       descrizione: "Collega le lettere e trova le parole dell'ambiente." },
+    { id: "prato-stellato",     nome: "Prato stellato",      tipo: "single", colore: "#9BE15D", percorso: "prato-stellato/",
+      descrizione: "Non tutto quello che luccica è una stella." },
 
     { id: "quizzone",           nome: "Quizzone Live",       tipo: "multi",  colore: "#9B7BFF", percorso: "quizzone/",
       descrizione: "Tutti insieme durante gli eventi: cinque domande e risultati in diretta." },
@@ -83,6 +85,11 @@ window.GIOCHISAT_CONFIG = Object.freeze({
       facile:    { griglia: "base",     secondi: 120, descrizione: "Griglia 4×4, 120 secondi" },
       media:     { griglia: "base",     secondi: 90,  descrizione: "Griglia 4×4, 90 secondi" },
       difficile: { griglia: "advanced", secondi: 120, descrizione: "Griglia 5×5, 120 secondi" }
+    },
+    "prato-stellato": {               // campo colonne × righe e detriti nascosti (sul telefono in verticale il campo si gira)
+      facile:    { colonne: 8,  righe: 8,  detriti: 10, descrizione: "Campo 8×8, 10 detriti" },
+      media:     { colonne: 12, righe: 9,  detriti: 18, descrizione: "Campo 12×9, 18 detriti" },
+      difficile: { colonne: 16, righe: 10, detriti: 30, descrizione: "Campo 16×10, 30 detriti" }
     }
   },
   difficoltaPredefinita: "media",
@@ -94,9 +101,9 @@ window.GIOCHISAT_CONFIG = Object.freeze({
      Abbassarli quando si saranno misurati i tempi reali. */
   sfida: {
     difficolta: {
-      facile:    { nome: "Facile",    giochi: 7, minuti: 60, descrizione: "Pochi pezzi e coppie, domande facili, tempi larghi e nessun conto alla rovescia nei quiz." },
-      media:     { nome: "Media",     giochi: 7, minuti: 60, descrizione: "Griglie più grandi, domande un po' più impegnative e un po' di tempo nei quiz." },
-      difficile: { nome: "Difficile", giochi: 7, minuti: 60, descrizione: "Tanti pezzi, domande difficili, tempi stretti e nessun aiuto." }
+      facile:    { nome: "Facile",    giochi: 8, minuti: 60, descrizione: "Pochi pezzi e coppie, domande facili, tempi larghi e nessun conto alla rovescia nei quiz." },
+      media:     { nome: "Media",     giochi: 8, minuti: 60, descrizione: "Griglie più grandi, domande un po' più impegnative e un po' di tempo nei quiz." },
+      difficile: { nome: "Difficile", giochi: 8, minuti: 60, descrizione: "Tanti pezzi, domande difficili, tempi stretti e nessun aiuto." }
     }
   },
 

@@ -484,6 +484,7 @@
     "puzzle-satelliti": '<path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v3h-3a2 2 0 1 0-4 0H5v-3a2 2 0 1 0 0-4z"/>',
     "sat-doku": '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>',
     "parole-in-orbita": '<path d="M5 19 12 5l7 14M8 14h8"/>',
+    "prato-stellato": '<path d="M12 3c.7 4.6 3.9 7.8 8.5 8.5-4.6.7-7.8 3.9-8.5 8.5-.7-4.6-3.9-7.8-8.5-8.5C8.1 10.8 11.3 7.6 12 3z"/>',
     "quizzone": '<circle cx="12" cy="12" r="2"/><path d="M8 8a6 6 0 0 0 0 8M16 8a6 6 0 0 1 0 8M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/>',
     "duello-orbitale": '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M3 19c.8-3 2.6-5 5-5s4.2 2 5 5M11 19c.8-3 2.6-5 5-5s4.2 2 5 5"/>',
     "sensore-sfida": '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'

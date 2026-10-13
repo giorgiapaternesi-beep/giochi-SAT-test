@@ -49,6 +49,7 @@ giochiSAT/
 │
 ├── memory/  missione-satellite/  quiz-terra/  sensore-adatto/
 ├── puzzle-satelliti/  sat-doku/  parole-in-orbita/      ← singleplayer
+├── prato-stellato/            (campo.js regole · gioco.js interfaccia · stile.css)
 │   (quiz-terra/ è il Quizzone da soli: la cartella ha tenuto il vecchio
 │    nome per non rompere link, QR e statistiche)
 ├── quizzone/  duello-orbitale/  sensore-sfida/          ← multiplayer
@@ -82,7 +83,7 @@ eliminare quando nessun QR o link li usa più.
 ## Cosa si cambia da `assets/config.js`
 
 - **Regole della sfida** (`sfida.difficolta`): numero di giochi e minuti per
-  ogni difficoltà. Oggi sono impostati per il **play testing** (tutti i 7 giochi,
+  ogni difficoltà. Oggi sono impostati per il **play testing** (tutti gli 8 giochi,
   60 minuti): abbassarli dopo aver misurato i tempi reali.
 - **Difficoltà dei giochi** (`livelli`): per ogni gioco e per ogni difficoltà
   cosa cambia. Ogni voce ha una `descrizione`, che è il testo mostrato sotto
@@ -97,6 +98,7 @@ eliminare quando nessun QR o link li usa più.
   | Puzzle della Terra | 12 pezzi | 20 pezzi | 30 pezzi |
   | SAT-Doku | 4×4, suggerimenti | 5×5, suggerimenti | 5×5, senza suggerimenti |
   | Parole in orbita | 4×4, 120 s | 4×4, 90 s | 5×5, 120 s |
+  | Prato stellato | campo 8×8, 10 detriti | 12×9, 18 detriti | 16×10, 30 detriti |
 
 - **Retro delle carte del Memory** (`memory.retro`): oggi è un segnaposto,
   `assets/memory/retro.svg`. Per cambiarlo basta sostituire il file (stesso
@@ -114,6 +116,25 @@ eliminare quando nessun QR o link li usa più.
   (`single` o `multi`). Le pagine di Esercitazione si costruiscono da qui.
 - **Video della Terra** (`terraVideo`): vedi `assets/terra/LEGGIMI.md`.
 - **Database**: indirizzo e chiave pubblica di Supabase (unico punto).
+
+## Prato stellato
+
+Il gioco dei detriti spaziali: *non tutto quello che luccica è una stella*.
+Si scoprono le caselle del cielo; i numeri dicono quanti detriti ci sono
+nelle 8 caselle intorno; i detriti si segnalano con il mirino. La prima
+casella scoperta è sempre sicura. Si gioca anche da telefono: si tocca per
+scoprire, si tiene premuto (o si usa il pulsante *Segnala*) per segnalare;
+sul telefono in verticale il campo si gira per avere caselle più grandi.
+
+È diviso in tre file, ognuno con un solo compito:
+
+- `campo.js`: le regole, senza nessun legame con la pagina (si possono
+  provare da sole);
+- `gioco.js`: disegno del campo, tocchi, clic, tastiera, tempo, esito;
+- `stile.css`: l'aspetto.
+
+La difficoltà cambia la grandezza del campo e il numero di detriti
+(`livelli` → `"prato-stellato"` in `config.js`).
 
 ## Domande del Quizzone
 
@@ -247,6 +268,10 @@ GiochiSAT.nome.chiedi()           // finestra per sceglierlo
   carica sempre l'ultima 2.x): sostituire `@2` con la versione esatta in uso.
 - Far scrivere la classifica del Memory tramite una funzione con controlli,
   come già avviene per Quizzone e sfida del sensore.
+- **Statistiche del Prato stellato**: la pagina delle statistiche ora prende
+  l'elenco dei giochi da `config.js`, ma il database potrebbe accettare solo
+  i giochi abilitati (come era successo per SAT-Doku e Parole in orbita con
+  gli script `supabase_aggiunta_*.sql`): va abilitato `prato-stellato`.
 - Ricontrollare le domande nuove del Quizzone (segnate `# nuova`) e
   aggiungere quelle del Quizzone Live.
 - Sostituire il retro delle carte del Memory e, se si vuole, le immagini

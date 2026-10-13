@@ -48,8 +48,9 @@
 const SUPABASE_URL=GIOCHISAT_CONFIG.supabaseUrl;
 const SUPABASE_KEY=GIOCHISAT_CONFIG.supabaseKey;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const games=['totale','memory','missione-satellite','quiz-terra','sensore-adatto','puzzle-satelliti','quizzone','sat-doku','parole-in-orbita','duello-orbitale'];
-const labels={'totale':'Totale GiochiSAT','memory':'Memory Match','missione-satellite':'Missione satellite','quiz-terra':'Quiz Terra','sensore-adatto':'Sensore adatto','puzzle-satelliti':'Puzzle satelliti','quizzone':'Quizzone Live','sat-doku':'SAT-Doku','parole-in-orbita':'Parole in orbita','duello-orbitale':'Duello orbitale'};
+/* giochi e nomi dal catalogo in assets/config.js, più il totale del sito */
+const games=['totale',...GIOCHISAT_CONFIG.giochi.map(g=>g.id)];
+const labels=Object.fromEntries([['totale','Totale GiochiSAT'],...GIOCHISAT_CONFIG.giochi.map(g=>[g.id,g.nome])]);
 let rows=[],period='day'; const $=id=>document.getElementById(id);
 
 async function load(){

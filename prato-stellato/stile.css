@@ -1,0 +1,98 @@
+/* =====================================================================
+   Prato stellato – aspetto del gioco
+   Colori, font e misure comuni vengono da assets/css/giochisat.css (--gs-*).
+   La dimensione delle caselle (--cella) la calcola gioco.js.
+   ===================================================================== */
+.ps{
+  --ps-coperta-1:#3B46A3; --ps-coperta-2:#2C3486;          /* caselle coperte */
+  --ps-coperta-su-1:#4753B9; --ps-coperta-su-2:#353E9A;    /* coperte sotto il puntatore */
+  --ps-scoperta:rgb(9 11 42 / .62);                        /* cielo scoperto */
+  width:min(100%,820px);margin:0 auto;padding:16px var(--gs-margine) 48px;
+}
+.ps [hidden]{display:none!important}
+.ps-scheda{background:var(--gs-vetro);border:1px solid var(--gs-bordo);border-radius:var(--gs-r-scheda);padding:14px;box-shadow:var(--gs-ombra)}
+
+/* --- barra del gioco: detriti, tempo, comandi --- */
+.ps-stato{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-bottom:12px}
+.ps-dato{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--gs-superficie);
+  font:700 17px/1 var(--gs-titoli-font);font-variant-numeric:tabular-nums}
+.ps-dato svg{width:20px;height:20px;flex:none}
+.ps-spazio{flex:1}
+.ps-pulsante{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;cursor:pointer;
+  border:2px solid var(--gs-bordo);background:transparent;color:var(--gs-testo);font:600 14px var(--gs-testo-font)}
+.ps-pulsante svg{width:18px;height:18px;flex:none}
+.ps-pulsante:hover{border-color:var(--gs-colore)}
+.ps-pulsante[aria-pressed="true"]{background:var(--gs-giallo);border-color:var(--gs-giallo);color:var(--gs-scuro)}
+
+/* --- campo --- */
+.ps-figura{margin:0}
+.ps-campo{display:grid;grid-template-columns:repeat(var(--colonne,8),var(--cella,36px));gap:3px;justify-content:center;
+  touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.ps-cella{position:relative;display:grid;place-items:center;width:var(--cella,36px);height:var(--cella,36px);padding:0;border:0;
+  border-radius:calc(var(--cella,36px) * .22);cursor:pointer;color:var(--gs-testo);
+  font:700 calc(var(--cella,36px) * .5)/1 var(--gs-titoli-font);
+  background:linear-gradient(180deg,var(--ps-coperta-1),var(--ps-coperta-2));
+  box-shadow:inset 0 -3px 0 rgb(6 4 30 / .35),inset 0 1px 0 rgb(255 255 255 / .12);
+  transition:background .12s,transform .08s}
+.ps-cella:hover{background:linear-gradient(180deg,var(--ps-coperta-su-1),var(--ps-coperta-su-2))}
+.ps-cella:active{transform:scale(.94)}
+.ps-cella svg{width:68%;height:68%}
+.ps-modo-segna .ps-cella:not(.ps-scoperta){cursor:crosshair}
+
+.ps-scoperta,.ps-scoperta:hover{background:var(--ps-scoperta);box-shadow:inset 0 0 0 1px rgb(168 178 255 / .1);cursor:default}
+.ps-cella[data-n="1"]{color:#5CC8FF}
+.ps-cella[data-n="2"]{color:#2ED3A0}
+.ps-cella[data-n="3"]{color:#FF5C8A}
+.ps-cella[data-n="4"]{color:#B69CFF}
+.ps-cella[data-n="5"]{color:#FF8A3D}
+.ps-cella[data-n="6"]{color:#29C7D9}
+.ps-cella[data-n="7"]{color:#FFC93C}
+.ps-cella[data-n="8"]{color:#F5F3FF}
+
+.ps-segnata{color:var(--gs-giallo)}
+.ps-colpita,.ps-colpita:hover{background:var(--gs-rosa)}
+.ps-sbagliata svg{opacity:.4}
+.ps-sbagliata::after{content:"";position:absolute;inset:16%;
+  background:linear-gradient(45deg,transparent 45%,var(--gs-rosa) 45% 55%,transparent 55%)}
+.ps-finito .ps-cella{cursor:default}
+.ps-finito .ps-cella:active{transform:none}
+
+/* luccichio decorativo su alcune caselle coperte */
+.ps-luccica:not(.ps-scoperta):not(.ps-segnata)::before{content:"";position:absolute;top:14%;right:14%;width:24%;height:24%;background:#FFF6D8;
+  clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
+  animation:ps-brilla 3s ease-in-out var(--ritardo,0s) infinite}
+@keyframes ps-brilla{0%,100%{opacity:.9;transform:scale(1)}50%{opacity:.25;transform:scale(.55)}}
+
+/* --- didascalia e aiuto --- */
+.ps-didascalia{margin:12px 0 0;text-align:center;font-style:italic;font-weight:500;color:var(--gs-testo-2)}
+.ps-didascalia::before,.ps-didascalia::after{content:"✦";margin:0 .5em;color:var(--gs-colore);font-style:normal}
+.ps-aiuto{margin:8px auto 0;max-width:60ch;text-align:center;font-size:13.5px;color:var(--gs-testo-2)}
+.ps-aiuto b{color:var(--gs-testo)}
+
+/* --- esito --- */
+.ps-esito{margin-top:16px;text-align:center}
+.ps-esito h2{margin:0 0 6px;font-size:clamp(22px,5vw,30px)}
+.ps-esito p{margin:0}
+.ps-vinto h2{color:var(--gs-colore)}
+.ps-perso h2{color:var(--gs-rosa)}
+.ps-curiosita{margin:14px auto 18px!important;max-width:56ch;padding:12px 14px;border-radius:14px;background:var(--gs-superficie);
+  color:var(--gs-testo-2);text-align:left;font-size:15px}
+.ps-curiosita b{color:var(--gs-testo)}
+
+/* telefono: barra del gioco su una riga sola, così il campo ha più spazio */
+@media (max-width:520px){
+  .ps{padding:10px 8px 40px}
+  .ps-scheda{padding:10px}
+  .ps-stato{flex-wrap:nowrap;gap:6px;margin-bottom:10px}
+  .ps-dato{font-size:15px;padding:5px 9px;gap:4px}
+  .ps-dato svg{width:17px;height:17px}
+  .ps-pulsante{padding:6px 10px;min-height:38px}
+  .ps-solo-grande{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .ps-campo{gap:2px}
+  .ps-didascalia{font-size:14px}
+  .ps-didascalia::before,.ps-didascalia::after{margin:0 .3em}
+}
+@media (prefers-reduced-motion:reduce){
+  .ps-luccica::before{animation:none!important}
+  .ps-cella{transition:none}
+}
