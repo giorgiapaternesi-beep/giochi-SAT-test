@@ -123,7 +123,16 @@ window.GIOCHISAT_CONFIG = Object.freeze({
 
   /* --- Terra animata in home -----------------------------------------
      null = Terra disegnata in CSS (leggerissima).
-     Per usare un video: caricarlo in assets/terra/ e scrivere qui il
-     percorso, per esempio "assets/terra/terra.webm". */
-  terraVideo: null
+     Video: la Terra su fondo NERO (il nero diventa trasparente da solo,
+     vedi assets/terra/LEGGIMI.md).
+       sorgenti      i file: WebM (Chrome, Firefox, Android) e MP4 (Safari, iPhone)
+       centro        centro del pianeta nel video, in pixel [x, y]
+       raggio        raggio del pianeta nel video, in pixel (nuvole comprese)
+       inclinazione  gradi di inclinazione dell'asse (la Terra vera: 23,4) */
+  terraVideo: {
+    sorgenti: ["assets/terra/terra.webm", "assets/terra/terra.mp4"],
+    centro: [430, 429],
+    raggio: 419,
+    inclinazione: 23.4
+  }
 });

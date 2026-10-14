@@ -1,28 +1,50 @@
 # Terra della home
 
-Oggi la Terra in fondo alla home è disegnata così:
+In fondo alla home gira la Terra del video `terra.webm` / `terra.mp4`
+(animazione fatta in Blender). Se il video non parte (browser molto vecchio,
+risparmio energetico del telefono, file mancante) resta la Terra disegnata:
+`mappa.svg`, una mappa piatta che scorre dentro un cerchio.
 
-- `mappa.svg` è una mappa piatta (5 KB) che scorre lentamente dentro un cerchio:
-  sembra un pianeta che ruota. Pesa quasi niente e non usa il processore.
-- I tre satelliti girano su un'orbita tratteggiata intorno al pianeta.
+Con l'impostazione "riduci movimento" del dispositivo la Terra resta ferma.
 
-Con l'impostazione "riduci movimento" del dispositivo, tutto resta fermo.
+## Come funziona
 
-## Usare un video al posto del disegno
+- Il video ha la Terra su **fondo nero**: i formati video adatti al web non
+  conservano la trasparenza su tutti i browser (su iPhone no). Il file
+  `assets/js/terra-video.js` disegna il video su un canvas e rende trasparente
+  il nero, quindi funziona ovunque.
+- Il pianeta del video prende **posizione e grandezza** della Terra disegnata
+  (`.h-pianeta` in `index.html`): per spostarlo o ingrandirlo si cambia quella.
+- In `assets/config.js`, alla voce `terraVideo`:
+  - `sorgenti`: i file (WebM per Chrome, Firefox e Android; MP4 per Safari e iPhone);
+  - `centro` e `raggio`: dove sta il pianeta nel video, in pixel (raggio con le nuvole);
+  - `inclinazione`: gradi di inclinazione dell'asse (23,4 come la Terra vera).
+- Per tornare alla Terra disegnata basta scrivere `terraVideo: null`.
 
-1. Preparare un video **in loop** della Terra che ruota, inquadrata come nella home
-   (si vede solo la parte alta del pianeta).
-2. Formato consigliato: WebM (VP9) o MP4 (H.264), larghezza 1280 px,
-   10-20 secondi, senza audio, idealmente sotto i 2 MB.
-3. Caricarlo in questa cartella, per esempio `assets/terra/terra.webm`.
-4. In `assets/config.js` scrivere `terraVideo: "assets/terra/terra.webm"`.
+## Sostituire il video
 
-Il video sostituisce la mappa appena è pronto; se non si carica resta il disegno.
+1. In Blender: sfondo **nero puro** (World nero, niente stelle), la Terra al
+   centro dell'inquadratura, animazione in loop. La trasparenza non serve.
+2. Convertire nei due formati, per esempio con ffmpeg:
 
-## Video o modello 3D?
+   ```
+   ffmpeg -i terra.mkv -c:v libvpx-vp9 -b:v 0 -crf 33 -row-mt 1 -an terra.webm
+   ffmpeg -i terra.mkv -c:v libx264 -crf 23 -preset slow -pix_fmt yuv420p -movflags +faststart -an terra.mp4
+   ```
 
-Per una rotazione lenta conviene il **video**: un file di 1-2 MB, nessuna libreria,
-funziona su qualsiasi telefono. Un modello 3D (per esempio con three.js) richiede
-una libreria di circa 150-600 KB, le texture del pianeta (spesso 1-4 MB) e scalda
-di più la batteria e la scheda grafica: ha senso solo se si vuole far girare la
-Terra con il dito.
+3. Mettere i file in questa cartella e aggiornare `centro` e `raggio` in `config.js`.
+
+I file di oggi vengono dal video 1080×1080 ritagliato a 860×860 (via il nero
+inutile intorno): il pianeta ha centro in 430, 429 e raggio 419 px nuvole comprese.
+
+**Per un risultato più nitido**: sul sito si vede solo la parte alta del
+pianeta, molto ingrandita (sugli schermi grandi circa 3-4 volte). Esportando
+a 2160×2160, oppure inquadrando solo la calotta superiore a risoluzione alta,
+le nuvole e il bordo restano più definiti.
+
+## Perché un video e non un modello 3D
+
+Per una rotazione lenta il video basta: circa 2 MB, nessuna libreria, funziona
+su qualsiasi telefono. Un modello 3D (per esempio con three.js) richiede una
+libreria e le texture del pianeta e scalda di più la batteria: ha senso solo
+se si vuole far girare la Terra con il dito.
