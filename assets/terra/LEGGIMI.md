@@ -1,50 +1,82 @@
 # Terra della home
 
-In fondo alla home gira la Terra del video `terra.webm` / `terra.mp4`
-(animazione fatta in Blender). Se il video non parte (browser molto vecchio,
-risparmio energetico del telefono, file mancante) resta la Terra disegnata:
-`mappa.svg`, una mappa piatta che scorre dentro un cerchio.
+In fondo alla home gira la Terra del video (render di Blender, già zoomato e
+inclinato, con la trasparenza). Se il video non parte (browser molto vecchio,
+file mancante) resta la Terra disegnata: `mappa.svg`, una mappa piatta che
+scorre dentro un cerchio.
 
-Con l'impostazione "riduci movimento" del dispositivo la Terra resta ferma.
+Con l'impostazione "riduci movimento" del dispositivo, o se il telefono blocca
+la riproduzione (risparmio energetico), la Terra del video resta ferma.
 
-## Come funziona
+## I file
 
-- Il video ha la Terra su **fondo nero**: i formati video adatti al web non
-  conservano la trasparenza su tutti i browser (su iPhone no). Il file
-  `assets/js/terra-video.js` disegna il video su un canvas e rende trasparente
-  il nero, quindi funziona ovunque.
-- Il pianeta del video prende **posizione e grandezza** della Terra disegnata
-  (`.h-pianeta` in `index.html`): per spostarlo o ingrandirlo si cambia quella.
-- In `assets/config.js`, alla voce `terraVideo`:
-  - `sorgenti`: i file (WebM per Chrome, Firefox e Android; MP4 per Safari e iPhone);
-  - `centro` e `raggio`: dove sta il pianeta nel video, in pixel (raggio con le nuvole);
-  - `inclinazione`: gradi di inclinazione dell'asse (23,4 come la Terra vera).
-- Per tornare alla Terra disegnata basta scrivere `terraVideo: null`.
+| File | Grandezza | Per chi |
+|---|---|---|
+| `terra.webm`, `terra.mp4` | 1488×960 | quasi tutti gli schermi |
+| `terra-grande.webm`, `terra-grande.mp4` | 2976×1920 | schermi ad alta risoluzione (Mac, 4K) |
+
+WebM va su Chrome, Firefox e Android, MP4 su Safari e iPhone: il browser
+prende da solo quello che sa leggere.
+
+Ogni fotogramma ha **due metà**: sopra i colori, sotto la trasparenza in grigio
+(bianco = pieno, nero = vuoto). Serve perché i video trasparenti non funzionano
+su tutti i browser (su iPhone no): `assets/js/terra-video.js` rimette insieme
+le due metà nella pagina, quindi la trasparenza funziona ovunque.
+
+## Posizione e grandezza
+
+Le misure stanno in `assets/config.js`, alla voce `terraVideo`, in pixel del
+render (3240×1080):
+
+- `fotogramma`: grandezza del render;
+- `ritaglio`: la parte del render tenuta nei file (via il vuoto intorno);
+- `pianeta`: centro e raggio della superficie; `nuvole`: fin dove arrivano le
+  nuvole. Servono a far girare l'orbita dei satelliti attorno al pianeta,
+  appena fuori dalle nuvole;
+- `larghezzaMinima`, `altezzaMinima`, `altezzaMassima`: come si vede.
+
+Il render è largo quanto lo schermo e poggia sul fondo. Sui telefoni è largo
+almeno 680 pixel, quindi i lati escono dallo schermo. Sui computer diventa più
+piccolo se l'orbita salirebbe sopra i giochi, ma resta alto fra il 30% e il 42%
+dello schermo.
+
+Per tornare alla Terra disegnata basta scrivere `terraVideo: null`.
 
 ## Sostituire il video
 
-1. In Blender: sfondo **nero puro** (World nero, niente stelle), la Terra al
-   centro dell'inquadratura, animazione in loop. La trasparenza non serve.
-2. Convertire nei due formati, per esempio con ffmpeg:
+1. In Blender: render con trasparenza (Film → Transparent), esportato per
+   esempio come WebM VP9 con alfa.
+2. Preparare i quattro file con ffmpeg (qui per un render 3240×1080):
 
    ```
-   ffmpeg -i terra.mkv -c:v libvpx-vp9 -b:v 0 -crf 33 -row-mt 1 -an terra.webm
-   ffmpeg -i terra.mkv -c:v libx264 -crf 23 -preset slow -pix_fmt yuv420p -movflags +faststart -an terra.mp4
+   R="crop=2976:960:144:120,format=rgba,premultiply=inplace=1,format=rgba"
+   D="split[c][a];[c]format=rgb24[cc];[a]alphaextract,format=rgb24[aa];[cc][aa]vstack,scale=out_color_matrix=bt709:out_range=tv,format=yuv420p"
+   C="-colorspace bt709 -color_primaries bt709 -color_trc bt709 -color_range tv"
+
+   # grande
+   ffmpeg -c:v libvpx-vp9 -i render.webm -filter_complex "[0:v]$R,$D" -an -c:v libx264 -preset slow -crf 23 -tag:v avc1 -movflags +faststart $C terra-grande.mp4
+   ffmpeg -c:v libvpx-vp9 -i render.webm -filter_complex "[0:v]$R,$D" -an -c:v libvpx-vp9 -b:v 0 -crf 34 -row-mt 1 $C terra-grande.webm
+   # normale (metà grandezza)
+   ffmpeg -c:v libvpx-vp9 -i render.webm -filter_complex "[0:v]$R,scale=1488:480:flags=lanczos,format=rgba,$D" -an -c:v libx264 -preset slow -crf 23 -tag:v avc1 -movflags +faststart $C terra.mp4
+   ffmpeg -c:v libvpx-vp9 -i render.webm -filter_complex "[0:v]$R,scale=1488:480:flags=lanczos,format=rgba,$D" -an -c:v libvpx-vp9 -b:v 0 -crf 34 -row-mt 1 $C terra.webm
    ```
 
-3. Mettere i file in questa cartella e aggiornare `centro` e `raggio` in `config.js`.
+   `-c:v libvpx-vp9` prima di `-i` serve a leggere la trasparenza del WebM; con
+   una sequenza PNG si toglie e si scrive per esempio `-framerate 24 -i frame_%04d.png`.
 
-I file di oggi vengono dal video 1080×1080 ritagliato a 860×860 (via il nero
-inutile intorno): il pianeta ha centro in 430, 429 e raggio 419 px nuvole comprese.
+3. Se l'inquadratura cambia, aggiornare in `config.js` `fotogramma`, `ritaglio`,
+   `pianeta` e `nuvole` (e i numeri di `crop` e `scale` qui sopra). Il
+   ritaglio deve contenere tutto ciò che si vede in ogni fotogramma, con
+   larghezza multipla di 16 e altezza multipla di 64: così nella compressione
+   le due metà non si sporcano a vicenda.
 
-**Per un risultato più nitido**: sul sito si vede solo la parte alta del
-pianeta, molto ingrandita (sugli schermi grandi circa 3-4 volte). Esportando
-a 2160×2160, oppure inquadrando solo la calotta superiore a risoluzione alta,
-le nuvole e il bordo restano più definiti.
+I file di oggi vengono da `video_trasparente.webm` (3240×1080, 500 fotogrammi
+a 24 al secondo), ritaglio 2976×960 da (144, 120). Pianeta: centro 1633, 1847
+e raggio 1577; nuvole fino a 1675.
 
 ## Perché un video e non un modello 3D
 
-Per una rotazione lenta il video basta: circa 2 MB, nessuna libreria, funziona
+Per una rotazione lenta il video basta: pochi MB, nessuna libreria, funziona
 su qualsiasi telefono. Un modello 3D (per esempio con three.js) richiede una
 libreria e le texture del pianeta e scalda di più la batteria: ha senso solo
 se si vuole far girare la Terra con il dito.

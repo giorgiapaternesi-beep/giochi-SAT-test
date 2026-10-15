@@ -123,16 +123,32 @@ window.GIOCHISAT_CONFIG = Object.freeze({
 
   /* --- Terra animata in home -----------------------------------------
      null = Terra disegnata in CSS (leggerissima).
-     Video: la Terra su fondo NERO (il nero diventa trasparente da solo,
-     vedi assets/terra/LEGGIMI.md).
-       sorgenti      i file: WebM (Chrome, Firefox, Android) e MP4 (Safari, iPhone)
-       centro        centro del pianeta nel video, in pixel [x, y]
-       raggio        raggio del pianeta nel video, in pixel (nuvole comprese)
-       inclinazione  gradi di inclinazione dell'asse (la Terra vera: 23,4) */
+     Video: il render di Blender già zoomato e inclinato, con la trasparenza
+     (vedi assets/terra/LEGGIMI.md). Misure in pixel del render.
+       sorgenti         i file in due grandezze: si usa la più piccola che basta
+                        per lo schermo. WebM per Chrome, Firefox e Android, MP4 per
+                        Safari e iPhone
+       fotogramma       grandezza del render [larghezza, altezza]
+       ritaglio         parte del render tenuta nei file [x, y, larghezza, altezza]
+       pianeta          centro [x, y] e raggio della superficie (senza nuvole)
+       nuvole           fin dove arrivano le nuvole, dal centro: l'orbita dei
+                        satelliti passa fuori
+       larghezzaMinima  il render è largo quanto lo schermo ma almeno tanti pixel:
+                        sui telefoni i lati escono dallo schermo
+       altezzaMinima    se l'orbita salirebbe sopra i contenuti (schermi bassi) il
+       altezzaMassima   render diventa più piccolo, ma resta alto fra queste due parti
+                        dell'altezza dello schermo (0.42 = 42%) */
   terraVideo: {
-    sorgenti: ["assets/terra/terra.webm", "assets/terra/terra.mp4"],
-    centro: [430, 429],
-    raggio: 419,
-    inclinazione: 23.4
+    sorgenti: [
+      { larghezza: 1488, file: ["assets/terra/terra.webm", "assets/terra/terra.mp4"] },
+      { larghezza: 2976, file: ["assets/terra/terra-grande.webm", "assets/terra/terra-grande.mp4"] }
+    ],
+    fotogramma: [3240, 1080],
+    ritaglio: [144, 120, 2976, 960],
+    pianeta: { centro: [1633, 1847], raggio: 1577 },
+    nuvole: 1675,
+    larghezzaMinima: 680,
+    altezzaMinima: 0.30,
+    altezzaMassima: 0.42
   }
 });

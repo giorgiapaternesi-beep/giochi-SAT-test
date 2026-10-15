@@ -64,7 +64,7 @@ giochiSAT/
 │   ├── css/giochisat.css      Stile comune (colori, cielo, barra, pulsanti)
 │   ├── js/giochisat.js        Script comune (cielo stellato, soprannome, sfida)
 │   ├── fonts/                 Font Poppins ospitato sul sito + licenza
-│   ├── terra/                 Terra della home: video (terra.webm/.mp4) e disegno di riserva
+│   ├── terra/                 Terra della home: video trasparente (due grandezze) e disegno di riserva
 │   ├── quiz/domande.txt       ★ Domande del Quizzone da soli (si modificano qui)
 │   ├── js/domande.js          Lettura delle domande (usato dal Quizzone e dal controllo)
 │   ├── memory/retro.svg       Retro delle carte del Memory (segnaposto da sostituire)
@@ -114,8 +114,9 @@ eliminare quando nessun QR o link li usa più.
   `domande`) e i secondi per domanda.
 - **Elenco dei giochi** (`giochi`): nome, descrizione, colore, tipo
   (`single` o `multi`). Le pagine di Esercitazione si costruiscono da qui.
-- **Video della Terra** (`terraVideo`): file, posizione del pianeta nel video e
-  inclinazione dell'asse; vedi `assets/terra/LEGGIMI.md`.
+- **Video della Terra** (`terraVideo`): file, misure del render (pianeta e
+  nuvole, per l'orbita dei satelliti) e quanto spazio occupa sullo schermo;
+  vedi `assets/terra/LEGGIMI.md`.
 - **Database**: indirizzo e chiave pubblica di Supabase (unico punto).
 
 ## Prato stellato

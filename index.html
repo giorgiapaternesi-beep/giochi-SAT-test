@@ -52,16 +52,19 @@
     .h-in-corso p{margin:0;flex:1;min-width:200px}
     .h-in-corso .gs-btn{min-height:44px;padding:8px 18px;font-size:15px}
 
-    /* la Terra in basso, sempre visibile dietro ai contenuti */
+    /* la Terra in basso, sempre visibile dietro ai contenuti. Misure del pianeta disegnato:
+       --d diametro, --cima dove inizia (dall'alto della zona), --dx spostamento dal centro,
+       --orbita distanza dell'orbita dei satelliti dal pianeta */
     .h-main{padding-bottom:clamp(150px,26vh,300px)}
-    .h-terra{--d:max(165vw,1000px);position:fixed;left:0;right:0;bottom:0;height:clamp(210px,34vh,380px);z-index:0;overflow-x:clip;overflow-y:visible;pointer-events:none}
-    .h-alone{position:absolute;left:50%;top:6%;width:calc(var(--d) * 1.22);aspect-ratio:1;translate:-50% 0;border-radius:50%;
+    .h-terra{--d:max(165vw,1000px);--cima:32%;--dx:0px;--orbita:64px;
+      position:fixed;left:0;right:0;bottom:0;height:clamp(210px,34vh,380px);z-index:0;overflow-x:clip;overflow-y:visible;pointer-events:none}
+    .h-alone{position:absolute;left:50%;top:6%;width:calc(var(--d) * 1.22);aspect-ratio:1;translate:calc(-50% + var(--dx)) 0;border-radius:50%;
       background:radial-gradient(closest-side,rgb(92 160 255 / .20) 93%,rgb(92 160 255 / .05) 98%,transparent 100%)}
-    .h-orbita{position:absolute;left:50%;top:calc(32% - 64px);width:calc(var(--d) + 128px);aspect-ratio:1;translate:-50% 0;border-radius:50%;
-      border:2px dashed rgb(255 255 255 / .22);animation:h-orbita 75s linear infinite;will-change:transform}
-    .h-sat{position:absolute;left:50%;top:50%;width:76px;height:52px;margin:-26px 0 0 -38px;transform:rotate(var(--a)) translateY(calc(var(--d) / -2 - 64px))}
+    .h-orbita{position:absolute;left:50%;top:calc(var(--cima) - var(--orbita));width:calc(var(--d) + 2 * var(--orbita));aspect-ratio:1;
+      translate:calc(-50% + var(--dx)) 0;border-radius:50%;border:2px dashed rgb(255 255 255 / .22);animation:h-orbita 75s linear infinite;will-change:transform}
+    .h-sat{position:absolute;left:50%;top:50%;width:76px;height:52px;margin:-26px 0 0 -38px;transform:rotate(var(--a)) translateY(calc(var(--d) / -2 - var(--orbita)))}
     @keyframes h-orbita{from{transform:rotate(-14deg)}to{transform:rotate(346deg)}}
-    .h-pianeta{position:absolute;left:50%;top:32%;width:var(--d);aspect-ratio:1;translate:-50% 0;border-radius:50%;overflow:hidden;
+    .h-pianeta{position:absolute;left:50%;top:var(--cima);width:var(--d);aspect-ratio:1;translate:calc(-50% + var(--dx)) 0;border-radius:50%;overflow:hidden;
       background:#2F7BEA;box-shadow:0 0 0 10px rgb(120 190 255 / .16),0 0 70px 24px rgb(92 160 255 / .22)}
     .h-mappa{position:absolute;top:0;left:0;height:clamp(260px,42vh,470px);display:flex;animation:h-gira 300s linear infinite;will-change:transform}
     .h-mappa img{height:100%;width:auto;flex:none;display:block}
@@ -69,11 +72,30 @@
     .h-ombra{position:absolute;inset:0;border-radius:50%;
       background:radial-gradient(circle at 40% 6%,rgb(255 255 255 / .2),transparent 20%),
                  radial-gradient(circle at 50% 50%,transparent 64%,rgb(10 10 50 / .3) 72%)}
-    /* Terra in video (assets/js/terra-video.js): il canvas copre la zona della Terra, un po' più
-       in alto per le nuvole; quando il video parte, la Terra disegnata resta solo come misura */
-    .h-terra-video{position:absolute;left:0;top:-30%;width:100%;height:130%}
+
+    /* Terra in video (assets/js/terra-video.js). Le misure --tv-* sono quelle del render, in pixel
+       (assets/config.js → terraVideo). Il render poggia sul fondo ed è largo quanto lo schermo (almeno
+       --tv-min); se così l'orbita salirebbe sopra i contenuti (--tv-libero = spazio libero sotto di loro)
+       diventa più piccolo, restando alto fra --tv-hmin e --tv-hmax.
+       --tv-s = pixel dello schermo per pixel del render; --tv-sat = spazio per i satelliti fuori dalle nuvole */
+    .h-terra{--tv-sat:28px;
+      --tv-s:min(max(100vw, var(--tv-min)) / var(--tv-fw),
+                 max(var(--tv-hmin) / var(--tv-fh),
+                     min(var(--tv-hmax) / var(--tv-fh),
+                         (var(--tv-libero, 100vh) - var(--tv-sat)) / (var(--tv-fh) - var(--tv-cy) + var(--tv-nuvole)))))}
+    .h-terra-video{position:absolute;
+      left:calc(50% + (var(--tv-rx) - var(--tv-fw) / 2) * var(--tv-s));
+      bottom:calc((var(--tv-fh) - var(--tv-ry) - var(--tv-rh)) * var(--tv-s));
+      width:calc(var(--tv-rw) * var(--tv-s));height:calc(var(--tv-rh) * var(--tv-s))}
     .h-terra-sorgente{position:absolute;left:0;bottom:0;width:2px;height:2px;opacity:0}
-    .h-con-video .h-pianeta{visibility:hidden}
+    /* quando il video è visibile: via la Terra disegnata, orbita e alone attorno al pianeta del video */
+    .h-con-video{
+      --d:calc(2 * var(--tv-r) * var(--tv-s));
+      --cima:calc(100% - (var(--tv-fh) - var(--tv-cy) + var(--tv-r)) * var(--tv-s));
+      --dx:calc((var(--tv-cx) - var(--tv-fw) / 2) * var(--tv-s));
+      --orbita:calc((var(--tv-nuvole) - var(--tv-r)) * var(--tv-s) + var(--tv-sat))}
+    .h-con-video .h-pianeta{display:none}
+    .h-con-video .h-alone{top:calc(var(--cima) - var(--orbita));width:calc(var(--d) + 2 * var(--orbita))}
 
     @media (min-width:900px){
       .h-main{padding-top:30px}
@@ -133,9 +155,9 @@
   </main>
 
   <!-- La Terra: mappa che scorre lentamente dentro un cerchio. Se in assets/config.js c'è
-       "terraVideo", al suo posto compare il video (assets/js/terra-video.js) con la stessa
-       posizione e grandezza; se il video non parte resta questa. -->
-  <div class="h-terra" aria-hidden="true">
+       "terraVideo", al suo posto compare il video (assets/js/terra-video.js) e orbita e alone
+       si spostano attorno al pianeta del video; se il video non parte resta questa. -->
+  <div class="h-terra" aria-hidden="true" id="terra">
     <div class="h-alone"></div>
     <div class="h-orbita">
       <svg class="h-sat" style="--a:0deg" viewBox="-38 -26 76 52">
@@ -163,7 +185,7 @@
         <circle cy="16" r="4.5" fill="#E9ECFF"/>
       </svg>
     </div>
-    <div class="h-pianeta" id="pianeta">
+    <div class="h-pianeta">
       <div class="h-mappa"><img src="assets/terra/mappa.svg" alt=""><img src="assets/terra/mappa.svg" alt=""></div>
       <div class="h-ombra"></div>
     </div>
@@ -189,8 +211,18 @@
         document.getElementById("abbandona").addEventListener("click", G.sfida.abbandona);
       }
 
-      /* Terra in video, se configurata (assets/config.js → terraVideo) */
-      if (C.terraVideo && window.GiochiSATTerra) GiochiSATTerra.avvia(document.getElementById("pianeta"), C.terraVideo);
+      /* Terra in video, se configurata (assets/config.js → terraVideo). Il CSS la adatta allo
+         spazio libero sotto i contenuti, misurato qui (anche quando cambiano finestra o contenuti) */
+      var terra = document.getElementById("terra"), main = document.querySelector(".h-main");
+      if (C.terraVideo && window.GiochiSATTerra && GiochiSATTerra.avvia(terra, C.terraVideo)) {
+        var spazioLibero = function () {
+          var fine = main.getBoundingClientRect().bottom + window.scrollY - parseFloat(getComputedStyle(main).paddingBottom);
+          terra.style.setProperty("--tv-libero", Math.max(0, Math.round(window.innerHeight - fine)) + "px");
+        };
+        spazioLibero();
+        window.addEventListener("resize", spazioLibero);
+        if (window.ResizeObserver) new ResizeObserver(spazioLibero).observe(main);
+      }
 
     })();
   </script>
