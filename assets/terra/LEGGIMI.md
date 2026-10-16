@@ -1,9 +1,11 @@
 # Terra della home
 
 In fondo alla home gira la Terra del video (render di Blender, già zoomato e
-inclinato, con la trasparenza). Se il video non parte (browser molto vecchio,
-file mancante) resta la Terra disegnata: `mappa.svg`, una mappa piatta che
-scorre dentro un cerchio.
+inclinato, con la trasparenza e il satellite che le passa davanti). Quando il
+video è visibile, l'orbita e i satelliti disegnati della home spariscono.
+Se il video non parte (browser molto vecchio, file mancante) resta la Terra
+disegnata, con i suoi satelliti: `mappa.svg`, una mappa piatta che scorre
+dentro un cerchio.
 
 Con l'impostazione "riduci movimento" del dispositivo, o se il telefono blocca
 la riproduzione (risparmio energetico), la Terra del video resta ferma.
@@ -31,13 +33,15 @@ render (3240×1080):
 - `fotogramma`: grandezza del render;
 - `ritaglio`: la parte del render tenuta nei file (via il vuoto intorno);
 - `pianeta`: centro e raggio della superficie; `nuvole`: fin dove arrivano le
-  nuvole. Servono a far girare l'orbita dei satelliti attorno al pianeta,
-  appena fuori dalle nuvole;
+  nuvole. Servono a mettere l'alone azzurro attorno al pianeta;
+- `cimaVisibile`: la riga più alta in cui si vede qualcosa (nuvole o
+  satellite), che deve restare sotto i giochi;
 - `larghezzaMinima`, `altezzaMinima`, `altezzaMassima`: come si vede.
 
 Il render è largo quanto lo schermo e poggia sul fondo. Sui telefoni è largo
-almeno 680 pixel, quindi i lati escono dallo schermo. Sui computer diventa più
-piccolo se l'orbita salirebbe sopra i giochi, ma resta alto fra il 30% e il 42%
+almeno 680 pixel, quindi i lati escono dallo schermo (il satellite, quando è
+più in alto a destra, resta fuori). Sui computer diventa più piccolo se la sua
+parte più alta salirebbe sopra i giochi, ma resta alto fra il 30% e il 42%
 dello schermo.
 
 Per tornare alla Terra disegnata basta scrivere `terraVideo: null`.
@@ -65,14 +69,15 @@ Per tornare alla Terra disegnata basta scrivere `terraVideo: null`.
    una sequenza PNG si toglie e si scrive per esempio `-framerate 24 -i frame_%04d.png`.
 
 3. Se l'inquadratura cambia, aggiornare in `config.js` `fotogramma`, `ritaglio`,
-   `pianeta` e `nuvole` (e i numeri di `crop` e `scale` qui sopra). Il
+   `pianeta`, `nuvole` e `cimaVisibile` (e i numeri di `crop` e `scale` qui sopra). Il
    ritaglio deve contenere tutto ciò che si vede in ogni fotogramma, con
    larghezza multipla di 16 e altezza multipla di 64: così nella compressione
    le due metà non si sporcano a vicenda.
 
-I file di oggi vengono da `video_trasparente.webm` (3240×1080, 500 fotogrammi
-a 24 al secondo), ritaglio 2976×960 da (144, 120). Pianeta: centro 1633, 1847
-e raggio 1577; nuvole fino a 1675.
+I file di oggi vengono da `Terra_gira_satellite.webm` (3240×1080, 500
+fotogrammi a 24 al secondo), ritaglio 2976×960 da (144, 120). Pianeta: centro
+1633, 1847 e raggio 1577; nuvole fino a 1675; il punto più alto (il satellite)
+è alla riga 152.
 
 ## Perché un video e non un modello 3D
 

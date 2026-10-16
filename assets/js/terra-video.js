@@ -70,6 +70,7 @@
       fw: imp.fotogramma[0], fh: imp.fotogramma[1],
       rx: r[0], ry: r[1], rw: r[2], rh: r[3],
       cx: p.centro[0], cy: p.centro[1], r: p.raggio, nuvole: imp.nuvole || p.raggio,
+      vis: imp.cimaVisibile || 0,
       min: (imp.larghezzaMinima || 0) + "px",
       hmin: (imp.altezzaMinima || 0) * 100 + "vh",
       hmax: (imp.altezzaMassima || 1) * 100 + "vh"

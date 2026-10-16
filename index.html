@@ -75,27 +75,28 @@
 
     /* Terra in video (assets/js/terra-video.js). Le misure --tv-* sono quelle del render, in pixel
        (assets/config.js → terraVideo). Il render poggia sul fondo ed è largo quanto lo schermo (almeno
-       --tv-min); se così l'orbita salirebbe sopra i contenuti (--tv-libero = spazio libero sotto di loro)
-       diventa più piccolo, restando alto fra --tv-hmin e --tv-hmax.
-       --tv-s = pixel dello schermo per pixel del render; --tv-sat = spazio per i satelliti fuori dalle nuvole */
-    .h-terra{--tv-sat:28px;
+       --tv-min); se così la sua parte più alta (--tv-vis: nuvole e satellite) salirebbe sopra i
+       contenuti (--tv-libero = spazio libero sotto di loro) diventa più piccolo, restando alto fra
+       --tv-hmin e --tv-hmax. --tv-s = pixel dello schermo per pixel del render */
+    .h-terra{
       --tv-s:min(max(100vw, var(--tv-min)) / var(--tv-fw),
                  max(var(--tv-hmin) / var(--tv-fh),
                      min(var(--tv-hmax) / var(--tv-fh),
-                         (var(--tv-libero, 100vh) - var(--tv-sat)) / (var(--tv-fh) - var(--tv-cy) + var(--tv-nuvole)))))}
+                         (var(--tv-libero, 100vh) - 12px) / (var(--tv-fh) - var(--tv-vis)))))}
     .h-terra-video{position:absolute;
       left:calc(50% + (var(--tv-rx) - var(--tv-fw) / 2) * var(--tv-s));
       bottom:calc((var(--tv-fh) - var(--tv-ry) - var(--tv-rh)) * var(--tv-s));
       width:calc(var(--tv-rw) * var(--tv-s));height:calc(var(--tv-rh) * var(--tv-s))}
     .h-terra-sorgente{position:absolute;left:0;bottom:0;width:2px;height:2px;opacity:0}
-    /* quando il video è visibile: via la Terra disegnata, orbita e alone attorno al pianeta del video */
+    /* quando il video è visibile: via la Terra disegnata e l'orbita con i satelliti (il satellite è
+       nel video); l'alone va attorno al pianeta del video e arriva poco oltre le nuvole */
     .h-con-video{
       --d:calc(2 * var(--tv-r) * var(--tv-s));
       --cima:calc(100% - (var(--tv-fh) - var(--tv-cy) + var(--tv-r)) * var(--tv-s));
       --dx:calc((var(--tv-cx) - var(--tv-fw) / 2) * var(--tv-s));
-      --orbita:calc((var(--tv-nuvole) - var(--tv-r)) * var(--tv-s) + var(--tv-sat))}
-    .h-con-video .h-pianeta{display:none}
-    .h-con-video .h-alone{top:calc(var(--cima) - var(--orbita));width:calc(var(--d) + 2 * var(--orbita))}
+      --alone:calc((var(--tv-nuvole) - var(--tv-r)) * var(--tv-s) + 28px)}
+    .h-con-video .h-pianeta,.h-con-video .h-orbita{display:none}
+    .h-con-video .h-alone{top:calc(var(--cima) - var(--alone));width:calc(var(--d) + 2 * var(--alone))}
 
     @media (min-width:900px){
       .h-main{padding-top:30px}
@@ -155,8 +156,9 @@
   </main>
 
   <!-- La Terra: mappa che scorre lentamente dentro un cerchio. Se in assets/config.js c'è
-       "terraVideo", al suo posto compare il video (assets/js/terra-video.js) e orbita e alone
-       si spostano attorno al pianeta del video; se il video non parte resta questa. -->
+       "terraVideo", al suo posto compare il video (assets/js/terra-video.js), che ha già il suo
+       satellite: orbita e satelliti disegnati spariscono e l'alone si sposta attorno al pianeta
+       del video. Se il video non parte resta questa Terra, con i suoi satelliti. -->
   <div class="h-terra" aria-hidden="true" id="terra">
     <div class="h-alone"></div>
     <div class="h-orbita">

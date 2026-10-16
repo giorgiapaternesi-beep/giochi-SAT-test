@@ -114,9 +114,9 @@ eliminare quando nessun QR o link li usa più.
   `domande`) e i secondi per domanda.
 - **Elenco dei giochi** (`giochi`): nome, descrizione, colore, tipo
   (`single` o `multi`). Le pagine di Esercitazione si costruiscono da qui.
-- **Video della Terra** (`terraVideo`): file, misure del render (pianeta e
-  nuvole, per l'orbita dei satelliti) e quanto spazio occupa sullo schermo;
-  vedi `assets/terra/LEGGIMI.md`.
+- **Video della Terra** (`terraVideo`): file, misure del render (pianeta,
+  nuvole e punto più alto, satellite compreso) e quanto spazio occupa sullo
+  schermo; vedi `assets/terra/LEGGIMI.md`.
 - **Database**: indirizzo e chiave pubblica di Supabase (unico punto).
 
 ## Prato stellato
