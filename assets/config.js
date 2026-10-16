@@ -121,13 +121,14 @@ window.GIOCHISAT_CONFIG = Object.freeze({
     ]
   },
 
-  /* --- Terra animata in home -----------------------------------------
-     null = Terra disegnata in CSS (leggerissima).
-     Video: il render di Blender già zoomato e inclinato, con la trasparenza e
-     il satellite (vedi assets/terra/LEGGIMI.md). Misure in pixel del render.
+  /* --- Terra della home ------------------------------------------------
+     Il render di Blender già zoomato e inclinato, con la trasparenza e il
+     satellite (vedi assets/terra/LEGGIMI.md): subito un'immagine ferma, poi
+     il video. Misure in pixel del render.
        sorgenti         i file in due grandezze: si usa la più piccola che basta
-                        per lo schermo. WebM per Chrome, Firefox e Android, MP4 per
-                        Safari e iPhone
+                        per lo schermo. "immagine" è il primo fotogramma;
+                        "video": MP4 (tutti, iPhone compreso) e WebM (browser
+                        senza MP4)
        fotogramma       grandezza del render [larghezza, altezza]
        ritaglio         parte del render tenuta nei file [x, y, larghezza, altezza]
        pianeta          centro [x, y] e raggio della superficie (senza nuvole)
@@ -142,8 +143,10 @@ window.GIOCHISAT_CONFIG = Object.freeze({
                         parti dell'altezza dello schermo (0.42 = 42%) */
   terraVideo: {
     sorgenti: [
-      { larghezza: 1488, file: ["assets/terra/terra.webm", "assets/terra/terra.mp4"] },
-      { larghezza: 2976, file: ["assets/terra/terra-grande.webm", "assets/terra/terra-grande.mp4"] }
+      { larghezza: 1488, immagine: "assets/terra/terra.webp",
+        video: ["assets/terra/terra.mp4", "assets/terra/terra.webm"] },
+      { larghezza: 2976, immagine: "assets/terra/terra-grande.webp",
+        video: ["assets/terra/terra-grande.mp4", "assets/terra/terra-grande.webm"] }
     ],
     fotogramma: [3240, 1080],
     ritaglio: [144, 120, 2976, 960],

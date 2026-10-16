@@ -64,7 +64,7 @@ giochiSAT/
 │   ├── css/giochisat.css      Stile comune (colori, cielo, barra, pulsanti)
 │   ├── js/giochisat.js        Script comune (cielo stellato, soprannome, sfida)
 │   ├── fonts/                 Font Poppins ospitato sul sito + licenza
-│   ├── terra/                 Terra della home: video trasparente (due grandezze) e disegno di riserva
+│   ├── terra/                 Terra della home: immagine ferma e video trasparente (due grandezze)
 │   ├── quiz/domande.txt       ★ Domande del Quizzone da soli (si modificano qui)
 │   ├── js/domande.js          Lettura delle domande (usato dal Quizzone e dal controllo)
 │   ├── memory/retro.svg       Retro delle carte del Memory (segnaposto da sostituire)

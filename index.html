@@ -52,51 +52,32 @@
     .h-in-corso p{margin:0;flex:1;min-width:200px}
     .h-in-corso .gs-btn{min-height:44px;padding:8px 18px;font-size:15px}
 
-    /* la Terra in basso, sempre visibile dietro ai contenuti. Misure del pianeta disegnato:
-       --d diametro, --cima dove inizia (dall'alto della zona), --dx spostamento dal centro,
-       --orbita distanza dell'orbita dei satelliti dal pianeta */
+    /* la Terra in basso, sempre visibile dietro ai contenuti: il render di Blender, prima come
+       immagine ferma e poi come video (assets/js/terra-video.js). Le misure --tv-* sono quelle del
+       render, in pixel (assets/config.js → terraVideo). Il render poggia sul fondo ed è largo quanto
+       lo schermo (almeno --tv-min); se così la sua parte più alta (--tv-vis: nuvole e satellite)
+       salirebbe sopra i contenuti (--tv-libero = spazio libero sotto di loro) diventa più piccolo,
+       restando alto fra --tv-hmin e --tv-hmax. --tv-s = pixel dello schermo per pixel del render */
     .h-main{padding-bottom:clamp(150px,26vh,300px)}
-    .h-terra{--d:max(165vw,1000px);--cima:32%;--dx:0px;--orbita:64px;
-      position:fixed;left:0;right:0;bottom:0;height:clamp(210px,34vh,380px);z-index:0;overflow-x:clip;overflow-y:visible;pointer-events:none}
-    .h-alone{position:absolute;left:50%;top:6%;width:calc(var(--d) * 1.22);aspect-ratio:1;translate:calc(-50% + var(--dx)) 0;border-radius:50%;
-      background:radial-gradient(closest-side,rgb(92 160 255 / .20) 93%,rgb(92 160 255 / .05) 98%,transparent 100%)}
-    .h-orbita{position:absolute;left:50%;top:calc(var(--cima) - var(--orbita));width:calc(var(--d) + 2 * var(--orbita));aspect-ratio:1;
-      translate:calc(-50% + var(--dx)) 0;border-radius:50%;border:2px dashed rgb(255 255 255 / .22);animation:h-orbita 75s linear infinite;will-change:transform}
-    .h-sat{position:absolute;left:50%;top:50%;width:76px;height:52px;margin:-26px 0 0 -38px;transform:rotate(var(--a)) translateY(calc(var(--d) / -2 - var(--orbita)))}
-    @keyframes h-orbita{from{transform:rotate(-14deg)}to{transform:rotate(346deg)}}
-    .h-pianeta{position:absolute;left:50%;top:var(--cima);width:var(--d);aspect-ratio:1;translate:calc(-50% + var(--dx)) 0;border-radius:50%;overflow:hidden;
-      background:#2F7BEA;box-shadow:0 0 0 10px rgb(120 190 255 / .16),0 0 70px 24px rgb(92 160 255 / .22)}
-    .h-mappa{position:absolute;top:0;left:0;height:clamp(260px,42vh,470px);display:flex;animation:h-gira 300s linear infinite;will-change:transform}
-    .h-mappa img{height:100%;width:auto;flex:none;display:block}
-    @keyframes h-gira{to{transform:translateX(-50%)}}
-    .h-ombra{position:absolute;inset:0;border-radius:50%;
-      background:radial-gradient(circle at 40% 6%,rgb(255 255 255 / .2),transparent 20%),
-                 radial-gradient(circle at 50% 50%,transparent 64%,rgb(10 10 50 / .3) 72%)}
-
-    /* Terra in video (assets/js/terra-video.js). Le misure --tv-* sono quelle del render, in pixel
-       (assets/config.js → terraVideo). Il render poggia sul fondo ed è largo quanto lo schermo (almeno
-       --tv-min); se così la sua parte più alta (--tv-vis: nuvole e satellite) salirebbe sopra i
-       contenuti (--tv-libero = spazio libero sotto di loro) diventa più piccolo, restando alto fra
-       --tv-hmin e --tv-hmax. --tv-s = pixel dello schermo per pixel del render */
-    .h-terra{
+    .h-terra{position:fixed;top:0;right:0;bottom:0;left:0;z-index:0;overflow:hidden;pointer-events:none;
       --tv-s:min(max(100vw, var(--tv-min)) / var(--tv-fw),
                  max(var(--tv-hmin) / var(--tv-fh),
                      min(var(--tv-hmax) / var(--tv-fh),
                          (var(--tv-libero, 100vh) - 12px) / (var(--tv-fh) - var(--tv-vis)))))}
-    .h-terra-video{position:absolute;
+    /* immagine ferma e video: la parte ritagliata del render */
+    .h-terra-ferma,.h-terra-video{position:absolute;display:block;
       left:calc(50% + (var(--tv-rx) - var(--tv-fw) / 2) * var(--tv-s));
       bottom:calc((var(--tv-fh) - var(--tv-ry) - var(--tv-rh)) * var(--tv-s));
       width:calc(var(--tv-rw) * var(--tv-s));height:calc(var(--tv-rh) * var(--tv-s))}
-    .h-terra-sorgente{position:absolute;left:0;bottom:0;width:2px;height:2px;opacity:0}
-    /* quando il video è visibile: via la Terra disegnata e l'orbita con i satelliti (il satellite è
-       nel video); l'alone va attorno al pianeta del video e arriva poco oltre le nuvole */
-    .h-con-video{
-      --d:calc(2 * var(--tv-r) * var(--tv-s));
-      --cima:calc(100% - (var(--tv-fh) - var(--tv-cy) + var(--tv-r)) * var(--tv-s));
-      --dx:calc((var(--tv-cx) - var(--tv-fw) / 2) * var(--tv-s));
-      --alone:calc((var(--tv-nuvole) - var(--tv-r)) * var(--tv-s) + 28px)}
-    .h-con-video .h-pianeta,.h-con-video .h-orbita{display:none}
-    .h-con-video .h-alone{top:calc(var(--cima) - var(--alone));width:calc(var(--d) + 2 * var(--alone))}
+    .h-con-video .h-terra-ferma{visibility:hidden}            /* il video è partito */
+    .h-terra-sorgente{position:absolute;left:0;bottom:0;width:2px;height:2px;opacity:.01}
+    /* alone azzurro attorno al pianeta, poco oltre le nuvole */
+    .h-alone{position:absolute;border-radius:50%;
+      --raggio:calc(var(--tv-nuvole) * var(--tv-s) + 28px);
+      width:calc(2 * var(--raggio));height:calc(2 * var(--raggio));
+      left:calc(50% + (var(--tv-cx) - var(--tv-fw) / 2) * var(--tv-s) - var(--raggio));
+      bottom:calc((var(--tv-fh) - var(--tv-cy)) * var(--tv-s) - var(--raggio));
+      background:radial-gradient(closest-side,rgb(92 160 255 / .20) 93%,rgb(92 160 255 / .05) 98%,transparent 100%)}
 
     @media (min-width:900px){
       .h-main{padding-top:30px}
@@ -107,7 +88,7 @@
       .h-scelta{font-size:16px}
     }
     @media (prefers-reduced-motion:reduce){
-      .h-stellina,.h-mappa,.h-orbita{animation:none}
+      .h-stellina{animation:none}
     }
   </style>
 </head>
@@ -155,42 +136,10 @@
     </nav>
   </main>
 
-  <!-- La Terra: mappa che scorre lentamente dentro un cerchio. Se in assets/config.js c'è
-       "terraVideo", al suo posto compare il video (assets/js/terra-video.js), che ha già il suo
-       satellite: orbita e satelliti disegnati spariscono e l'alone si sposta attorno al pianeta
-       del video. Se il video non parte resta questa Terra, con i suoi satelliti. -->
+  <!-- La Terra: il render di Blender con il satellite (assets/terra/), messo qui da
+       assets/js/terra-video.js: prima un fotogramma fermo, poi il video. -->
   <div class="h-terra" aria-hidden="true" id="terra">
     <div class="h-alone"></div>
-    <div class="h-orbita">
-      <svg class="h-sat" style="--a:0deg" viewBox="-38 -26 76 52">
-        <rect x="-36" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/><rect x="13" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/>
-        <path d="M-28-7v14M-21-7v14M21-7v14M28-7v14" stroke="#3448C8" stroke-width="1.6"/>
-        <rect x="-13" y="-1.4" width="26" height="2.8" fill="#C9CFF5"/>
-        <rect x="-10" y="-12" width="20" height="24" rx="4" fill="#FFB238"/>
-        <rect x="0" y="-12" width="10" height="24" fill="#000" opacity=".15"/>
-        <circle cy="16" r="4.5" fill="#E9ECFF"/>
-      </svg>
-      <svg class="h-sat" style="--a:120deg" viewBox="-38 -26 76 52">
-        <rect x="-36" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/><rect x="13" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/>
-        <path d="M-28-7v14M-21-7v14M21-7v14M28-7v14" stroke="#3448C8" stroke-width="1.6"/>
-        <rect x="-13" y="-1.4" width="26" height="2.8" fill="#C9CFF5"/>
-        <rect x="-10" y="-12" width="20" height="24" rx="4" fill="#2ED3A0"/>
-        <rect x="0" y="-12" width="10" height="24" fill="#000" opacity=".15"/>
-        <circle cy="16" r="4.5" fill="#E9ECFF"/>
-      </svg>
-      <svg class="h-sat" style="--a:240deg" viewBox="-38 -26 76 52">
-        <rect x="-36" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/><rect x="13" y="-7" width="23" height="14" rx="2" fill="#4F6BFF"/>
-        <path d="M-28-7v14M-21-7v14M21-7v14M28-7v14" stroke="#3448C8" stroke-width="1.6"/>
-        <rect x="-13" y="-1.4" width="26" height="2.8" fill="#C9CFF5"/>
-        <rect x="-10" y="-12" width="20" height="24" rx="4" fill="#FF5C8A"/>
-        <rect x="0" y="-12" width="10" height="24" fill="#000" opacity=".15"/>
-        <circle cy="16" r="4.5" fill="#E9ECFF"/>
-      </svg>
-    </div>
-    <div class="h-pianeta">
-      <div class="h-mappa"><img src="assets/terra/mappa.svg" alt=""><img src="assets/terra/mappa.svg" alt=""></div>
-      <div class="h-ombra"></div>
-    </div>
   </div>
 
   <script src="assets/js/terra-video.js"></script>

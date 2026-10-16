@@ -1,12 +1,16 @@
 /* =====================================================================
-   GiochiSAT – Terra animata della home (video)
+   GiochiSAT – Terra della home (render di Blender: immagine ferma + video)
 
-   Il video è il render di Blender, già zoomato e inclinato, con la
-   trasparenza. I video trasparenti non funzionano su tutti i browser
-   (su iPhone no), quindi i file del sito portano la trasparenza "a parte":
-   nella metà alta del fotogramma ci sono i colori, in quella bassa la
-   trasparenza in grigio (bianco = pieno, nero = vuoto). Qui le due metà
-   vengono ricomposte su un <canvas> con WebGL.
+   Il render è già zoomato e inclinato, con la trasparenza e il satellite.
+   1. Subito si vede un fotogramma fermo (WebP trasparente): funziona ovunque.
+   2. Poi parte il video, che lo sostituisce. I video trasparenti non
+      funzionano su tutti i browser (su iPhone no), quindi i file del sito
+      portano la trasparenza "a parte": nella metà alta del fotogramma i
+      colori, in quella bassa la trasparenza in grigio (bianco = pieno,
+      nero = vuoto). Qui le due metà vengono ricomposte su un <canvas> con
+      WebGL.
+   Se il video non può partire (risparmio energetico, "riduci movimento",
+   niente WebGL, file mancante) resta l'immagine ferma.
 
      GiochiSATTerra.avvia(contenitore, impostazioni)
        contenitore   la zona della Terra in fondo alla home (.h-terra)
@@ -15,7 +19,6 @@
    Posizione e grandezza le decide il CSS della home (index.html) con le
    misure del render, scritte qui come variabili --tv-*. Quando il video è
    visibile il contenitore prende la classe "h-con-video".
-   Se qualcosa non va (niente WebGL, file mancante) resta la Terra disegnata.
    ===================================================================== */
 (function () {
   "use strict";
@@ -78,7 +81,7 @@
     Object.keys(v).forEach(function (k) { contenitore.style.setProperty("--tv-" + k, v[k]); });
   }
 
-  /* il file più leggero che basta per lo schermo (ingrandito fino a 1,2 volte va ancora bene) */
+  /* i file più leggeri che bastano per lo schermo (ingranditi fino a 1,2 volte vanno ancora bene) */
   function scegliSorgente(sorgenti, pixelNecessari) {
     var elenco = sorgenti.slice().sort(function (a, b) { return a.larghezza - b.larghezza; });
     for (var i = 0; i < elenco.length; i++) if (elenco[i].larghezza * 1.2 >= pixelNecessari) return elenco[i];
@@ -89,17 +92,17 @@
 
   function densita() { return Math.min(window.devicePixelRatio || 1, 2); }
 
-  function avvia(contenitore, imp) {
-    if (!contenitore || !imp || !imp.sorgenti || !imp.sorgenti.length) return false;
+  /* --- il video sopra l'immagine ferma; se qualcosa non va si toglie e resta l'immagine --- */
+  function avviaVideo(contenitore, file) {
     var tela = document.createElement("canvas");
     tela.className = "h-terra-video";
     tela.setAttribute("aria-hidden", "true");
     var gl = tela.getContext("webgl", { alpha: true, premultipliedAlpha: true, antialias: false });
-    if (!gl) return false;                                    // niente WebGL: resta la Terra disegnata
+    if (!gl) return;                                          // niente WebGL: resta l'immagine ferma
     var prog = programma(gl);
-    if (!prog) return false;
+    if (!prog) return;
 
-    /* --- WebGL: un rettangolo grande quanto il canvas, con il fotogramma come immagine --- */
+    /* WebGL: un rettangolo grande quanto il canvas, con il fotogramma come immagine */
     gl.useProgram(prog);
     var u = {};
     ["fotogramma", "bordo", "soglia"].forEach(function (n) { u[n] = gl.getUniformLocation(prog, n); });
@@ -116,33 +119,36 @@
     gl.uniform1i(u.fotogramma, 0);
     gl.uniform2f(u.soglia, SOGLIA[0], SOGLIA[1]);
 
-    /* --- il canvas prende posto (lo decide il CSS), poi si sceglie quale file serve --- */
-    scriviMisure(contenitore, imp);
-    contenitore.appendChild(tela);
-    var scelta = scegliSorgente(imp.sorgenti, tela.getBoundingClientRect().width * densita());
-
-    /* --- video: nella pagina ma invisibile (alcuni browser non riproducono i video fuori dal documento) --- */
+    /* video: muto, in linea e nella pagina (invisibile), come vogliono iPhone e Android
+       per partire da solo; gli attributi vanno messi prima dei file */
     var video = document.createElement("video");
     video.className = "h-terra-sorgente";
-    video.muted = true; video.loop = true; video.playsInline = true; video.preload = "auto";
-    video.setAttribute("muted", ""); video.setAttribute("playsinline", ""); video.setAttribute("aria-hidden", "true");
-    scelta.file.forEach(function (file) {
+    video.muted = true; video.defaultMuted = true; video.loop = true; video.autoplay = true;
+    video.playsInline = true; video.preload = "auto";
+    ["muted", "loop", "autoplay", "playsinline", "webkit-playsinline"].forEach(function (a) { video.setAttribute(a, ""); });
+    video.setAttribute("aria-hidden", "true");
+    file.forEach(function (f) {
       var s = document.createElement("source");
-      s.src = file; s.type = tipoDi(file);
+      s.src = f; s.type = tipoDi(f);
       video.appendChild(s);
     });
 
-    var pronto = false;
+    var attivo = true, visibile = false;
     function disegna() {
-      if (!pronto) return;
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
+    /* copia sul canvas il fotogramma corrente; al primo, il video prende il posto dell'immagine */
     function nuovoFotogramma() {
+      if (!attivo || video.readyState < 2 || !video.videoHeight) return;
       gl.bindTexture(gl.TEXTURE_2D, tex);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video);
-      pronto = true;
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+      if (!visibile) {
+        gl.uniform1f(u.bordo, 0.5 / video.videoHeight);
+        visibile = true;
+        contenitore.classList.add("h-con-video");
+      }
       disegna();
     }
     /* un pixel del canvas per ogni pixel dello schermo (si aggiorna quando cambia la finestra) */
@@ -152,46 +158,62 @@
       if (w === tela.width && h === tela.height) return;
       tela.width = w; tela.height = h;
       gl.viewport(0, 0, w, h);
-      disegna();
+      if (visibile) disegna();
     }
     /* aggiorna il canvas a ogni fotogramma nuovo del video */
     function ciclo() {
+      if (!attivo) return;
       if (video.requestVideoFrameCallback) {
         video.requestVideoFrameCallback(function () { nuovoFotogramma(); ciclo(); });
       } else {
         requestAnimationFrame(function () { if (!video.paused) nuovoFotogramma(); ciclo(); });
       }
     }
-    /* la Terra disegnata sparisce solo quando il video è davvero visibile */
-    function mostra() {
-      nuovoFotogramma();
-      contenitore.classList.add("h-con-video");
-    }
     var osservatore = window.ResizeObserver ? new ResizeObserver(misura) : null;
-    function rinuncia() {                                     // si torna alla Terra disegnata
+    function rinuncia() {                                     // via il video: resta l'immagine ferma
+      if (!attivo) return;
+      attivo = false;
       if (osservatore) osservatore.disconnect();
       window.removeEventListener("resize", misura);
       contenitore.classList.remove("h-con-video");
+      video.pause(); video.removeAttribute("src");
       tela.remove(); video.remove();
     }
 
-    video.addEventListener("loadeddata", function () {
-      gl.uniform1f(u.bordo, 0.5 / video.videoHeight);
-      misura();
-      if (window.GiochiSAT && GiochiSAT.movimentoRidotto) { mostra(); return; }   // "riduci movimento": immagine ferma
-      var avvio = video.play();
-      if (avvio && avvio.catch) avvio.catch(mostra);          // riproduzione bloccata (risparmio energetico): immagine ferma
-    }, { once: true });
-    video.addEventListener("playing", function () { mostra(); ciclo(); }, { once: true });
     video.lastElementChild.addEventListener("error", rinuncia);   // nessuno dei file si carica
     tela.addEventListener("webglcontextlost", rinuncia);
     document.addEventListener("visibilitychange", function () {
-      if (!pronto || (window.GiochiSAT && GiochiSAT.movimentoRidotto)) return;
+      if (!attivo) return;
       if (document.hidden) video.pause(); else video.play().catch(function () {});
     });
     if (osservatore) osservatore.observe(tela); else window.addEventListener("resize", misura);
 
+    contenitore.appendChild(tela);
     contenitore.appendChild(video);
+    misura();
+    ciclo();
+    /* si chiede subito di partire: su iPhone il video non si carica finché non parte */
+    var avvio = video.play();
+    if (avvio && avvio.catch) avvio.catch(function (e) {
+      if (!e || e.name !== "AbortError") rinuncia();          // bloccato (risparmio energetico) o file non leggibile
+    });
+  }
+
+  function avvia(contenitore, imp) {
+    if (!contenitore || !imp || !imp.sorgenti || !imp.sorgenti.length) return false;
+    scriviMisure(contenitore, imp);
+
+    /* 1. immagine ferma: prende posto (lo decide il CSS), poi si sceglie quale grandezza serve */
+    var ferma = document.createElement("img");
+    ferma.className = "h-terra-ferma";
+    ferma.alt = "";
+    ferma.decoding = "async";
+    contenitore.appendChild(ferma);
+    var scelta = scegliSorgente(imp.sorgenti, ferma.getBoundingClientRect().width * densita());
+    ferma.src = scelta.immagine;
+
+    /* 2. video, se il movimento non è ridotto */
+    if (!(window.GiochiSAT && GiochiSAT.movimentoRidotto)) avviaVideo(contenitore, scelta.video);
     return true;
   }
 

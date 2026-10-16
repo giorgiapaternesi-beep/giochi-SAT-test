@@ -1,24 +1,28 @@
 # Terra della home
 
-In fondo alla home gira la Terra del video (render di Blender, già zoomato e
-inclinato, con la trasparenza e il satellite che le passa davanti). Quando il
-video è visibile, l'orbita e i satelliti disegnati della home spariscono.
-Se il video non parte (browser molto vecchio, file mancante) resta la Terra
-disegnata, con i suoi satelliti: `mappa.svg`, una mappa piatta che scorre
-dentro un cerchio.
+In fondo alla home c'è la Terra del render di Blender (già zoomata e
+inclinata, con la trasparenza e il satellite che le passa davanti):
 
-Con l'impostazione "riduci movimento" del dispositivo, o se il telefono blocca
-la riproduzione (risparmio energetico), la Terra del video resta ferma.
+1. appena si apre la pagina si vede il primo fotogramma, fermo (`terra.webp`);
+2. poi parte il video e la Terra gira.
+
+Se il video non può partire (risparmio energetico del telefono, "riduci
+movimento" attivo, browser senza WebGL, file mancante) resta il fotogramma
+fermo. Non esiste più una Terra disegnata in CSS.
 
 ## I file
 
 | File | Grandezza | Per chi |
 |---|---|---|
-| `terra.webm`, `terra.mp4` | 1488×960 | quasi tutti gli schermi |
-| `terra-grande.webm`, `terra-grande.mp4` | 2976×1920 | schermi ad alta risoluzione (Mac, 4K) |
+| `terra.webp`, `terra.mp4`, `terra.webm` | 1488×480 (video 1488×960) | quasi tutti gli schermi |
+| `terra-grande.webp`, `terra-grande.mp4`, `terra-grande.webm` | 2976×960 (video 2976×1920) | schermi ad alta risoluzione (Mac, 4K) |
 
-WebM va su Chrome, Firefox e Android, MP4 su Safari e iPhone: il browser
-prende da solo quello che sa leggere.
+Il browser prova prima l'MP4 (va ovunque, iPhone compreso) e, se non lo sa
+leggere, il WebM.
+
+Su iPhone i video non si caricano finché la pagina non chiede di farli
+partire: `terra-video.js` lo chiede subito (video muto e "in linea", come
+richiede Safari).
 
 Ogni fotogramma ha **due metà**: sopra i colori, sotto la trasparenza in grigio
 (bianco = pieno, nero = vuoto). Serve perché i video trasparenti non funzionano
@@ -44,13 +48,13 @@ più in alto a destra, resta fuori). Sui computer diventa più piccolo se la sua
 parte più alta salirebbe sopra i giochi, ma resta alto fra il 30% e il 42%
 dello schermo.
 
-Per tornare alla Terra disegnata basta scrivere `terraVideo: null`.
+Con `terraVideo: null` in fondo alla home non compare nessuna Terra.
 
 ## Sostituire il video
 
 1. In Blender: render con trasparenza (Film → Transparent), esportato per
    esempio come WebM VP9 con alfa.
-2. Preparare i quattro file con ffmpeg (qui per un render 3240×1080):
+2. Preparare i quattro video con ffmpeg (qui per un render 3240×1080):
 
    ```
    R="crop=2976:960:144:120,format=rgba,premultiply=inplace=1,format=rgba"
@@ -68,7 +72,15 @@ Per tornare alla Terra disegnata basta scrivere `terraVideo: null`.
    `-c:v libvpx-vp9` prima di `-i` serve a leggere la trasparenza del WebM; con
    una sequenza PNG si toglie e si scrive per esempio `-framerate 24 -i frame_%04d.png`.
 
-3. Se l'inquadratura cambia, aggiornare in `config.js` `fotogramma`, `ritaglio`,
+3. Preparare le due immagini ferme dal primo fotogramma (stesso ritaglio,
+   trasparenti):
+
+   ```
+   ffmpeg -c:v libvpx-vp9 -i render.webm -frames:v 1 -vf "crop=2976:960:144:120" -c:v libwebp -quality 86 -compression_level 6 terra-grande.webp
+   ffmpeg -c:v libvpx-vp9 -i render.webm -frames:v 1 -vf "crop=2976:960:144:120,scale=1488:480:flags=lanczos" -c:v libwebp -quality 86 -compression_level 6 terra.webp
+   ```
+
+4. Se l'inquadratura cambia, aggiornare in `config.js` `fotogramma`, `ritaglio`,
    `pianeta`, `nuvole` e `cimaVisibile` (e i numeri di `crop` e `scale` qui sopra). Il
    ritaglio deve contenere tutto ciò che si vede in ogni fotogramma, con
    larghezza multipla di 16 e altezza multipla di 64: così nella compressione
