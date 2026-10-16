@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Strumento: obiettivo della fotocamera. Parti colorabili: fill/stroke="currentColor". Foglio 600x600, centro del corpo in 300,300. -->
+  <rect x="264" y="366" width="72" height="70" rx="10" fill="currentColor"/>
+  <path d="M304 366h22a10 10 0 0 1 10 10v50a10 10 0 0 1-10 10h-22z" fill="#000" opacity=".2"/>
+  <ellipse cx="300" cy="440" rx="40" ry="14" fill="currentColor"/>
+  <ellipse cx="300" cy="440" rx="40" ry="14" fill="#000" opacity=".25"/>
+  <ellipse cx="300" cy="442" rx="30" ry="10" fill="#141A4D"/>
+  <ellipse cx="300" cy="442" rx="18" ry="6" fill="#2D3F9E"/>
+  <ellipse cx="292" cy="440" rx="7" ry="2.5" fill="#fff" opacity=".75"/>
+</svg>

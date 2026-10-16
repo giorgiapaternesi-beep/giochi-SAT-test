@@ -3,58 +3,119 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Ricompensa – Giochi SAT</title>
-  <meta name="description" content="Ricompensa della sfida">
+  <title>Il tuo satellite – Giochi SAT</title>
+  <meta name="description" content="Ricompensa della sfida: costruisci il tuo satellite e ritira l'attestato">
   <meta name="theme-color" content="#090B2A">
   <link rel="icon" href="../../assets/logo-arpa-lazio.jpg">
   <link rel="stylesheet" href="../../assets/css/giochisat.css">
+  <link rel="stylesheet" href="ricompensa.css">
   <script src="../../assets/config.js"></script>
   <script src="../../assets/js/giochisat.js"></script>
-  <style>
-.intro{margin:4px 0 18px}.intro h2{margin:0 0 6px;font-size:clamp(24px,4vw,30px)}.intro p{margin:0;color:var(--gs-testo-2)}
-.piede{margin-top:22px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-
-.premio{text-align:center;padding:30px 24px}
-.medaglia{width:140px;height:140px;display:block;margin:0 auto 10px}
-.premio h2{margin:0 0 8px;font-size:clamp(26px,5vw,34px)}.premio p{margin:0 auto;max-width:42ch;color:var(--gs-testo-2)}
-</style>
+  <script src="../../assets/satellite/catalogo.js"></script>
+  <script src="satellite.js"></script>
+  <script src="costruttore.js"></script>
+  <script src="attestato.js"></script>
 </head>
 <body class="gs" style="--gs-colore:#FFC93C">
 <header class="gs-barra">
   <a class="gs-home" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></a>
-  <div class="gs-titolo"><i aria-hidden="true"></i><h1>Ricompensa</h1></div>
+  <div class="gs-titolo"><i aria-hidden="true"></i><h1>Il tuo satellite</h1></div>
   <button class="gs-nome" type="button" aria-label="Cambia soprannome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Soprannome</span></button>
   <img class="gs-logo" src="../../assets/logo-arpa-lazio.jpg" alt="ARPA Lazio">
 </header>
-<script src="ricompensa.js"></script>
-<main class="gs-pagina">
+<main class="gs-pagina rc">
 
-  <section class="gs-scheda premio" id="premio">
-    <svg class="medaglia" viewBox="-60 -60 120 120" aria-hidden="true">
-      <path d="M-22-58h18l12 34h-18zM22-58H4l-12 34h18z" fill="#FF5C8A"/>
-      <circle r="38" cy="14" fill="#FFC93C"/><circle r="29" cy="14" fill="#FFB238"/>
-      <path d="M0-4c1.3 8.6 4.8 12 14 13.6-9.2 1.6-12.7 5-14 13.6-1.3-8.6-4.8-12-14-13.6C-4.8 8-1.3 4.6 0-4Z" fill="#FFF6D8"/>
-    </svg>
-    <h2 id="titolo">Ricompensa in arrivo</h2>
-    <p id="testo">Qui comparirà la ricompensa per chi completa la sfida. La stiamo ancora preparando!</p>
-    <div id="contenuto-ricompensa"></div>
+  <!-- chi non ha vinto una sfida -->
+  <section class="gs-scheda rc-vuota gs-nascosto" id="nessuna">
+    <h2>Nessuna ricompensa, per ora</h2>
+    <p>La ricompensa si ottiene completando tutti i giochi di una sfida entro il tempo.</p>
+    <a class="gs-btn" href="../">Vai alla sfida</a>
   </section>
-  <div class="piede"><a class="gs-btn gs-secondario" href="../../">Torna alla home</a></div>
+
+  <!-- passo 1: costruire il satellite -->
+  <section class="gs-nascosto" id="passo-satellite" aria-labelledby="titolo-satellite">
+    <div class="rc-intro">
+      <h2 id="titolo-satellite">Costruisci il tuo satellite</h2>
+      <p>Per ogni parte scegli il pezzo e il colore, oppure lascia fare al caso. Il satellite comparirà sul tuo attestato.</p>
+    </div>
+    <div id="costruttore"><p class="rc-attesa">Sto preparando i pezzi…</p></div>
+    <div class="piede"><button type="button" class="gs-btn" id="avanti" disabled>Crea l'attestato ✦</button></div>
+  </section>
+
+  <!-- passo 2: l'attestato -->
+  <section class="gs-nascosto" id="passo-attestato" aria-labelledby="titolo-attestato">
+    <div class="rc-intro">
+      <h2 id="titolo-attestato">Il tuo attestato</h2>
+      <p>È nel formato delle storie di Instagram: scaricalo o condividilo.</p>
+    </div>
+    <figure class="rc-attestato"><img id="attestato" alt="Il tuo attestato di partecipazione"></figure>
+    <div class="piede">
+      <a class="gs-btn" id="scarica" href="#" download="attestato-giochisat.png">Scarica l'attestato</a>
+      <button type="button" class="gs-btn gs-nascosto" id="condividi">Condividi</button>
+      <button type="button" class="gs-btn gs-secondario" id="modifica">Modifica il satellite</button>
+    </div>
+  </section>
 </main>
 <script>
-
 (function () {
-  var s = GiochiSAT.sfida.stato();
-  if (!s || s.stato !== "vinta") {
-    document.getElementById("titolo").textContent = "Nessuna ricompensa, per ora";
-    document.getElementById("testo").textContent = "La ricompensa si ottiene completando tutti i giochi di una sfida entro il tempo.";
-    return;
+  var G = GiochiSAT, S = GiochiSATSatellite, s = G.sfida.stato();
+  var $ = function (id) { return document.getElementById(id); };
+  if (!s || s.stato !== "vinta") { $("nessuna").classList.remove("gs-nascosto"); return; }
+
+  var scelte = S.valide(s.satellite), file = null;
+
+  /* passo 1: il costruttore (le scelte restano salvate nella sfida) */
+  $("passo-satellite").classList.remove("gs-nascosto");
+  S.carica().then(function () {
+    GiochiSATCostruttore.avvia($("costruttore"), scelte, function (nuove) { scelte = nuove; G.sfida.annota({ satellite: scelte }); });
+    $("avanti").disabled = false;
+  }).catch(function () {
+    $("costruttore").innerHTML = '<p class="gs-errore">Non riesco a caricare i pezzi del satellite. Controlla la connessione e ricarica la pagina.</p>';
+  });
+
+  /* il soprannome serve per l'attestato: se manca si chiede */
+  function soprannome() {
+    var n = G.sfida.stato().nome || G.nome.get();
+    if (n) return Promise.resolve(n);
+    return G.nome.chiedi({ titolo: "Il nome per l'attestato", testo: "Scegli un soprannome di fantasia, non il tuo nome vero: comparirà sull'attestato." })
+      .then(function (v) { if (v) G.sfida.annota({ nome: v }); return v; });
   }
-  /* Punto di aggancio: ricompensa.js (in questa cartella) definisce
-     GiochiSATRicompensa.mostra(esito, contenitore). Vedi assets/ricompense/LEGGIMI.md */
-  if (window.GiochiSATRicompensa && typeof GiochiSATRicompensa.mostra === "function") {
-    GiochiSATRicompensa.mostra(s, document.getElementById("contenuto-ricompensa"));
-  }
+
+  /* passo 2: l'attestato */
+  $("avanti").addEventListener("click", function () {
+    soprannome().then(function (nome) {
+      if (!nome) return;
+      var b = $("avanti"); b.disabled = true; b.textContent = "Sto creando l'attestato…";
+      var sf = G.sfida.stato(), R = S.catalogo.riquadro;
+      return GiochiSATAttestato.crea({
+        nome: nome, difficolta: sf.difficolta, nomeDifficolta: (G.sfida.regole()[sf.difficolta] || {}).nome || sf.difficolta,
+        punti: G.punti.conto(sf).totale, data: new Date(sf.fine || Date.now()),
+        satellite: S.svg(scelte), proporzioni: [R[2], R[3]]
+      }).then(function (r) {
+        if (file && file.url) URL.revokeObjectURL(file.url);
+        file = r;
+        $("attestato").src = r.url;
+        $("scarica").href = r.url;
+        $("scarica").download = "attestato-giochisat-" + nome.replace(/[^\p{L}\p{N}]+/gu, "-") + ".png";
+        var condivisibile = new File([r.blob], $("scarica").download, { type: "image/png" });
+        var puo = navigator.canShare && navigator.canShare({ files: [condivisibile] });
+        $("condividi").classList.toggle("gs-nascosto", !puo);
+        $("condividi").onclick = function () {
+          navigator.share({ files: [condivisibile], title: "Il mio attestato Giochi SAT" }).catch(function () { /* condivisione annullata */ });
+        };
+        $("passo-satellite").classList.add("gs-nascosto");
+        $("passo-attestato").classList.remove("gs-nascosto");
+        window.scrollTo({ top: 0, behavior: G.movimentoRidotto ? "auto" : "smooth" });
+      }).catch(function () {
+        G.dialogo({ titolo: "Qualcosa non va", testo: "Non sono riuscito a creare l'attestato. Riprova tra un momento." });
+      }).then(function () { b.disabled = false; b.textContent = "Crea l'attestato ✦"; });
+    });
+  });
+
+  $("modifica").addEventListener("click", function () {
+    $("passo-attestato").classList.add("gs-nascosto");
+    $("passo-satellite").classList.remove("gs-nascosto");
+  });
 })();
 </script>
 </body>

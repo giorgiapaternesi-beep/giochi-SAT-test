@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Decorazione con la stella di Giochi SAT. Parti colorabili: fill/stroke="currentColor". Foglio 600x600, centro del corpo in 300,300. -->
+  <g transform="translate(300 300) scale(3.6)">
+    <circle r="10" fill="currentColor" opacity=".22"/>
+    <path d="M0-12C.9-3.4 3.4-.9 12 0 3.4.9.9 3.4 0 12-.9 3.4-3.4.9-12 0-3.4-.9-.9-3.4 0-12Z" fill="currentColor"/>
+    <path d="M0-12C.9-3.4 3.4-.9 12 0H0z" fill="#fff" opacity=".35"/>
+  </g>
+</svg>

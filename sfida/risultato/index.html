@@ -11,19 +11,24 @@
   <script src="../../assets/config.js"></script>
   <script src="../../assets/js/giochisat.js"></script>
   <style>
-.intro{margin:4px 0 18px}.intro h2{margin:0 0 6px;font-size:clamp(24px,4vw,30px)}.intro p{margin:0;color:var(--gs-testo-2)}
 .piede{margin-top:22px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
 
 .esito{text-align:center;margin-bottom:16px}.esito h2{margin:0 0 6px;font-size:clamp(26px,5vw,34px)}.esito p{margin:0;color:var(--gs-testo-2)}
+.totale{margin:16px 0 0;font:700 20px var(--gs-titoli-font);color:var(--gs-testo-2)}
+.totale b{display:block;font-size:clamp(46px,10vw,64px);line-height:1.05;letter-spacing:.5px;
+  background:linear-gradient(180deg,#FFF3BF 8%,#FFD84A 38%,#F2B21C 62%,#D9821A 88%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .numeri{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 0}
 .numeri div{background:var(--gs-superficie-2);border-radius:16px;padding:10px}
 .numeri dt{font-size:13px;color:var(--gs-testo-2)}.numeri dd{margin:2px 0 0;font:700 20px var(--gs-titoli-font)}
-.tappa{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:12px 16px;border-radius:18px;background:var(--gs-vetro);border:1px solid var(--gs-bordo)}
+.tappa{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;padding:12px 16px;border-radius:18px;background:var(--gs-vetro);border:1px solid var(--gs-bordo)}
 .tappa .n{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--gs-superficie-2);font-weight:700}
 .tappa .stato{font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--gs-superficie-2)}
+.tappa .pt{min-width:58px;text-align:right;font:700 17px var(--gs-titoli-font);color:var(--gs-giallo);font-variant-numeric:tabular-nums}
 .tappa.completato .stato{background:var(--gs-verde);color:var(--gs-scuro)}
 .tappa.saltato .stato{background:var(--gs-rosa);color:var(--gs-scuro)}
-@media (max-width:480px){.numeri{grid-template-columns:1fr}}
+.tappa.bonus .n{background:rgb(255 201 60 / .2);color:var(--gs-giallo)}
+.nota{margin:10px 4px 0;font-size:14px;color:var(--gs-testo-2);text-align:center}
+@media (max-width:480px){.numeri{grid-template-columns:1fr}.tappa{gap:8px;padding:10px 12px}.tappa .stato{display:none}}
 </style>
 </head>
 <body class="gs" style="--gs-colore:#FFC93C">
@@ -38,6 +43,7 @@
   <section class="gs-scheda esito" id="esito">
     <h2 id="titolo">Nessuna sfida da mostrare</h2>
     <p id="sottotitolo">Quando completi una sfida, qui trovi com'è andata.</p>
+    <p class="totale gs-nascosto" id="totale"><b id="n-punti">0</b> punti</p>
     <dl class="numeri gs-nascosto" id="numeri">
       <div><dt>Giochi completati</dt><dd id="n-completati">–</dd></div>
       <div><dt>Tempo impiegato</dt><dd id="n-tempo">–</dd></div>
@@ -45,37 +51,52 @@
     </dl>
   </section>
   <ol class="gs-elenco tappe" id="tappe"></ol>
+  <p class="nota gs-nascosto" id="nota"></p>
   <div class="piede">
-    <a class="gs-btn gs-nascosto" id="ricompensa" href="../ricompensa/">Ritira la ricompensa</a>
+    <a class="gs-btn gs-nascosto" id="ricompensa" href="../ricompensa/">Costruisci il tuo satellite</a>
     <a class="gs-btn gs-secondario" href="../">Nuova sfida</a>
   </div>
 </main>
 <script>
-
 (function () {
   var G = GiochiSAT, s = G.sfida.stato();
   if (!s) return;
   if (s.stato === "in_corso") { location.replace("../"); return; }
   var titoli = { vinta: "Sfida completata!", finita: "Sfida finita", scaduta: "Tempo scaduto", abbandonata: "Sfida abbandonata" };
   var testi = {
-    vinta: "Bravissimo" + (s.nome ? ", " + s.nome : "") + "! Hai completato tutti i giochi in tempo.",
+    vinta: "Bravissimo" + (s.nome ? ", " + s.nome : "") + "! Hai completato tutti i giochi in tempo: ora costruisci il tuo satellite e ritira l'attestato.",
     finita: "Hai finito i giochi, ma ne hai saltato qualcuno: per la ricompensa vanno completati tutti.",
     scaduta: "Il tempo è finito prima dell'ultimo gioco. Riprova, puoi farcela!",
     abbandonata: "Hai lasciato la sfida a metà. Quando vuoi, puoi ricominciare."
   };
   document.getElementById("titolo").textContent = titoli[s.stato] || "Sfida";
   document.getElementById("sottotitolo").textContent = testi[s.stato] || "";
+
+  var conto = G.punti.conto(s), nomeDiff = (G.sfida.regole()[s.difficolta] || {}).nome || s.difficolta;
+  document.getElementById("totale").classList.remove("gs-nascosto");
+  document.getElementById("n-punti").textContent = G.punti.formato(conto.totale);
   var fatti = s.risultati.filter(function (r) { return r.esito === "completato"; }).length;
   document.getElementById("numeri").classList.remove("gs-nascosto");
   document.getElementById("n-completati").textContent = fatti + " su " + s.giochi.length;
   document.getElementById("n-tempo").textContent = G.mmss((s.fine || Date.now()) - s.inizio);
-  document.getElementById("n-difficolta").textContent = (G.sfida.regole()[s.difficolta] || {}).nome || s.difficolta;
+  document.getElementById("n-difficolta").textContent = nomeDiff;
+
+  /* un gioco per riga, con i suoi punti; in fondo i minuti avanzati */
   var etichette = { completato: "Completato", saltato: "Saltato" };
-  document.getElementById("tappe").innerHTML = s.giochi.map(function (id, i) {
+  var righe = s.giochi.map(function (id, i) {
     var r = s.risultati[i], g = G.gioco(id) || { nome: id }, esito = r ? r.esito : "mancante";
-    return '<li class="tappa ' + esito + '"><span class="n">' + (i + 1) + '</span><span>' + G.testo(g.nome) +
-      '</span><span class="stato">' + (etichette[esito] || "Non giocato") + "</span></li>";
-  }).join("");
+    var dettaglio = r && r.esito === "completato" && r.giuste != null && r.totale ? " (" + r.giuste + "/" + r.totale + ")" : "";
+    return '<li class="tappa ' + esito + '"><span class="n">' + (i + 1) + '</span><span>' + G.testo(g.nome + dettaglio) +
+      '</span><span class="stato">' + (etichette[esito] || "Non giocato") + '</span><span class="pt">+' + G.punti.formato(conto.giochi[i]) + "</span></li>";
+  });
+  if (conto.tempo) righe.push('<li class="tappa bonus"><span class="n">✦</span><span>Minuti avanzati: ' + conto.minuti +
+    '</span><span class="stato">Bonus</span><span class="pt">+' + G.punti.formato(conto.tempo) + "</span></li>");
+  document.getElementById("tappe").innerHTML = righe.join("");
+  if (conto.moltiplicatore !== 1) {
+    var nota = document.getElementById("nota");
+    nota.textContent = "Difficoltà " + nomeDiff.toLowerCase() + ": i punti sono moltiplicati per " + String(conto.moltiplicatore).replace(".", ",") + ".";
+    nota.classList.remove("gs-nascosto");
+  }
   if (s.stato === "vinta") document.getElementById("ricompensa").classList.remove("gs-nascosto");
 })();
 </script>

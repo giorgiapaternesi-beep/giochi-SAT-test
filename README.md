@@ -11,7 +11,9 @@ Servizio Attività Produttive e Controlli di ARPA Lazio.
 - **Home**: tre scelte, come nello schizzo di progetto.
   - **Modalità sfida**: si sceglie la difficoltà, il sito estrae a caso alcuni
     giochi singleplayer da completare uno dopo l'altro entro un tempo limite.
-    Chi finisce tutto in tempo ottiene la ricompensa.
+    Ogni gioco dà **punti** (vedi sotto). Chi finisce tutto in tempo
+    **costruisce il suo satellite** e riceve un **attestato** da scaricare o
+    condividere (formato delle storie di Instagram).
   - **Esercitati → Singleplayer**: i giochi della sfida, uno alla volta
     (tra questi il **Quizzone** da giocare da soli, che ha preso il posto di
     Osserva la Terra).
@@ -40,9 +42,11 @@ Servizio Attività Produttive e Controlli di ARPA Lazio.
 giochiSAT/
 ├── index.html                 Home
 ├── 404.html                   Pagina per gli indirizzi sbagliati
-├── sfida/                     Modalità sfida: scelta della difficoltà
-│   ├── risultato/             Com'è andata
-│   └── ricompensa/            Ricompensa (segnaposto) + ricompensa.js da completare
+├── sfida/                     Modalità sfida: soprannome e difficoltà
+│   ├── risultato/             Com'è andata, con i punti gioco per gioco
+│   └── ricompensa/            Il tuo satellite e l'attestato:
+│                              satellite.js (pezzi e disegno) · costruttore.js (scelte)
+│                              attestato.js (immagine PNG) · ricompensa.css
 ├── esercitazione/
 │   ├── singleplayer/          Elenco dei giochi singleplayer
 │   └── multiplayer/           Elenco dei giochi multiplayer
@@ -69,7 +73,7 @@ giochiSAT/
 │   ├── js/domande.js          Lettura delle domande (usato dal Quizzone e dal controllo)
 │   ├── memory/retro.svg       Retro delle carte del Memory (segnaposto da sostituire)
 │   ├── puzzle/                Immagini extra del Puzzle della Terra
-│   ├── ricompense/            File della ricompensa (da preparare)
+│   ├── satellite/             ★ Pezzi del satellite da costruire (catalogo.js + pezzi/*.svg)
 │   ├── game-stats.js          Conteggio anonimo delle partite
 │   └── parole-italiane-giochisat.js   Vocabolario di "Parole in orbita"
 ├── immagini/                  Carte del Memory
@@ -114,10 +118,56 @@ eliminare quando nessun QR o link li usa più.
   `domande`) e i secondi per domanda.
 - **Elenco dei giochi** (`giochi`): nome, descrizione, colore, tipo
   (`single` o `multi`). Le pagine di Esercitazione si costruiscono da qui.
+- **Punti della sfida** (`punti`): quanto vale ogni gioco, i punti per
+  minuto avanzato e il moltiplicatore di ogni difficoltà (vedi sotto).
+- **Attestato** (`attestato`): intestazione, hashtag, testo del riquadro del
+  satellite e metallo per difficoltà (bronzo, argento, oro).
 - **Video della Terra** (`terraVideo`): file, misure del render (pianeta,
   nuvole e punto più alto, satellite compreso) e quanto spazio occupa sullo
   schermo; vedi `assets/terra/LEGGIMI.md`.
 - **Database**: indirizzo e chiave pubblica di Supabase (unico punto).
+
+## Punti, satellite e attestato della sfida
+
+**Punti** (regole in `config.js` → `punti`):
+
+| Gioco | Valore |
+|---|---|
+| Quizzone | 150 |
+| Missione satellite, Il sensore giusto | 120 |
+| Parole in orbita, SAT-Doku | 100 |
+| Memory | 80 |
+| Puzzle della Terra, Prato stellato | 60 |
+
+- un gioco saltato vale 0;
+- nei giochi a risposte (Quizzone, Missione satellite, Il sensore giusto) si
+  prende la parte delle risposte giuste al primo colpo (4 su 5 = 4/5 dei
+  punti); in Parole in orbita la parte delle parole trovate, con tutti i
+  punti da 6 parole in su;
+- se la sfida è completata in tempo, ogni minuto avanzato vale 5 punti;
+- alla fine tutto si moltiplica per la difficoltà: Facile ×1, Media ×1,5,
+  Difficile ×2.
+
+Dopo ogni gioco la finestra dice quanti punti si sono guadagnati; la pagina
+del risultato mostra il totale e i punti gioco per gioco.
+
+**Il tuo satellite**: chi completa la sfida sceglie, per ogni parte del
+satellite (corpo, decorazione, pannelli solari, antenna, strumento, luci),
+il pezzo e il colore (uno dei colori proposti o un colore esatto), oppure
+preme **Casuale**. Le scelte restano salvate nella sfida anche ricaricando la
+pagina. I pezzi sono immagini SVG **segnaposto**, da sostituire: vedi
+`assets/satellite/LEGGIMI.md`.
+
+**Attestato**: un'immagine PNG 1080×1920 con soprannome, satellite,
+difficoltà, punti, data e hashtag; cornice, stelle e scritte in oro
+(Difficile), argento (Media) o bronzo (Facile). Si scarica, e dal telefono si
+può condividere direttamente (per esempio nelle storie di Instagram). Il
+soprannome scelto all'inizio della sfida è obbligatorio: se mancasse, viene
+chiesto prima di creare l'attestato.
+
+Nota: il controllo "ha vinto" avviene nel browser, quindi chi sa usare gli
+strumenti per sviluppatori può aggirarlo. Va bene per un attestato simbolico;
+per premi fisici servirebbe una verifica sul database.
 
 ## Prato stellato
 
@@ -271,7 +321,10 @@ GiochiSAT.nome.chiedi()           // finestra per sceglierlo
 
 ## Da fare
 
-- Decidere e preparare la **ricompensa** (`assets/ricompense/LEGGIMI.md`).
+- Sostituire i **pezzi del satellite** segnaposto con quelli definitivi
+  (`assets/satellite/LEGGIMI.md`); eventualmente aggiungere la grandezza delle
+  parti con un cursore.
+- Provare e tarare i **punti** (valori in `config.js` → `punti`).
 - Misurare i tempi reali e abbassare giochi e minuti della sfida.
 - Fissare la versione della libreria Supabase (oggi `@supabase/supabase-js@2`
   carica sempre l'ultima 2.x): sostituire `@2` con la versione esatta in uso.

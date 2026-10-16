@@ -51,7 +51,7 @@
 
   <form id="modulo" novalidate>
     <section class="intro"><h2>Pronto al decollo?</h2>
-      <p>Ti aspettano alcuni giochi estratti a caso, da completare uno dopo l'altro entro il tempo limite. Se ce la fai, ottieni una ricompensa.</p></section>
+      <p>Ti aspettano alcuni giochi estratti a caso, da completare uno dopo l'altro entro il tempo limite. Se ce la fai, costruisci il tuo satellite e ricevi un attestato da condividere.</p></section>
 
     <fieldset class="difficolta">
       <legend>Scegli la difficoltà</legend>
@@ -73,6 +73,8 @@
         <li>I giochi vengono estratti a caso tra quelli singleplayer.</li>
         <li>Il tempo è unico per tutta la sfida e scorre anche tra un gioco e l'altro.</li>
         <li>Se un gioco non riesce puoi riprovarlo o saltarlo, ma la ricompensa arriva solo completandoli tutti.</li>
+        <li>Ogni gioco completato vale punti: di più i giochi a domande, soprattutto il Quizzone (contano le risposte giuste al primo colpo), meno quelli più semplici come Puzzle e Prato stellato.</li>
+        <li id="regola-punti">Se finisci in tempo, ogni minuto avanzato vale altri punti, e la difficoltà moltiplica tutto.</li>
         <li>Puoi abbandonare in qualsiasi momento dalla barra in alto.</li>
       </ul>
     </details>
@@ -91,6 +93,13 @@
       '<b>' + G.testo(r.nome) + '</b><span class="dati">' + r.giochi + ' giochi, ' + r.minuti + ' minuti</span>' +
       '<span class="descr">' + G.testo(r.descrizione || "") + '</span></label>';
   }).join("");
+
+  /* regola dei punti con i numeri di config.js */
+  var P = G.punti.regole(), m = P.difficolta || {};
+  if (P.minutoAvanzato) document.getElementById("regola-punti").textContent = "Se finisci in tempo, ogni minuto avanzato vale " +
+    P.minutoAvanzato + " punti; alla fine la difficoltà moltiplica tutto (" + chiavi.map(function (k) {
+      return regole[k].nome + " ×" + String(m[k] || 1).replace(".", ",");
+    }).join(", ") + ").";
 
   var campo = document.getElementById("nome"), errore = document.getElementById("errore");
   campo.value = G.nome.get();

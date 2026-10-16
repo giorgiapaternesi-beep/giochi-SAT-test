@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Luci: quattro LED agli angoli. Parti colorabili: fill/stroke="currentColor". Foglio 600x600, centro del corpo in 300,300. -->
+  <circle cx="252" cy="248" r="13.2" fill="currentColor" opacity=".3"/>
+  <circle cx="252" cy="248" r="6" fill="currentColor"/>
+  <circle cx="250.2" cy="246.2" r="2.3" fill="#fff" opacity=".85"/>
+  <circle cx="348" cy="248" r="13.2" fill="currentColor" opacity=".3"/>
+  <circle cx="348" cy="248" r="6" fill="currentColor"/>
+  <circle cx="346.2" cy="246.2" r="2.3" fill="#fff" opacity=".85"/>
+  <circle cx="252" cy="352" r="13.2" fill="currentColor" opacity=".3"/>
+  <circle cx="252" cy="352" r="6" fill="currentColor"/>
+  <circle cx="250.2" cy="350.2" r="2.3" fill="#fff" opacity=".85"/>
+  <circle cx="348" cy="352" r="13.2" fill="currentColor" opacity=".3"/>
+  <circle cx="348" cy="352" r="6" fill="currentColor"/>
+  <circle cx="346.2" cy="350.2" r="2.3" fill="#fff" opacity=".85"/>
+</svg>

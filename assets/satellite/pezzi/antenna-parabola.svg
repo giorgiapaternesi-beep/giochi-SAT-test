@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Antenna a parabola. Parti colorabili: fill/stroke="currentColor". Foglio 600x600, centro del corpo in 300,300. -->
+  <rect x="293" y="160" width="14" height="70" fill="#C9CCDF"/>
+  <rect x="300" y="160" width="7" height="70" fill="#8F94AE"/>
+  <path d="M232 132Q300 214 368 132z" fill="currentColor"/>
+  <path d="M300 132H368Q350 158 322 170z" fill="#000" opacity=".2"/>
+  <ellipse cx="300" cy="132" rx="68" ry="11" fill="currentColor"/>
+  <ellipse cx="300" cy="132" rx="68" ry="11" fill="#000" opacity=".18"/>
+  <ellipse cx="292" cy="131" rx="44" ry="6" fill="#fff" opacity=".25"/>
+  <path d="M300 168V96" stroke="#8F94AE" stroke-width="4"/>
+  <circle cx="300" cy="92" r="7" fill="currentColor"/><circle cx="298" cy="90" r="2.5" fill="#fff" opacity=".7"/>
+</svg>

@@ -387,7 +387,7 @@ function vaiFine(){
   $("#recap").innerHTML=PROBLEMI.map(p=>`
     <div class="r"><span class="d" style="background:${p.colore}"></span><b>${p.nome}</b><span>${p.ecosistema}</span></div>`).join("");
   coriandoli(); window.scrollTo({top:0,behavior:"smooth"});
-  GiochiSAT.fineGioco("missione-satellite", { punti: alPrimo });
+  GiochiSAT.fineGioco("missione-satellite", { punti: alPrimo, giuste: alPrimo, totale: PROBLEMI.length });
 }
 
 function coriandoli(){

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Pannelli solari rotondi, a ventaglio. Parti colorabili: fill/stroke="currentColor". Foglio 600x600, centro del corpo in 300,300. -->
+  <rect x="180" y="293" width="240" height="14" rx="3" fill="#C9CCDF"/>
+  <rect x="180" y="301" width="240" height="6" rx="2" fill="#8F94AE"/>
+  <circle cx="108" cy="300" r="76" fill="currentColor"/>
+  <circle cx="108" cy="300" r="76" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="3"/>
+  <path d="M108 300L184.0 300.0M108 300L173.8 338.0M108 300L146.0 365.8M108 300L108.0 376.0M108 300L70.0 365.8M108 300L42.2 338.0M108 300L32.0 300.0M108 300L42.2 262.0M108 300L70.0 234.2M108 300L108.0 224.0M108 300L146.0 234.2M108 300L173.8 262.0" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+  <circle cx="108" cy="300" r="44" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="2"/>
+  <path d="M42 262A76 76 0 0 1 88 226L100 262A40 40 0 0 0 70 282z" fill="#fff" opacity=".14"/>
+  <circle cx="108" cy="300" r="12" fill="#C9CCDF"/>
+  <circle cx="492" cy="300" r="76" fill="currentColor"/>
+  <circle cx="492" cy="300" r="76" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="3"/>
+  <path d="M492 300L568.0 300.0M492 300L557.8 338.0M492 300L530.0 365.8M492 300L492.0 376.0M492 300L454.0 365.8M492 300L426.2 338.0M492 300L416.0 300.0M492 300L426.2 262.0M492 300L454.0 234.2M492 300L492.0 224.0M492 300L530.0 234.2M492 300L557.8 262.0" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+  <circle cx="492" cy="300" r="44" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="2"/>
+  <path d="M426 262A76 76 0 0 1 472 226L484 262A40 40 0 0 0 454 282z" fill="#fff" opacity=".14"/>
+  <circle cx="492" cy="300" r="12" fill="#C9CCDF"/>
+</svg>

@@ -449,7 +449,7 @@ function vaiFine(){
   $("#recap").innerHTML=ROUND.map(r=>{ const s=SENSORI.find(x=>x.id===r.sensore);
     return `<div class="r"><span class="d" style="background:${r.colore}"></span><b>${r.problema}</b><span>${s.nome}</span></div>`; }).join("");
   coriandoli(); window.scrollTo({top:0,behavior:"smooth"});
-  GiochiSAT.fineGioco("sensore-adatto", { punti: alPrimo });
+  GiochiSAT.fineGioco("sensore-adatto", { punti: alPrimo, giuste: alPrimo, totale: ROUND.length });
 }
 function coriandoli(){ const box=$("#confetti"); box.innerHTML=""; const col=["#2f6bff","#22c55e","#facc15","#fb7185","#38bdf8"];
   for(let k=0;k<90;k++){ const c=document.createElement("i"); c.style.left=Math.random()*100+"vw"; c.style.background=col[k%col.length];

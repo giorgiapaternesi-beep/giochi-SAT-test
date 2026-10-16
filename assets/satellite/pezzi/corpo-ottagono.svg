@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Corpo a ottagono. Parti colorabili: fill/stroke="currentColor". Foglio 600x600, centro del corpo in 300,300. -->
+  <path d="M262.0 222.0L338.0 222.0L372.0 256.0L372.0 344.0L338.0 378.0L262.0 378.0L228.0 344.0L228.0 256.0Z" fill="currentColor"/>
+  <path d="M320.0 222.0L338.0 222.0L372.0 256.0L372.0 344.0L338.0 378.0L320.0 378.0Z" fill="#000" opacity=".2"/>
+  <path d="M228.0 256.0L262.0 222.0L276.0 222.0L276.0 378.0L262.0 378.0L228.0 344.0Z" fill="#fff" opacity=".14"/>
+  <path d="M268.0 234.0L332.0 234.0L360.0 262.0L360.0 338.0L332.0 366.0L268.0 366.0L240.0 338.0L240.0 262.0Z" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="2"/>
+</svg>

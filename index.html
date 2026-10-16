@@ -115,7 +115,7 @@
       <span class="h-stellina" aria-hidden="true"><svg viewBox="-12 -12 24 24"><circle r="10" fill="currentColor" opacity=".18"/><path d="M0-12C.9-3.4 3.4-.9 12 0 3.4.9.9 3.4 0 12-.9 3.4-3.4.9-12 0-3.4-.9-.9-3.4 0-12Z" fill="currentColor"/></svg></span>
       <div class="gs-scheda">
         <h2>Modalità sfida</h2>
-        <p id="testo-sfida">Scegli la difficoltà e affronta una serie di giochi estratti a caso. Se li finisci in tempo, ottieni una ricompensa.</p>
+        <p id="testo-sfida">Scegli la difficoltà e affronta una serie di giochi estratti a caso. Se li finisci in tempo, costruisci il tuo satellite e ricevi l'attestato.</p>
       </div>
     </a>
 
@@ -150,7 +150,7 @@
       /* testo della sfida con il numero di giochi da config.js */
       var d = C.sfida && C.sfida.difficolta, n = d ? Math.max.apply(null, Object.keys(d).map(function (k) { return d[k].giochi; })) : 0;
       if (n) document.getElementById("testo-sfida").textContent =
-        "Scegli la difficoltà e gioca a " + n + " giochi estratti a caso. Se li finisci in tempo, ottieni una ricompensa.";
+        "Scegli la difficoltà e gioca a " + n + " giochi estratti a caso. Se li finisci in tempo, costruisci il tuo satellite e ricevi l'attestato.";
 
       /* sfida lasciata a metà */
       var s = G.sfida.stato();

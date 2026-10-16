@@ -1,0 +1,53 @@
+/* GiochiSAT – pagina della ricompensa: costruttore del satellite e attestato */
+.gs-pagina.rc{width:min(100%,1040px)}
+.rc-intro{margin:4px 0 16px}.rc-intro h2{margin:0 0 6px;font-size:clamp(24px,4vw,30px)}.rc-intro p{margin:0;color:var(--gs-testo-2);max-width:60ch}
+.piede{margin-top:22px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.rc-vuota{text-align:center;max-width:560px;margin:20px auto}.rc-vuota h2{margin:0 0 8px}.rc-vuota p{color:var(--gs-testo-2);margin:0 0 18px}
+.rc-attesa{color:var(--gs-testo-2);text-align:center;padding:40px 0}
+
+/* ---------- costruttore ---------- */
+.cs{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+.cs-anteprima{position:relative;padding:12px;display:grid;justify-items:center;gap:10px;
+  background:radial-gradient(closest-side,rgb(255 201 60 / .1),transparent),var(--gs-vetro)}
+.cs-disegno{width:100%;aspect-ratio:560/500}
+.cs-disegno svg{display:block;width:100%;height:100%}
+.cs-disegno.cs-gira{animation:cs-gira .5s ease-out}
+@keyframes cs-gira{from{transform:scale(.9) rotate(-6deg);opacity:.4}to{transform:none;opacity:1}}
+.cs-casuale svg{width:22px;height:22px}
+.cs-pannello{padding:14px 16px 18px}
+.cs-schede{display:flex;flex-wrap:wrap;gap:6px}
+.cs-schede button{min-height:40px;padding:8px 14px;border-radius:999px;border:2px solid var(--gs-bordo);background:transparent;color:var(--gs-testo);
+  font:600 14px var(--gs-testo-font);cursor:pointer}
+.cs-schede button[aria-selected="true"]{border-color:var(--gs-giallo);background:rgb(255 201 60 / .14)}
+.cs-et{margin:16px 0 8px;font:600 14px var(--gs-testo-font);color:var(--gs-testo-2)}
+.cs-pezzi{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.cs-pezzi button{display:grid;gap:4px;justify-items:center;padding:6px 6px 8px;border-radius:var(--gs-r-controllo);border:2px solid transparent;
+  background:var(--gs-superficie-2);color:var(--gs-testo);font:600 13px var(--gs-testo-font);cursor:pointer}
+.cs-pezzi button svg{display:block;width:100%;height:64px}
+.cs-pezzi button[aria-pressed="true"]{border-color:var(--gs-giallo);background:color-mix(in oklab,var(--gs-superficie-2) 82%,var(--gs-giallo))}
+.cs-colori{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cs-colori button{width:38px;height:38px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer;
+  box-shadow:inset 0 -6px 0 rgb(0 0 0 / .18),0 0 0 1px rgb(255 255 255 / .18)}
+.cs-colori button[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 3px var(--gs-giallo)}
+.cs-libero{position:relative;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:4px 14px 4px 4px;border-radius:999px;
+  border:2px solid var(--gs-bordo);font:600 13px var(--gs-testo-font);cursor:pointer}
+.cs-libero::before{content:"";width:30px;height:30px;border-radius:50%;background:conic-gradient(#f55,#fd4,#4d8,#4cf,#86f,#f5c,#f55)}
+.cs-libero.cs-scelto{border-color:var(--gs-giallo)}
+.cs-libero.cs-scelto::before{background:var(--c);box-shadow:0 0 0 2px #fff}
+.cs-libero input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.cs-libero:focus-within{outline:3px solid var(--gs-giallo);outline-offset:3px}
+
+/* ---------- attestato ---------- */
+.rc-attestato{margin:0 auto;width:min(100%,420px)}
+.rc-attestato img{display:block;width:100%;height:auto;aspect-ratio:9/16;border-radius:18px;box-shadow:0 18px 40px rgb(0 0 0 / .45);background:var(--gs-superficie)}
+
+@media (max-width:760px){
+  .cs{grid-template-columns:1fr;gap:12px}
+  .cs-pezzi{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}
+  /* sul telefono il satellite resta in vista mentre si scelgono pezzi e colori */
+  .cs-anteprima{position:sticky;top:calc(var(--gs-alto-barra,64px) + 6px);z-index:5;padding:6px;
+    background:radial-gradient(closest-side,rgb(255 201 60 / .1),transparent),#1F2868}
+  .cs-disegno{height:min(32vh,250px);aspect-ratio:auto}
+  .cs-casuale{position:absolute;right:8px;bottom:8px;min-height:40px;padding:6px 14px;font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){.cs-disegno.cs-gira{animation:none}}

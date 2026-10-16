@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Decorazione a strisce. Parti colorabili: fill/stroke="currentColor". Foglio 600x600, centro del corpo in 300,300. -->
+  <rect x="236" y="266" width="128" height="18" fill="currentColor"/>
+  <rect x="236" y="316" width="128" height="18" fill="currentColor"/>
+  <path d="M320 266h44v18h-44zM320 316h44v18h-44z" fill="#000" opacity=".2"/>
+  <path d="M236 266h128v3H236zM236 316h128v3H236z" fill="#fff" opacity=".3"/>
+</svg>

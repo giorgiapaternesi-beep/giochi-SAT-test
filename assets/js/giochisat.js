@@ -8,7 +8,8 @@
      .nome      soprannome del giocatore (vale finché non si ricarica la pagina)
      .sfida     modalità Sfida (giochi estratti a caso + tempo limite)
      .difficolta  difficoltà dei giochi (si sceglie solo prima di iniziare)
-     .fineGioco(id, {completato, punti})  da chiamare a fine partita
+     .fineGioco(id, {completato, punti, giuste, totale})  da chiamare a fine partita
+     .punti     punti della Sfida (regole in config.js → punti)
      .dialogo({...})   finestra di dialogo comune
      .giochi()  catalogo dei giochi preso da config.js
      .url(p)    indirizzo assoluto partendo dalla radice del sito
@@ -261,6 +262,8 @@
     abbandona: function () { chiudiSfida("abbandonata"); location.href = url("sfida/risultato/"); },
     /* chiude la sfida in corso senza cambiare pagina */
     annulla: function () { chiudiSfida("abbandonata"); },
+    /* aggiunge dati alla sfida salvata (es. il satellite costruito) */
+    annota: function (campi) { var s = leggiSfida(); if (!s) return null; Object.keys(campi).forEach(function (k) { s[k] = campi[k]; }); scriviSfida(s); return s; },
     risultato: function () { return url("sfida/risultato/"); }
   };
 
@@ -384,7 +387,10 @@
   function registra(esito, info) {
     var s = leggiSfida(); if (!s || s.stato !== "in_corso") return s;
     var id = s.giochi[s.indice];
-    s.risultati.push({ id: id, esito: esito, ms: s.inizioGioco ? Date.now() - s.inizioGioco : null, punti: info && info.punti != null ? info.punti : null });
+    info = info || {};
+    s.risultati.push({ id: id, esito: esito, ms: s.inizioGioco ? Date.now() - s.inizioGioco : null,
+      punti: info.punti != null ? info.punti : null,
+      giuste: info.giuste != null ? info.giuste : null, totale: info.totale != null ? info.totale : null });
     s.indice += 1; s.inizioGioco = null;
     if (s.indice >= s.giochi.length) {
       var tutti = s.risultati.every(function (r) { return r.esito === "completato"; });
@@ -468,11 +474,44 @@
         return;
       }
       var prossimo = gioco(dopo.giochi[dopo.indice]);
-      dialogo({ titolo: "Gioco completato!", testo: "Prossimo: " + prossimo.nome + " (gioco " + (dopo.indice + 1) + " di " + dopo.giochi.length + ").",
+      var guadagnati = punti.conto(dopo).giochi[dopo.indice - 1];
+      dialogo({ titolo: "Gioco completato!", testo: "+" + punti.formato(guadagnati) + " punti. Prossimo: " + prossimo.nome + " (gioco " + (dopo.indice + 1) + " di " + dopo.giochi.length + ").",
         bloccante: true, azioni: [{ id: "vai", etichetta: "Prossimo gioco" }] })
         .then(function () { vaiAvanti(dopo); });
     }, info.ritardo != null ? info.ritardo : 400);
   }
+
+  /* ==================================================================
+     Punti della Sfida (regole in config.js → punti)
+       - ogni gioco completato vale il suo "valore"; nei giochi che contano
+         le risposte (giuste/totale, o giuste/obiettivo) se ne prende la parte
+       - sfida completata in tempo: punti per ogni minuto avanzato
+       - tutto moltiplicato per la difficoltà
+     I punti di ogni riga sono già moltiplicati: la somma fa il totale.
+     ================================================================== */
+  var punti = {
+    regole: function () { return CFG.punti || {}; },
+    moltiplicatore: function (d) { return (punti.regole().difficolta || {})[d] || 1; },
+    /* punti di un gioco (prima della difficoltà) */
+    gioco: function (r) {
+      if (!r || r.esito !== "completato") return 0;
+      var g = (punti.regole().giochi || {})[r.id] || {}, valore = g.valore || 0;
+      var su = g.obiettivo || r.totale;
+      if (r.giuste != null && su) valore *= Math.min(1, Math.max(0, r.giuste / su));
+      return valore;
+    },
+    /* conto di una sfida: {giochi:[punti per gioco], minuti, tempo, moltiplicatore, totale} */
+    conto: function (s) {
+      var m = punti.moltiplicatore(s.difficolta);
+      var giochiPunti = s.giochi.map(function (id, i) { return Math.round(punti.gioco(s.risultati[i]) * m); });
+      var minuti = s.stato === "vinta" && s.fine ? Math.max(0, Math.floor((s.scadenza - s.fine) / 60000)) : 0;
+      var tempo = Math.round(minuti * (punti.regole().minutoAvanzato || 0) * m);
+      var totale = giochiPunti.reduce(function (a, b) { return a + b; }, 0) + tempo;
+      return { giochi: giochiPunti, minuti: minuti, tempo: tempo, moltiplicatore: m, totale: totale };
+    },
+    /* 1134 → "1.134" */
+    formato: function (n) { return Number(n || 0).toLocaleString("it-IT"); }
+  };
 
   /* Se il tempo è scaduto mentre si era fuori da un gioco, chiude la sfida */
   function controllaScadenza() {
@@ -541,6 +580,6 @@
     nome: nome, sfida: sfida, fineGioco: fineGioco, dialogo: dialogo,
     giochi: giochi, gioco: gioco, url: url, mmss: mmss, testo: testo, movimentoRidotto: movimentoRidotto,
     icona: icona, elencoGiochi: elencoGiochi, difficolta: difficolta, contoAllaRovescia: contoAllaRovescia,
-    stella: STELLA
+    stella: STELLA, punti: punti
   };
 })();

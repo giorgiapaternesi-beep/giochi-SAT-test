@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Pannelli solari: un'ala lunga per lato. Parti colorabili: fill/stroke="currentColor". Foglio 600x600, centro del corpo in 300,300. -->
+  <rect x="190" y="293" width="220" height="14" rx="3" fill="#C9CCDF"/>
+  <rect x="190" y="301" width="220" height="6" rx="2" fill="#8F94AE"/>
+  <rect x="30" y="262" width="160" height="76" rx="4" fill="currentColor"/>
+  <rect x="30" y="262" width="160" height="76" rx="4" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="3"/>
+  <path d="M56.7 262v76M83.3 262v76M110.0 262v76M136.7 262v76M163.3 262v76M30 300.0h160" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+  <path d="M58.8 265.0L110.0 265.0L49.2 303.8L33.0 303.8L33.0 284.8Z" fill="#fff" opacity=".16"/>
+  <path d="M129.2 335.0L187.0 293.9L187.0 309.1L158.0 335.0Z" fill="#fff" opacity=".1"/>
+  <rect x="410" y="262" width="160" height="76" rx="4" fill="currentColor"/>
+  <rect x="410" y="262" width="160" height="76" rx="4" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="3"/>
+  <path d="M436.7 262v76M463.3 262v76M490.0 262v76M516.7 262v76M543.3 262v76M410 300.0h160" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+  <path d="M438.8 265.0L490.0 265.0L429.2 303.8L413.0 303.8L413.0 284.8Z" fill="#fff" opacity=".16"/>
+  <path d="M509.2 335.0L567.0 293.9L567.0 309.1L538.0 335.0Z" fill="#fff" opacity=".1"/>
+</svg>

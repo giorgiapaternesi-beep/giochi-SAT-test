@@ -1,7 +1,7 @@
 /* =====================================================================
    GiochiSAT – configurazione comune
    Unico file da modificare per: database, elenco dei giochi, regole
-   della modalità Sfida, video della Terra.
+   della modalità Sfida (punti e attestato compresi), Terra della home.
    ===================================================================== */
 window.GIOCHISAT_CONFIG = Object.freeze({
 
@@ -105,6 +105,40 @@ window.GIOCHISAT_CONFIG = Object.freeze({
       media:     { nome: "Media",     giochi: 8, minuti: 60, descrizione: "Griglie più grandi, domande un po' più impegnative e un po' di tempo nei quiz." },
       difficile: { nome: "Difficile", giochi: 8, minuti: 60, descrizione: "Tanti pezzi, domande difficili, tempi stretti e nessun aiuto." }
     }
+  },
+
+  /* --- Punti della Sfida ----------------------------------------------
+     Ogni gioco completato vale "valore" punti (un gioco saltato vale 0):
+       - nei giochi a risposte (Quizzone, Missione satellite, Il sensore
+         giusto) si prende la parte delle risposte giuste al primo colpo
+         (4 giuste su 5 = 4/5 del valore);
+       - in Parole in orbita la parte delle parole trovate, con tutti i
+         punti da "obiettivo" parole in su.
+     Se la sfida è completata in tempo, ogni minuto avanzato vale
+     "minutoAvanzato" punti. Alla fine tutto si moltiplica per la difficoltà. */
+  punti: {
+    giochi: {
+      "quiz-terra":         { valore: 150 },
+      "missione-satellite": { valore: 120 },
+      "sensore-adatto":     { valore: 120 },
+      "parole-in-orbita":   { valore: 100, obiettivo: 6 },
+      "sat-doku":           { valore: 100 },
+      "memory":             { valore: 80 },
+      "puzzle-satelliti":   { valore: 60 },
+      "prato-stellato":     { valore: 60 }
+    },
+    minutoAvanzato: 5,
+    difficolta: { facile: 1, media: 1.5, difficile: 2 }
+  },
+
+  /* --- Attestato della Sfida (formato storie di Instagram, 1080x1920) ---
+     metallo: colore di cornice, stelle e scritte per ogni difficoltà.
+     nomeSatellite: {nome} diventa il soprannome. */
+  attestato: {
+    intestazione: "Giochi SAT - ArpaLazio",
+    hashtag: "#giochiSAT #ArpaLazio",
+    nomeSatellite: "Satellite – {nome}",
+    metallo: { facile: "bronzo", media: "argento", difficile: "oro" }
   },
 
   /* --- Memory: immagine del retro delle carte (segnaposto da sostituire) */

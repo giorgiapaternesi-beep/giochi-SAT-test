@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Pannelli solari: due ali per lato. Parti colorabili: fill/stroke="currentColor". Foglio 600x600, centro del corpo in 300,300. -->
+  <rect x="196" y="293" width="208" height="14" rx="3" fill="#C9CCDF"/>
+  <rect x="196" y="301" width="208" height="6" rx="2" fill="#8F94AE"/>
+  <rect x="40" y="240" width="80" height="120" rx="4" fill="currentColor"/>
+  <rect x="40" y="240" width="80" height="120" rx="4" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="3"/>
+  <path d="M80.0 240v120M40 270.0h80M40 300.0h80M40 330.0h80" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+  <path d="M54.4 243.0L80.0 243.0L49.6 306.0L43.0 306.0L43.0 276.0Z" fill="#fff" opacity=".16"/>
+  <path d="M89.6 357.0L117.0 290.4L117.0 314.4L104.0 357.0Z" fill="#fff" opacity=".1"/>
+  <rect x="124" y="240" width="80" height="120" rx="4" fill="currentColor"/>
+  <rect x="124" y="240" width="80" height="120" rx="4" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="3"/>
+  <path d="M164.0 240v120M124 270.0h80M124 300.0h80M124 330.0h80" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+  <path d="M138.4 243.0L164.0 243.0L133.6 306.0L127.0 306.0L127.0 276.0Z" fill="#fff" opacity=".16"/>
+  <path d="M173.6 357.0L201.0 290.4L201.0 314.4L188.0 357.0Z" fill="#fff" opacity=".1"/>
+  <rect x="396" y="240" width="80" height="120" rx="4" fill="currentColor"/>
+  <rect x="396" y="240" width="80" height="120" rx="4" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="3"/>
+  <path d="M436.0 240v120M396 270.0h80M396 300.0h80M396 330.0h80" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+  <path d="M410.4 243.0L436.0 243.0L405.6 306.0L399.0 306.0L399.0 276.0Z" fill="#fff" opacity=".16"/>
+  <path d="M445.6 357.0L473.0 290.4L473.0 314.4L460.0 357.0Z" fill="#fff" opacity=".1"/>
+  <rect x="480" y="240" width="80" height="120" rx="4" fill="currentColor"/>
+  <rect x="480" y="240" width="80" height="120" rx="4" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="3"/>
+  <path d="M520.0 240v120M480 270.0h80M480 300.0h80M480 330.0h80" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+  <path d="M494.4 243.0L520.0 243.0L489.6 306.0L483.0 306.0L483.0 276.0Z" fill="#fff" opacity=".16"/>
+  <path d="M529.6 357.0L557.0 290.4L557.0 314.4L544.0 357.0Z" fill="#fff" opacity=".1"/>
+</svg>

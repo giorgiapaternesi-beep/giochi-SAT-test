@@ -251,7 +251,7 @@
     }).join("");
     mostraSolo("fine");
     if (perc >= 0.6) coriandoli();
-    GiochiSAT.fineGioco(ID, { punti: giuste });
+    GiochiSAT.fineGioco(ID, { punti: giuste, giuste: giuste, totale: partita.length });
   }
 
   function coriandoli() {

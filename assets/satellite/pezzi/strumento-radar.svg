@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Strumento: antenna radar (SAR). Parti colorabili: fill/stroke="currentColor". Foglio 600x600, centro del corpo in 300,300. -->
+  <rect x="292" y="366" width="16" height="40" fill="#C9CCDF"/>
+  <rect x="300" y="366" width="8" height="40" fill="#8F94AE"/>
+  <rect x="186" y="402" width="228" height="26" rx="5" fill="currentColor"/>
+  <rect x="186" y="415" width="228" height="13" rx="4" fill="#000" opacity=".2"/>
+  <path d="M208.8 404v22M231.6 404v22M254.4 404v22M277.2 404v22M300.0 404v22M322.8 404v22M345.6 404v22M368.4 404v22M391.2 404v22" stroke="#000" stroke-opacity=".25" stroke-width="2"/>
+  <rect x="192" y="405" width="216" height="3" rx="1.5" fill="#fff" opacity=".35"/>
+</svg>
