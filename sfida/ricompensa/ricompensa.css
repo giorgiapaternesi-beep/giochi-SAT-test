@@ -26,16 +26,40 @@
 .cs-pezzi button svg{display:block;width:100%;height:64px}
 .cs-pezzi button[aria-pressed="true"]{border-color:var(--gs-giallo);background:color-mix(in oklab,var(--gs-superficie-2) 82%,var(--gs-giallo))}
 .cs-colori{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.cs-colori button{width:38px;height:38px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer;
+.cs-colori button[data-colore]{width:38px;height:38px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer;
   box-shadow:inset 0 -6px 0 rgb(0 0 0 / .18),0 0 0 1px rgb(255 255 255 / .18)}
-.cs-colori button[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 3px var(--gs-giallo)}
-.cs-libero{position:relative;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:4px 14px 4px 4px;border-radius:999px;
-  border:2px solid var(--gs-bordo);font:600 13px var(--gs-testo-font);cursor:pointer}
-.cs-libero::before{content:"";width:30px;height:30px;border-radius:50%;background:conic-gradient(#f55,#fd4,#4d8,#4cf,#86f,#f5c,#f55)}
-.cs-libero.cs-scelto{border-color:var(--gs-giallo)}
-.cs-libero.cs-scelto::before{background:var(--c);box-shadow:0 0 0 2px #fff}
-.cs-libero input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
-.cs-libero:focus-within{outline:3px solid var(--gs-giallo);outline-offset:3px}
+.cs-colori button[data-colore][aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 3px var(--gs-giallo)}
+/* "Colore esatto": apre il selettore HSV qui sotto */
+.cs-libero{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:4px 14px 4px 4px;border-radius:999px;
+  border:2px solid var(--gs-bordo);background:transparent;color:var(--gs-testo);font:600 13px var(--gs-testo-font);cursor:pointer}
+.cs-ruota{width:30px;height:30px;border-radius:50%;background:conic-gradient(#f55,#fd4,#4d8,#4cf,#86f,#f5c,#f55)}
+.cs-libero.cs-scelto .cs-ruota{background:var(--c);box-shadow:0 0 0 2px #fff}
+.cs-libero.cs-scelto,.cs-libero[aria-expanded="true"]{border-color:var(--gs-giallo)}
+.cs-libero[aria-expanded="true"]{background:rgb(255 201 60 / .14)}
+.cs-esatto{margin-top:12px;padding:12px;border-radius:var(--gs-r-controllo);background:var(--gs-superficie-2)}
+
+/* ---------- selettore HSV (selettore-colore.js) ---------- */
+.sc{display:grid;gap:12px}
+.sc-campo{position:relative;height:160px;border-radius:12px;cursor:crosshair;touch-action:none;
+  background:linear-gradient(to top,#000,transparent),linear-gradient(to right,#fff,var(--tinta,red))}
+.sc-campo:focus-visible{outline:3px solid var(--gs-giallo);outline-offset:3px}
+.sc-pomo{position:absolute;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;border:3px solid #fff;
+  box-shadow:0 1px 5px rgb(0 0 0 / .55);pointer-events:none}
+.sc-tinta{-webkit-appearance:none;appearance:none;width:100%;height:18px;margin:0;border-radius:9px;cursor:pointer;
+  background:linear-gradient(90deg,#f00,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00)}
+.sc-tinta::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid #fff;box-shadow:0 1px 5px rgb(0 0 0 / .55)}
+.sc-tinta::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid #fff;box-shadow:0 1px 5px rgb(0 0 0 / .55)}
+.sc-tinta:focus-visible{outline:3px solid var(--gs-giallo);outline-offset:3px}
+.sc-riga{display:flex;align-items:center;gap:12px}
+.sc-anteprima{width:40px;height:40px;border-radius:10px;box-shadow:0 0 0 2px #fff;flex:none}
+.sc-codice{display:flex;align-items:center;gap:8px;font:600 13px var(--gs-testo-font);color:var(--gs-testo-2)}
+.sc-codice input{width:110px;min-height:40px;padding:6px 10px;border-radius:10px;border:2px solid var(--gs-bordo);background:var(--gs-superficie);
+  color:var(--gs-testo);font:600 15px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}
+.sc-et{margin:2px 0 -4px;font:600 13px var(--gs-testo-font);color:var(--gs-testo-2)}
+.sc-usati{display:flex;flex-wrap:wrap;gap:8px}
+.sc-usati button{width:32px;height:32px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer;box-shadow:0 0 0 1px rgb(255 255 255 / .25)}
+.sc-usati button[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 3px var(--gs-giallo)}
+.sc-vuoto{font-size:13px;color:var(--gs-testo-2)}
 
 /* ---------- attestato ---------- */
 .rc-attestato{margin:0 auto;width:min(100%,420px)}

@@ -77,6 +77,8 @@
       v = nome.pulisci(v);
       if (nome.errore(v)) return false;
       memoria.scrivi(CHIAVE_NOME, v);
+      var sf = leggiSfida();                         // cambiato durante la sfida: vale anche per l'attestato
+      if (sf && (sf.stato === "in_corso" || sf.stato === "vinta") && sf.nome !== v) { sf.nome = v; scriviSfida(sf); }
       aggiornaChipNome();
       document.dispatchEvent(new CustomEvent("giochisat:nome", { detail: { nome: v } }));
       return true;
@@ -266,6 +268,13 @@
     annota: function (campi) { var s = leggiSfida(); if (!s) return null; Object.keys(campi).forEach(function (k) { s[k] = campi[k]; }); scriviSfida(s); return s; },
     risultato: function () { return url("sfida/risultato/"); }
   };
+
+  /* Nei giochi della sfida il soprannome è quello scelto all'inizio: i giochi e la
+     chip in alto lo ritrovano anche se la pagina è stata ricaricata. */
+  (function () {
+    var s = leggiSfida();
+    if (s && s.stato === "in_corso" && s.nome && /[?&]sfida=1\b/.test(location.search) && nome.get() !== s.nome) memoria.scrivi(CHIAVE_NOME, s.nome);
+  })();
 
   /* ==================================================================
      Difficoltà dei giochi

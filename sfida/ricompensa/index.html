@@ -13,6 +13,7 @@
   <script src="../../assets/js/giochisat.js"></script>
   <script src="../../assets/satellite/catalogo.js"></script>
   <script src="satellite.js"></script>
+  <script src="selettore-colore.js"></script>
   <script src="costruttore.js"></script>
   <script src="attestato.js"></script>
 </head>
@@ -46,7 +47,7 @@
   <section class="gs-nascosto" id="passo-attestato" aria-labelledby="titolo-attestato">
     <div class="rc-intro">
       <h2 id="titolo-attestato">Il tuo attestato</h2>
-      <p>È nel formato delle storie di Instagram: scaricalo o condividilo.</p>
+      <p>Condividi con i tuoi amici i tuoi risultati!</p>
     </div>
     <figure class="rc-attestato"><img id="attestato" alt="Il tuo attestato di partecipazione"></figure>
     <div class="piede">
@@ -67,7 +68,10 @@
   /* passo 1: il costruttore (le scelte restano salvate nella sfida) */
   $("passo-satellite").classList.remove("gs-nascosto");
   S.carica().then(function () {
-    GiochiSATCostruttore.avvia($("costruttore"), scelte, function (nuove) { scelte = nuove; G.sfida.annota({ satellite: scelte }); });
+    GiochiSATCostruttore.avvia($("costruttore"), {
+      scelte: scelte, usati: s.coloriUsati,
+      alCambio: function (nuove, usati) { scelte = nuove; G.sfida.annota({ satellite: scelte, coloriUsati: usati }); }
+    });
     $("avanti").disabled = false;
   }).catch(function () {
     $("costruttore").innerHTML = '<p class="gs-errore">Non riesco a caricare i pezzi del satellite. Controlla la connessione e ricarica la pagina.</p>';

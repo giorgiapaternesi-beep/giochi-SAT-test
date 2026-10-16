@@ -46,6 +46,7 @@ giochiSAT/
 │   ├── risultato/             Com'è andata, con i punti gioco per gioco
 │   └── ricompensa/            Il tuo satellite e l'attestato:
 │                              satellite.js (pezzi e disegno) · costruttore.js (scelte)
+│                              selettore-colore.js (colore esatto, HSV)
 │                              attestato.js (immagine PNG) · ricompensa.css
 ├── esercitazione/
 │   ├── singleplayer/          Elenco dei giochi singleplayer
@@ -149,12 +150,22 @@ eliminare quando nessun QR o link li usa più.
   Difficile ×2.
 
 Dopo ogni gioco la finestra dice quanti punti si sono guadagnati; la pagina
-del risultato mostra il totale e i punti gioco per gioco.
+del risultato mostra il totale e i punti gioco per gioco. Se la sfida è
+completata, da lì si può solo andare avanti a costruire il satellite (niente
+"Nuova sfida").
+
+**Nella sfida i giochi sono solo per un giocatore**: niente inviti a sfide a
+due (Il sensore giusto), e in Memory niente campo del soprannome né
+classifica pubblica (restano in Esercitazione). Il soprannome è quello
+scelto all'inizio: i giochi lo ritrovano anche ricaricando la pagina, e se lo
+si cambia dalla barra in alto cambia anche sull'attestato.
 
 **Il tuo satellite**: chi completa la sfida sceglie, per ogni parte del
 satellite (corpo, decorazione, pannelli solari, antenna, strumento, luci),
-il pezzo e il colore (uno dei colori proposti o un colore esatto), oppure
-preme **Casuale**. Le scelte restano salvate nella sfida anche ricaricando la
+il pezzo e il colore, oppure preme **Casuale**. Il colore è uno di quelli
+proposti oppure un **colore esatto**: il pulsante apre un selettore HSV
+(quadrato per saturazione e luminosità, barra della tinta, codice) con sotto
+i colori scelti prima, per riusarli con un tocco. Le scelte restano salvate nella sfida anche ricaricando la
 pagina. I pezzi sono immagini SVG **segnaposto**, da sostituire: vedi
 `assets/satellite/LEGGIMI.md`.
 

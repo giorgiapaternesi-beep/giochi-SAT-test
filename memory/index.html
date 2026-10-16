@@ -144,7 +144,7 @@
       <h1>Memory<br>Match</h1>
       <p class="subtitle">Trova tutte le coppie prima che il tempo finisca.</p>
 
-      <div class="player-box">
+      <div class="player-box" data-gs-esercitazione>
         <label for="nickname">Soprannome</label>
         <input id="nickname" maxlength="15" autocomplete="nickname" placeholder="Es. Stella23">
         <p class="hint">Usa un nome di fantasia: comparirà nella classifica pubblica.</p>
@@ -172,12 +172,12 @@
     <div class="modal-box">
       <h3 id="result-title"></h3>
       <p id="result-text"></p>
-      <div id="save-status" class="status"></div>
-      <div class="leaderboard">
+      <div id="save-status" class="status" data-gs-esercitazione></div>
+      <div class="leaderboard" data-gs-esercitazione>
         <h4 id="leaderboard-title">Classifica — migliori tempi</h4>
         <ol id="leaderboard-list"><li>Caricamento…</li></ol>
       </div>
-      <p class="offline-note">La classifica richiede una connessione Internet.</p>
+      <p class="offline-note" data-gs-esercitazione>La classifica richiede una connessione Internet.</p>
       <div class="modal-actions">
         <button id="play-again-btn" data-gs-esercitazione class="primary">Gioca ancora</button>
         <button id="modal-home-btn" data-gs-esercitazione class="secondary">Menu</button>

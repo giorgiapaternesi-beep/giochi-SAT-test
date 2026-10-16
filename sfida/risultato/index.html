@@ -54,7 +54,7 @@
   <p class="nota gs-nascosto" id="nota"></p>
   <div class="piede">
     <a class="gs-btn gs-nascosto" id="ricompensa" href="../ricompensa/">Costruisci il tuo satellite</a>
-    <a class="gs-btn gs-secondario" href="../">Nuova sfida</a>
+    <a class="gs-btn gs-secondario" id="nuova" href="../">Nuova sfida</a>
   </div>
 </main>
 <script>
@@ -97,7 +97,11 @@
     nota.textContent = "Difficoltà " + nomeDiff.toLowerCase() + ": i punti sono moltiplicati per " + String(conto.moltiplicatore).replace(".", ",") + ".";
     nota.classList.remove("gs-nascosto");
   }
-  if (s.stato === "vinta") document.getElementById("ricompensa").classList.remove("gs-nascosto");
+  /* sfida completata: si va solo avanti, a costruire il satellite */
+  if (s.stato === "vinta") {
+    document.getElementById("ricompensa").classList.remove("gs-nascosto");
+    document.getElementById("nuova").classList.add("gs-nascosto");
+  }
 })();
 </script>
 </body>
