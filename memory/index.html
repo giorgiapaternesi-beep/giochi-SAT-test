@@ -39,13 +39,6 @@
       box-shadow: var(--shadow)}
     h1 { margin: 0 0 12px; font-size: clamp(54px, 10vw, 120px); line-height: .88; letter-spacing: -.06em}
     .subtitle { margin: 0 auto 22px; max-width: 560px; font-size: clamp(18px, 2.6vw, 28px); line-height: 1.4}
-    .player-box { max-width: 440px; margin: 0 auto 20px; text-align:left}
-    .player-box label { display:block; font-weight:800; margin-bottom:7px}
-    .player-box input {
-      width:100%; border:2px solid rgba(11,63,130,0.16); border-radius:14px;
-      padding:13px 15px; background:#1c204f; color:var(--ink); outline:none}
-    .player-box input:focus { border-color:var(--accent)}
-    .hint { font-size:13px; margin:6px 0 0; opacity:.75}
     .time-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 22px}
     .time-option, .primary, .secondary {
       border: 0; border-radius: 999px; padding: 12px 22px; cursor: pointer;
@@ -144,12 +137,6 @@
       <h1>Memory<br>Match</h1>
       <p class="subtitle">Trova tutte le coppie prima che il tempo finisca.</p>
 
-      <div class="player-box" data-gs-esercitazione>
-        <label for="nickname">Soprannome</label>
-        <input id="nickname" maxlength="15" autocomplete="nickname" placeholder="Es. Stella23">
-        <p class="hint">Usa un nome di fantasia: comparirà nella classifica pubblica.</p>
-      </div>
-
       <p class="livello-info" id="livello-info"></p>
       <button id="start-btn" class="primary">Inizia il gioco</button>
       <div id="home-status" class="status"></div>
@@ -214,7 +201,6 @@
     let matched = 0;
     let moves = 0;
     let startedAt = null;
-    let currentNickname = "";
 
     const homeScreen = document.getElementById("home-screen");
     const gameScreen = document.getElementById("game-screen");
@@ -223,14 +209,10 @@
     const modal = document.getElementById("result-modal");
     const resultTitle = document.getElementById("result-title");
     const resultText = document.getElementById("result-text");
-    const nicknameInput = document.getElementById("nickname");
     const homeStatus = document.getElementById("home-status");
     const saveStatus = document.getElementById("save-status");
     const leaderboardList = document.getElementById("leaderboard-list");
     const leaderboardTitle = document.getElementById("leaderboard-title");
-    const playerHeading = document.getElementById("player-heading");
-
-    GiochiSAT.nome.collega(nicknameInput);
 
     /* Difficoltà: coppie e secondi (vedi "livelli" in assets/config.js) */
     const LIVELLO = GiochiSAT.difficolta.parametri("memory") || { coppie: 8, secondi: 60 };
@@ -253,10 +235,6 @@
              !SUPABASE_ANON_KEY.includes("INSERISCI_");
     }
 
-    function cleanNickname(value) {
-      return value.trim().replace(/\s+/g, " ").slice(0, 24);
-    }
-
     function shuffle(array) {
       const copy = [...array];
       for (let i = copy.length - 1; i > 0; i--) {
@@ -274,19 +252,8 @@
 
     function startGame() {
       if (window.GiochiSATStats) window.GiochiSATStats.recordPlay("memory");
-      const nick = GiochiSAT.nome.pulisci(nicknameInput.value);
-      const errNick = GiochiSAT.nome.errore(nick);
-      if (errNick) {
-        homeStatus.textContent = errNick;
-        nicknameInput.focus();
-        showScreen(homeScreen);
-        return;
-      }
-
-      currentNickname = nick;
-      GiochiSAT.nome.set(nick);
       homeStatus.textContent = "";
-      playerHeading.textContent = `Memory Match — ${nick}`;
+      saveStatus.textContent = "";
 
       clearInterval(timerId);
       modal.classList.remove("active");
@@ -409,23 +376,43 @@
 
       resultTitle.textContent = won ? "Hai vinto!" : "Tempo scaduto";
       resultText.textContent = won
-        ? `${currentNickname}, hai completato il Memory in ${formatMs(elapsedMs)} con ${moves} tentativi.`
+        ? `Hai completato il Memory in ${formatMs(elapsedMs)} con ${moves} tentativi.`
         : `Hai trovato ${matched} coppie su ${LIVELLO.coppie}.`;
       modal.classList.add("active");
       GiochiSAT.fineGioco("memory", { completato: won, punti: won ? elapsedMs : null });
 
       if (won) {
-        await saveScore({
-          nickname: currentNickname,
-          elapsed_ms: elapsedMs,
-          moves: moves,
-          time_limit: selectedTime
-        });
+        daSalvare = { elapsed_ms: elapsedMs, moves: moves, time_limit: selectedTime };
+        if (GiochiSAT.nome.get()) await salvaInClassifica();     // soprannome già scelto (es. nella sfida)
+        else invitaInClassifica();
       } else {
+        daSalvare = null;
         saveStatus.textContent = "Il risultato entra in classifica solo completando tutte le coppie.";
       }
 
       await loadLeaderboard();
+    }
+
+    /* Classifica facoltativa: chi non ha ancora un soprannome lo sceglie solo ora, se vuole. */
+    let daSalvare = null;
+    async function salvaInClassifica() {
+      const nick = GiochiSAT.nome.get();
+      if (!daSalvare || !nick) return;
+      const risultato = daSalvare;
+      daSalvare = null;
+      await saveScore({ nickname: nick, ...risultato });
+    }
+    function invitaInClassifica() {
+      const pulsante = document.createElement("button");
+      pulsante.type = "button";
+      pulsante.className = "secondary";
+      pulsante.textContent = "Entra in classifica";
+      pulsante.addEventListener("click", async () => {
+        const nick = await GiochiSAT.nome.chiedi({ titolo: "Entra in classifica",
+          testo: "Scegli un soprannome di fantasia, non il tuo nome vero: comparirà nella classifica pubblica." });
+        if (nick) { await salvaInClassifica(); await loadLeaderboard(); }
+      });
+      saveStatus.replaceChildren("Vuoi comparire in classifica? ", pulsante);
     }
 
     function formatMs(ms) {

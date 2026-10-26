@@ -219,6 +219,9 @@
     var b = document.querySelector(".gs-barra");
     if (!b) return;
     var chip = b.querySelector(".gs-nome");
+    /* Nei giochi singleplayer fuori dalla sfida il soprannome non serve: niente chip */
+    var g = gioco(document.body.getAttribute("data-gioco"));
+    if (chip && g && g.tipo === "single" && !sfida.attiva()) { chip.remove(); chip = null; }
     if (chip) { aggiornaChipNome(); chip.addEventListener("click", function () { nome.chiedi(); }); }
     var misura = function () { document.documentElement.style.setProperty("--gs-alto-barra", b.offsetHeight + "px"); };
     misura();

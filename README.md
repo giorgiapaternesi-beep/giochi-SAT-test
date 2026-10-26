@@ -18,9 +18,11 @@ Servizio Attività Produttive e Controlli di ARPA Lazio.
     (tra questi il **Quizzone** da giocare da soli, che ha preso il posto di
     Osserva la Terra).
   - **Esercitati → Multiplayer**: Quizzone Live, Duello orbitale, Sfida del sensore.
-- **Soprannome**: nessuna registrazione. Il soprannome si sceglie una volta
-  (in alto a destra, nella sfida o nei giochi che lo chiedono) e resta valido
-  passando da un gioco all'altro. **Ricaricando la pagina viene dimenticato**:
+- **Soprannome**: nessuna registrazione. Si chiede solo quando serve: all'inizio
+  della sfida, nei giochi multiplayer e a fine Memory a chi vuole entrare in
+  classifica. **I giochi singleplayer in Esercitazione non lo chiedono mai prima
+  di giocare** (e non mostrano il pulsante del soprannome). Una volta scelto
+  resta valido passando da un gioco all'altro. **Ricaricando la pagina viene dimenticato**:
   utile sui monitor degli eventi, dove giocano persone diverse.
   Sono accettati solo lettere, numeri, spazi, punto, trattino e underscore
   (niente email o numeri di telefono).
@@ -155,8 +157,8 @@ completata, da lì si può solo andare avanti a costruire il satellite (niente
 "Nuova sfida").
 
 **Nella sfida i giochi sono solo per un giocatore**: niente inviti a sfide a
-due (Il sensore giusto), e in Memory niente campo del soprannome né
-classifica pubblica (restano in Esercitazione). Il soprannome è quello
+due (Il sensore giusto), e in Memory niente classifica pubblica (resta in
+Esercitazione). Il soprannome è quello
 scelto all'inizio: i giochi lo ritrovano anche ricaricando la pagina, e se lo
 si cambia dalla barra in alto cambia anche sull'attestato.
 
