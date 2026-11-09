@@ -1,5 +1,17 @@
 # Giochi SAT – ARPA Lazio
 
+> **Questo è il ramo `offline`**: la versione del sito da scaricare e aprire
+> con un doppio clic, senza server e senza Internet. Il sito online è il ramo
+> `main`, che resta pulito: qui ci sono solo in più le poche aggiunte descritte
+> in [Giocare con la copia scaricata](#giocare-con-la-copia-scaricata-senza-server).
+>
+> **Scaricarla**: su GitHub scegli il ramo `offline` → **Code → Download ZIP**
+> (oppure l'indirizzo `…/archive/refs/heads/offline.zip`).
+>
+> **Aggiornarla con le novità del sito**: su GitHub apri una *Pull request*
+> con base `offline` e confronto `main`, poi *Merge*. Dopo l'unione l'azione
+> **Copia scaricabile** rigenera da sola `assets/offline/`.
+
 Giochi educativi sull'osservazione satellitare della Terra, realizzati dal
 Servizio Attività Produttive e Controlli di ARPA Lazio.
 
@@ -327,10 +339,10 @@ GiochiSAT.nome.chiedi()           // finestra per sceglierlo
 
 ## Giocare con la copia scaricata (senza server)
 
-Il sito funziona anche scaricato sul computer, per esempio per un evento
+Questo ramo funziona anche scaricato sul computer, per esempio per un evento
 senza Internet:
 
-1. su GitHub: **Code → Download ZIP**, poi estrai lo ZIP dove vuoi;
+1. su GitHub, ramo `offline`: **Code → Download ZIP**, poi estrai lo ZIP dove vuoi;
 2. apri `index.html` con un doppio clic (provato con Chrome; vale lo stesso
    per Edge, che usa lo stesso motore).
 
@@ -347,8 +359,9 @@ blocca i caratteri. Per questo:
 - i file che il codice legge (domande, pezzi del satellite, logo
   dell'attestato) e i caratteri sono copiati in `assets/offline/` da
   `strumenti/offline.py`. Su GitHub lo lancia da sola l'azione
-  **Copia scaricabile** ogni volta che cambiano domande, pezzi, caratteri o
-  logo: non serve fare niente.
+  **Copia scaricabile** ogni volta che in questo ramo cambiano domande,
+  pezzi, caratteri o logo (anche quando ci si unisce `main`): non serve
+  fare niente.
 
 Nel codice, per leggere un file del sito si usa sempre
 `GiochiSAT.leggiFile("assets/...")` (non `fetch`), e per un'immagine da

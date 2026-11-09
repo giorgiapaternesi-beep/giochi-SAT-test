@@ -1,10 +1,11 @@
-# Tiene aggiornata assets/offline/, che serve alla copia scaricata del sito
-# (aperta con doppio clic, senza server). Vedi strumenti/offline.py.
+# Ramo "offline": tiene aggiornata assets/offline/, che serve alla copia
+# scaricata del sito (aperta con doppio clic, senza server).
+# Vedi strumenti/offline.py. Il sito online (ramo main) non ne ha bisogno.
 name: Copia scaricabile
 
 on:
   push:
-    branches: [main]
+    branches: [offline]
     paths:
       - "assets/quiz/**"
       - "assets/satellite/pezzi/**"
