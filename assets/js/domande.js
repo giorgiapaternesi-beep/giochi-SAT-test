@@ -106,11 +106,12 @@
   }
 
   /* ---------- Caricamento del file ------------------------------------
-     Online il browser chiede sempre al sito se il file è cambiato: dopo una
-     modifica su GitHub le domande nuove arrivano subito. Nella copia
-     scaricata arrivano da assets/offline/ (vedi GiochiSAT.leggiFile).  */
+     no-cache: dopo una modifica su GitHub le domande nuove arrivano subito
+     (il browser chiede comunque al sito se il file è cambiato).        */
   function carica() {
-    return GiochiSAT.leggiFile(FILE).then(leggi);
+    return fetch(GiochiSAT.url(FILE), { cache: "no-cache" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+      .then(leggi);
   }
 
   window.GiochiSATDomande = {

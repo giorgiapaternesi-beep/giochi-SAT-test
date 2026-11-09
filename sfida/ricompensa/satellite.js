@@ -24,7 +24,10 @@
 
   /* legge un'immagine e ne tiene solo il contenuto, da mettere in un <g> */
   function leggi(file) {
-    return GiochiSAT.leggiFile(C.cartella + file).then(function (testo) {
+    return fetch(GiochiSAT.url(C.cartella + file)).then(function (r) {
+      if (!r.ok) throw new Error("Pezzo mancante: " + file);
+      return r.text();
+    }).then(function (testo) {
       var doc = new DOMParser().parseFromString(testo, "image/svg+xml"), radice = doc.documentElement;
       if (radice.nodeName !== "svg") throw new Error("Pezzo non valido: " + file);
       var s = new XMLSerializer(), contenuto = "";

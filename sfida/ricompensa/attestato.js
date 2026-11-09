@@ -114,7 +114,7 @@
     var c = tela.getContext("2d");
     var sat = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(o.satellite);
 
-    return Promise.all([caratteriPronti(), GiochiSAT.indirizzoFile("assets/logo-arpa-lazio.jpg").then(immagine).catch(function () { return null; }), immagine(sat)])
+    return Promise.all([caratteriPronti(), immagine(GiochiSAT.url("assets/logo-arpa-lazio.jpg")).catch(function () { return null; }), immagine(sat)])
       .then(function (r) {
         var logo = r[1], disegno = r[2];
         cielo(c, casuale(o.nome));

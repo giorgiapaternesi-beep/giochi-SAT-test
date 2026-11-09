@@ -143,8 +143,7 @@
     function nuovoFotogramma() {
       if (!attivo || video.readyState < 2 || !video.videoHeight) return;
       gl.bindTexture(gl.TEXTURE_2D, tex);
-      try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video); }
-      catch (e) { rinuncia(); return; }                       // video non utilizzabile (es. da un'altra origine)
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
       if (!visibile) {
         gl.uniform1f(u.bordo, 0.5 / video.videoHeight);
         visibile = true;
@@ -213,10 +212,8 @@
     var scelta = scegliSorgente(imp.sorgenti, ferma.getBoundingClientRect().width * densita());
     ferma.src = scelta.immagine;
 
-    /* 2. video, se il movimento non è ridotto. Nella copia scaricata (file://)
-          il browser non lascia usare il video in WebGL: resta l'immagine ferma */
-    var G = window.GiochiSAT || {};
-    if (!G.movimentoRidotto && !G.locale) avviaVideo(contenitore, scelta.video);
+    /* 2. video, se il movimento non è ridotto */
+    if (!(window.GiochiSAT && GiochiSAT.movimentoRidotto)) avviaVideo(contenitore, scelta.video);
     return true;
   }
 
