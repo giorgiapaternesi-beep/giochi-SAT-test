@@ -61,7 +61,7 @@
 (function () {
   var G = GiochiSAT, s = G.sfida.stato();
   if (!s) return;
-  if (s.stato === "in_corso") { location.replace("../"); return; }
+  if (s.stato === "in_corso") { location.replace(GiochiSAT.url("sfida/")); return; }
   var titoli = { vinta: "Sfida completata!", finita: "Sfida finita", scaduta: "Tempo scaduto", abbandonata: "Sfida abbandonata" };
   var testi = {
     vinta: "Bravissimo" + (s.nome ? ", " + s.nome : "") + "! Hai completato tutti i giochi in tempo: ora costruisci il tuo satellite e ritira l'attestato.",

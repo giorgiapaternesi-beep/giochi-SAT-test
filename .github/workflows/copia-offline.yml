@@ -1,0 +1,36 @@
+# Tiene aggiornata assets/offline/, che serve alla copia scaricata del sito
+# (aperta con doppio clic, senza server). Vedi strumenti/offline.py.
+name: Copia scaricabile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "assets/quiz/**"
+      - "assets/satellite/pezzi/**"
+      - "assets/fonts/**"
+      - "assets/css/giochisat.css"
+      - "assets/logo-arpa-lazio.jpg"
+      - "strumenti/offline.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepara assets/offline
+        run: python3 strumenti/offline.py
+      - name: Salva se è cambiata
+        run: |
+          if [ -z "$(git status --porcelain -- assets/offline)" ]; then
+            echo "assets/offline è già aggiornata"; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add assets/offline
+          git commit -m "Copia scaricabile: aggiorna assets/offline"
+          git push

@@ -78,8 +78,11 @@ giochiSAT/
 │   ├── puzzle/                Immagini extra del Puzzle della Terra
 │   ├── satellite/             ★ Pezzi del satellite da costruire (catalogo.js + pezzi/*.svg)
 │   ├── game-stats.js          Conteggio anonimo delle partite
+│   ├── offline/               File per la copia scaricata (generati: non modificarli a mano)
 │   └── parole-italiane-giochisat.js   Vocabolario di "Parole in orbita"
 ├── immagini/                  Carte del Memory
+├── strumenti/offline.py       Prepara assets/offline/ (lo lancia GitHub da solo)
+├── .github/workflows/         Azione "Copia scaricabile" che tiene aggiornata assets/offline/
 └── docs/                      Istruzioni storiche degli aggiornamenti
 ```
 
@@ -321,6 +324,39 @@ GiochiSAT.nome.chiedi()           // finestra per sceglierlo
 - Pagine di regia e statistiche escluse dai motori di ricerca (`noindex`).
 - Animazioni disattivate per chi ha impostato "riduci movimento" sul dispositivo.
 - Il monitor del Quizzone carica il logo come file (la pagina è passata da 180 KB a 28 KB).
+
+## Giocare con la copia scaricata (senza server)
+
+Il sito funziona anche scaricato sul computer, per esempio per un evento
+senza Internet:
+
+1. su GitHub: **Code → Download ZIP**, poi estrai lo ZIP dove vuoi;
+2. apri `index.html` con un doppio clic (provato con Chrome; vale lo stesso
+   per Edge, che usa lo stesso motore).
+
+Tutti i percorsi partono dalla cartella in cui si trova il sito, quindi la
+cartella si può spostare o rinominare. Funzionano i giochi singleplayer, la
+sfida, il satellite e l'attestato. Non funzionano senza Internet i giochi
+multiplayer, la classifica del Memory e le statistiche (usano il database).
+Nella home, al posto del video, c'è l'immagine ferma della Terra.
+
+Come funziona: aperto con doppio clic il browser non apre da solo
+l'`index.html` delle cartelle, non lascia leggere i file con `fetch` e
+blocca i caratteri. Per questo:
+- `giochisat.js` aggiunge `index.html` ai link verso una cartella;
+- i file che il codice legge (domande, pezzi del satellite, logo
+  dell'attestato) e i caratteri sono copiati in `assets/offline/` da
+  `strumenti/offline.py`. Su GitHub lo lancia da sola l'azione
+  **Copia scaricabile** ogni volta che cambiano domande, pezzi, caratteri o
+  logo: non serve fare niente.
+
+Nel codice, per leggere un file del sito si usa sempre
+`GiochiSAT.leggiFile("assets/...")` (non `fetch`), e per un'immagine da
+disegnare su un canvas `GiochiSAT.indirizzoFile(...)`. Se un gioco nuovo
+legge altri file, vanno aggiunti agli elenchi in cima a `strumenti/offline.py`.
+
+Nota: Firefox, con i file aperti dal disco, è più restrittivo di Chrome e la
+sfida potrebbe non ricordarsi i progressi tra un gioco e l'altro.
 
 ## Come aggiornare
 

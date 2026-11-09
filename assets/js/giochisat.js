@@ -13,6 +13,11 @@
      .dialogo({...})   finestra di dialogo comune
      .giochi()  catalogo dei giochi preso da config.js
      .url(p)    indirizzo assoluto partendo dalla radice del sito
+     .leggiFile(p)      Promise col testo di un file del sito (es. le domande)
+     .indirizzoFile(p)  Promise con un indirizzo usabile anche su un canvas
+
+   Funziona anche con la copia scaricata, aperta con doppio clic (file://):
+   vedi "Copia scaricata" più sotto.
 
    Convenzione per i giochi: i pulsanti che servono solo in Esercitazione
    (Gioca ancora, Ricomincia, Menu…) hanno l'attributo data-gs-esercitazione
@@ -44,7 +49,70 @@
     } catch (e) { return false; }
   }
 
-  function url(percorso) { return new URL(percorso || "", RADICE).href; }
+  /* ------------------------------------------------------------------
+     Copia scaricata, aperta con doppio clic (indirizzi file://).
+     Il browser in questo caso non apre da solo l'index.html delle cartelle
+     e non lascia leggere i file del sito con fetch, né usarli su un canvas.
+     Quindi: ai link verso una cartella si aggiunge "index.html", e i file da
+     leggere (domande, pezzi del satellite, logo, caratteri) arrivano da
+     assets/offline/, che strumenti/offline.py prepara in automatico.
+     Online non cambia nulla.
+     ------------------------------------------------------------------ */
+  var LOCALE = location.protocol === "file:";
+
+  function conIndice(indirizzo) {
+    if (!LOCALE) return indirizzo;
+    var u = new URL(indirizzo, location.href);
+    if (u.protocol === "file:" && /\/$/.test(u.pathname)) u.pathname += "index.html";
+    return u.href;
+  }
+  function senzaIndice(indirizzo) { return indirizzo.split(/[?#]/)[0].replace(/index\.html$/, ""); }
+
+  function url(percorso) { return conIndice(new URL(percorso || "", RADICE).href); }
+
+  if (LOCALE) {
+    /* i link scritti nelle pagine: si corregge l'indirizzo un attimo prima di seguirlo */
+    var correggiLink = function (e) {
+      var a = e.target.closest && e.target.closest("a[href]");
+      if (a) a.href = conIndice(a.href);
+    };
+    document.addEventListener("click", correggiLink, true);
+    document.addEventListener("auxclick", correggiLink, true);
+    /* caratteri incorporati: quelli normali da file:// verrebbero bloccati */
+    var caratteri = document.createElement("link");
+    caratteri.rel = "stylesheet"; caratteri.href = url("assets/offline/font.css");
+    document.head.appendChild(caratteri);
+  }
+
+  var fileOffline = null;
+  function caricaFileOffline() {
+    if (!fileOffline) fileOffline = new Promise(function (ok, ko) {
+      var s = document.createElement("script");
+      s.src = url("assets/offline/file.js");
+      s.onload = function () { ok(window.GIOCHISAT_FILE || {}); };
+      s.onerror = function () { ko(new Error("Manca assets/offline/file.js nella copia scaricata")); };
+      document.head.appendChild(s);
+    });
+    return fileOffline;
+  }
+  function daOffline(percorso) {
+    return caricaFileOffline().then(function (f) {
+      if (!(percorso in f)) throw new Error("File non incluso nella copia scaricata: " + percorso);
+      return f[percorso];
+    });
+  }
+  /* testo di un file del sito; online si chiede sempre se è cambiato */
+  function leggiFile(percorso) {
+    if (LOCALE) return daOffline(percorso);
+    return fetch(url(percorso), { cache: "no-cache" }).then(function (r) {
+      if (!r.ok) throw new Error("File non trovato: " + percorso + " (HTTP " + r.status + ")");
+      return r.text();
+    });
+  }
+  /* indirizzo di un'immagine da disegnare su un canvas (scaricata: dati incorporati) */
+  function indirizzoFile(percorso) {
+    return LOCALE ? daOffline(percorso) : Promise.resolve(url(percorso));
+  }
   function giochi() { return (CFG.giochi || []).slice(); }
   function gioco(id) { return giochi().filter(function (g) { return g.id === id; })[0] || null; }
   function testo(t) { var d = document.createElement("div"); d.textContent = t == null ? "" : String(t); return d.innerHTML; }
@@ -346,8 +414,8 @@
   /* Pagina di un gioco aperta senza difficoltà e fuori dalla sfida? Allora
      si ferma il caricamento (il gioco non parte) e si torna all'elenco. */
   function richiediDifficolta() {
-    var pagina = location.href.split(/[?#]/)[0].replace(/index\.html$/, "");
-    var g = giochi().filter(function (x) { return url(x.percorso) === pagina; })[0];
+    var pagina = senzaIndice(location.href);
+    var g = giochi().filter(function (x) { return senzaIndice(url(x.percorso)) === pagina; })[0];
     if (!g || !livelliDi(g.id) || livelloNellIndirizzo()) return false;
     var s = leggiSfida();
     if (s && s.stato === "in_corso" && s.giochi[s.indice] === g.id && /[?&]sfida=1\b/.test(location.search)) return false;
@@ -590,7 +658,7 @@
 
   window.GiochiSAT = {
     nome: nome, sfida: sfida, fineGioco: fineGioco, dialogo: dialogo,
-    giochi: giochi, gioco: gioco, url: url, mmss: mmss, testo: testo, movimentoRidotto: movimentoRidotto,
+    giochi: giochi, gioco: gioco, url: url, leggiFile: leggiFile, indirizzoFile: indirizzoFile, locale: LOCALE, mmss: mmss, testo: testo, movimentoRidotto: movimentoRidotto,
     icona: icona, elencoGiochi: elencoGiochi, difficolta: difficolta, contoAllaRovescia: contoAllaRovescia,
     stella: STELLA, punti: punti
   };
